@@ -32,7 +32,7 @@ function renderContent(text: string) {
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={i} className="font-semibold text-purple-300">
+        <strong key={i} className="font-semibold text-[#d0bcff]">
           {part.slice(2, -2)}
         </strong>
       );
@@ -80,9 +80,10 @@ export default function ChatBubble({ message, character, isLast, suggestions = [
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? 'bg-purple-600 text-white rounded-br-md'
-              : 'bg-[#1e1e2a] text-gray-200 rounded-bl-md'
+              ? 'rounded-br-md text-[#3c0091]'
+              : 'rounded-bl-md text-[#e4e1e9]'
           }`}
+          style={isUser ? { background: 'linear-gradient(135deg, #d0bcff 0%, #a078ff 100%)' } : { backgroundColor: '#1f1f25' }}
         >
           {renderContent(content)}
         </div>
@@ -111,7 +112,7 @@ export default function ChatBubble({ message, character, isLast, suggestions = [
         {isLast && suggestionsLoading && !isUser && (
           <div className="flex gap-2 mt-2 ml-1">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 w-28 rounded-full bg-[#1e1e2a] animate-pulse" />
+              <div key={i} className="h-8 w-28 rounded-full animate-pulse" style={{ backgroundColor: '#1f1f25' }} />
             ))}
           </div>
         )}
@@ -123,7 +124,10 @@ export default function ChatBubble({ message, character, isLast, suggestions = [
               <button
                 key={i}
                 onClick={() => onSuggestionClick(q)}
-                className="text-xs px-3 py-2 rounded-full border border-[#2a2a3a] bg-[#13131a] text-gray-300 hover:bg-[#1e1e2a] hover:border-purple-500/30 transition-colors text-left"
+                className="text-xs px-3 py-2 rounded-full text-[#cbc3d7] transition-colors text-left hover:text-[#d0bcff]"
+                style={{ border: '1px solid rgba(73,68,84,0.3)', backgroundColor: '#1f1f25' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(208,188,255,0.3)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(73,68,84,0.3)'; }}
               >
                 {q}
               </button>

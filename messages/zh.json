@@ -191,5 +191,36 @@
       "copy": "复制",
       "copied": "已复制！"
     }
+  },
+  "Auth": {
+    "loginTitle": "登录",
+    "loginDescription": "使用Google账号登录。",
+    "googleLogin": "用Google继续",
+    "softAgreement": "登录即表示您同意我们的<terms>服务条款</terms>和<privacy>隐私政策</privacy>。",
+    "signInWithKakao": "用Kakao登录",
+    "signUpWithKakao": "用Kakao注册",
+    "email": {
+      "signInTitle": "用邮箱登录",
+      "signUpTitle": "用邮箱注册",
+      "label": "邮箱",
+      "passwordLabel": "密码",
+      "passwordConfirmLabel": "确认密码"
+    },
+    "signInButton": "登录",
+    "signUpButton": "注册",
+    "toggleToSignUp": "切换到注册",
+    "toggleToSignIn": "切换到登录",
+    "forgotPassword": "忘记密码？",
+    "errors": {
+      "invalidEmail": "请输入有效的邮箱地址。",
+      "passwordTooShort": "密码需包含字母和数字，至少8个字符。",
+      "passwordMismatch": "两次密码不一致。",
+      "signInFailed": "邮箱或密码不正确。",
+      "signUpFailed": "注册失败，请重试。",
+      "emailAlreadyExists": "该邮箱已被使用。"
+    },
+    "success": {
+      "signUpEmailSent": "确认邮件已发送，请查看您的邮箱。"
+    }
   }
 }

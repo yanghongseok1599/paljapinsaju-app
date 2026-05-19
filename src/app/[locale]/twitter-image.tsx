@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const runtime = "nodejs";
-export const alt = "닥터사주 — AI 사주 상담사와 대화하세요";
+export const alt = "팔자핀사주 — AI 사주 상담사와 대화하세요";
 export const size = { width: 1200, height: 600 };
 export const contentType = "image/png";
 
@@ -109,7 +109,7 @@ export default async function Image() {
                 lineHeight: 1.2,
               }}
             >
-              닥터사주
+              팔자핀사주
             </span>
             <span
               style={{

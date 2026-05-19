@@ -39,7 +39,7 @@ export default function KakaoShareButton({
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
-        title: "닥터사주에서 나의 2026년 운세를 확인했어요!",
+        title: "팔자핀사주에서 나의 2026년 운세를 확인했어요!",
         description: `${name}님의 사주분석 결과를 확인해보세요.`,
         imageUrl: `${window.location.origin}/reading/${readingId}/share/opengraph-image`,
         link: {

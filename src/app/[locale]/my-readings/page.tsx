@@ -9,8 +9,8 @@ const STATUS_BADGE: Record<
   ReadingStatus,
   { label: string; bg: string; text: string }
 > = {
-  pending: { label: "대기", bg: "bg-gray-100", text: "text-[#8B95A1]" },
-  preview: { label: "미리보기", bg: "bg-gray-100", text: "text-[#8B95A1]" },
+  pending: { label: "대기", bg: "bg-[#1f1f25]", text: "text-[#958ea0]" },
+  preview: { label: "미리보기", bg: "bg-[#1f1f25]", text: "text-[#958ea0]" },
   paid: { label: "결제완료", bg: "bg-[#E8F3FF]", text: "text-[#3182F6]" },
   generating: {
     label: "분석중",
@@ -52,18 +52,18 @@ export default async function MyReadingsPage() {
   const { data: readings } = await getUserReadings(user.id);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#131318', color: '#e4e1e9' }}>
       <SajuNavbar />
 
-      <main className="max-w-3xl mx-auto px-5 py-8">
-        <h1 className="text-2xl font-bold text-[#191F28] mb-6">
+      <main className="max-w-3xl mx-auto px-5 py-8 pt-24">
+        <h1 className="text-2xl font-bold text-[#e4e1e9] mb-6" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
           내 분석 내역
         </h1>
 
         {readings.length === 0 ? (
           /* 빈 상태 */
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-[#F9FAFB] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(208,188,255,0.1)' }}>
               <svg
                 width="28"
                 height="28"
@@ -81,10 +81,10 @@ export default async function MyReadingsPage() {
                 <polyline points="10 9 9 9 8 9" />
               </svg>
             </div>
-            <p className="text-[#191F28] font-semibold mb-1">
+            <p className="font-semibold mb-1 text-[#e4e1e9]">
               아직 분석한 사주가 없어요
             </p>
-            <p className="text-sm text-[#8B95A1] mb-6">
+            <p className="text-sm mb-6 text-[#958ea0]">
               지금 바로 사주 분석을 시작해보세요
             </p>
             <Link
@@ -103,12 +103,12 @@ export default async function MyReadingsPage() {
                 <Link
                   key={reading.id}
                   href={`/reading/${reading.id}`}
-                  className="block bg-white border border-gray-100 rounded-2xl p-5 hover:border-gray-200 hover:shadow-sm transition-all"
+                  className="block glass-panel rounded-2xl p-5 hover:border-[rgba(208,188,255,0.2)] transition-all" style={{ borderColor: 'rgba(73,68,84,0.2)' }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-semibold text-[#191F28] truncate">
+                        <h3 className="text-base font-semibold truncate text-[#e4e1e9]">
                           {reading.name}
                         </h3>
                         <span
@@ -117,7 +117,7 @@ export default async function MyReadingsPage() {
                           {badge.label}
                         </span>
                       </div>
-                      <p className="text-sm text-[#8B95A1]">
+                      <p className="text-sm text-[#958ea0]">
                         {formatBirthDate(
                           reading.birth_year,
                           reading.birth_month,
@@ -126,7 +126,7 @@ export default async function MyReadingsPage() {
                         {reading.is_lunar ? " (음력)" : " (양력)"}
                       </p>
                     </div>
-                    <span className="text-xs text-[#8B95A1] ml-3 flex-shrink-0">
+                    <span className="text-xs ml-3 flex-shrink-0 text-[#958ea0]">
                       {formatDate(reading.created_at)}
                     </span>
                   </div>

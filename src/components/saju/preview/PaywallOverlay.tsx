@@ -13,25 +13,27 @@ export default function PaywallOverlay({ onPayClick }: PaywallOverlayProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="sticky bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white/95 to-white/0 pt-16 pb-8 px-5 -mt-24"
+      className="sticky bottom-0 left-0 right-0 pt-16 pb-8 px-5 -mt-24"
+      style={{ background: 'linear-gradient(to top, #131318 60%, rgba(19,19,24,0.95) 80%, transparent 100%)' }}
     >
       <div className="max-w-md mx-auto flex flex-col items-center">
-        <div className="w-12 h-12 rounded-full bg-[#F2F4F6] flex items-center justify-center mb-4">
-          <Lock className="w-5 h-5 text-[#8B95A1]" />
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(208,188,255,0.15)' }}>
+          <Lock className="w-5 h-5 text-[#d0bcff]" />
         </div>
-        <h3 className="text-lg font-bold text-[#191F28] mb-1">
+        <h3 className="text-lg font-bold mb-1 text-[#e4e1e9]">
           전체 분석 결과 보기
         </h3>
-        <p className="text-[#8B95A1] text-sm mb-5">
+        <p className="text-sm mb-5 text-[#958ea0]">
           철학관 평균 30,000~50,000원
         </p>
         <button
           onClick={onPayClick}
-          className="w-full bg-[#3182F6] hover:bg-[#1B64DA] active:scale-[0.98] text-white font-semibold text-base py-4 rounded-xl transition-all"
+          className="w-full oracle-gradient active:scale-[0.98] font-semibold text-base py-4 rounded-xl transition-opacity hover:opacity-90"
+          style={{ color: '#3c0091' }}
         >
           19,900원에 전체 분석 보기
         </button>
-        <p className="text-xs text-[#8B95A1] mt-3">
+        <p className="text-xs mt-3 text-[#958ea0]">
           결제 즉시 전체 분석 PDF를 받아보세요
         </p>
       </div>

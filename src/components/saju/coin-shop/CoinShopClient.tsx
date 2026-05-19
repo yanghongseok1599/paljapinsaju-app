@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { openCheckout } from '@/lib/paddle/client';
-import type { ProductType } from '@/lib/paddle/config';
+import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import { TOSS_CONFIG, STAR_PACKS as TOSS_STAR_PACKS, type StarPack } from '@/lib/toss/config';
 
 interface CoinShopClientProps {
   totalCoins: number;
@@ -12,20 +12,24 @@ interface CoinShopClientProps {
 }
 
 const STAR_PACKS: {
-  type: ProductType;
+  pack: StarPack;
   stars: number;
   price: number;
   badge?: string;
-  description?: string;
-}[] = [
-  { type: 'stars30', stars: 30, price: 9900 },
-  { type: 'stars70', stars: 70, price: 19900, badge: '인기' },
-  { type: 'starsPremium', stars: 250, price: 39900, badge: '최고 가성비' },
-];
+}[] = TOSS_STAR_PACKS.map((p) => ({
+  pack: p,
+  stars: p.stars,
+  price: p.priceKrw,
+  badge: p.badge,
+}));
+
+function generateOrderId(packId: string): string {
+  return `${packId}__${crypto.randomUUID()}`;
+}
 
 export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinShopClientProps) {
   const searchParams = useSearchParams();
-  const [selected, setSelected] = useState<ProductType>('stars70');
+  const [selected, setSelected] = useState<string>(TOSS_STAR_PACKS[1].id); // 중간 팩(인기) 기본 선택
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -33,33 +37,51 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
   useEffect(() => {
     if (searchParams.get('paid') === 'true') {
       setShowSuccess(true);
-      // URL에서 paid 파라미터 제거
       window.history.replaceState({}, '', window.location.pathname);
-      // 5초 후 자동 닫기
       const timer = setTimeout(() => setShowSuccess(false), 5000);
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
   const handlePurchase = async () => {
+    const selectedPack = TOSS_STAR_PACKS.find((p) => p.id === selected);
+    if (!selectedPack) return;
+
+    if (!TOSS_CONFIG.clientKey) {
+      setError('결제 시스템이 초기화되지 않았습니다.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      await openCheckout({
-        productType: selected,
-        userId,
-        userEmail,
-        successUrl: `${window.location.origin}/ko/coin-shop?paid=true`,
+      const tossPayments = await loadTossPayments(TOSS_CONFIG.clientKey);
+      const widget = tossPayments.widgets({ customerKey: userId });
+      const orderId = generateOrderId(selectedPack.id);
+
+      // 위젯 API: setAmount → requestPayment (successUrl은 WithRedirection 오버로드로 전달)
+      await widget.setAmount({ currency: 'KRW', value: selectedPack.priceKrw });
+
+      await widget.requestPayment({
+        orderId,
+        orderName: selectedPack.name,
+        successUrl: `${window.location.origin}/api/payments/toss/confirm`,
+        failUrl: `${window.location.origin}/ko/coin-shop?error=payment_cancelled`,
+        customerEmail: userEmail,
+        customerName: userEmail?.split('@')[0] ?? '고객',
       });
-    } catch {
-      setError('결제 시스템을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      if (!msg.includes('PAY_PROCESS_CANCELED')) {
+        setError('결제 시스템을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-48px)] bg-[#0a0a0f] flex flex-col items-center px-4 py-10">
+    <div className="min-h-[calc(100vh-64px)] flex flex-col items-center px-4 py-10" style={{ backgroundColor: '#131318' }}>
       {/* 결제 완료 알림 */}
       {showSuccess && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -80,45 +102,46 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
 
       {/* 현재 보유 코인 */}
       <div className="text-center mb-10">
-        <p className="text-sm text-gray-400 mb-2">현재 보유 별</p>
+        <p className="text-sm mb-2" style={{ color: '#958ea0' }}>현재 보유 별</p>
         <div className="flex items-center justify-center gap-2">
-          <span className="text-yellow-400 text-3xl">&#9733;</span>
-          <span className="text-4xl font-bold text-white">{totalCoins}</span>
+          <span className="text-3xl" style={{ color: '#ffb95f' }}>&#9733;</span>
+          <span className="text-4xl font-bold" style={{ color: '#e4e1e9' }}>{totalCoins}</span>
         </div>
       </div>
 
       {/* 충전 패키지 */}
       <div className="w-full max-w-md space-y-3 mb-8">
-        <h2 className="text-lg font-bold text-white mb-4">별 충전</h2>
-        {STAR_PACKS.map((pack) => (
+        <h2 className="text-lg font-bold mb-4" style={{ color: '#e4e1e9', fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>별 충전</h2>
+        {STAR_PACKS.map((item) => (
           <button
-            key={pack.type}
-            onClick={() => setSelected(pack.type)}
-            className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border text-sm transition-all ${
-              selected === pack.type
-                ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/10'
-                : 'border-[#2a2a3a] bg-[#13131a] hover:border-[#3a3a4a]'
-            }`}
+            key={item.pack.id}
+            onClick={() => setSelected(item.pack.id)}
+            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl border text-sm transition-all"
+            style={selected === item.pack.id ? {
+              borderColor: 'rgba(208,188,255,0.5)',
+              backgroundColor: 'rgba(208,188,255,0.08)',
+              boxShadow: '0 0 20px rgba(208,188,255,0.1)',
+            } : {
+              borderColor: 'rgba(73,68,84,0.3)',
+              backgroundColor: '#1f1f25',
+            }}
           >
             <div className="flex items-center gap-3">
-              <span className="text-yellow-400 text-xl">&#9733;</span>
+              <span className="text-xl" style={{ color: '#ffb95f' }}>&#9733;</span>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-200 text-base">{pack.stars}개</span>
-                  {pack.badge && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-medium">
-                      {pack.badge}
+                  <span className="font-semibold text-base" style={{ color: '#e4e1e9' }}>{item.stars}개</span>
+                  {item.badge && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(208,188,255,0.15)', color: '#d0bcff' }}>
+                      {item.badge}
                     </span>
                   )}
                 </div>
-                {pack.description && (
-                  <span className="text-[11px] text-purple-400">{pack.description}</span>
-                )}
               </div>
             </div>
             <div className="text-right">
-              <span className="font-bold text-gray-200 text-base">
-                {pack.price.toLocaleString()}원
+              <span className="font-bold text-base" style={{ color: '#e4e1e9' }}>
+                {item.price.toLocaleString()}원
               </span>
             </div>
           </button>
@@ -135,8 +158,8 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
         <button
           onClick={handlePurchase}
           disabled={loading}
-          className="w-full py-4 rounded-2xl bg-purple-600 text-white text-base font-semibold
-            hover:bg-purple-500 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 rounded-2xl text-base font-semibold oracle-gradient transition-opacity active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+          style={{ color: '#3c0091' }}
         >
           {loading ? '처리 중...' : '충전하기'}
         </button>

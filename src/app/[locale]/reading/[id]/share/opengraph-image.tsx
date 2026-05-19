@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "닥터사주 - AI 사주분석";
+export const alt = "팔자핀사주 - AI 사주분석";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -79,7 +79,7 @@ export default async function Image({
               letterSpacing: "1px",
             }}
           >
-            닥터사주
+            팔자핀사주
           </span>
         </div>
 

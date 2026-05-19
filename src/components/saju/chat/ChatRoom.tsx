@@ -159,9 +159,10 @@ export default function ChatRoom({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-48px)] bg-[#0a0a0f]">
+    <div className="flex flex-col h-[calc(100dvh-64px)]" style={{ backgroundColor: '#131318' }}>
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-[#0e0e15] border-b border-[#2a2a3a] px-3 sm:px-4 py-3 flex items-center gap-2 sm:gap-3">
+      <div className="sticky top-0 z-10 px-3 sm:px-4 py-3 flex items-center gap-2 sm:gap-3"
+        style={{ backgroundColor: '#0e0e13', borderBottom: '1px solid rgba(73,68,84,0.2)' }}>
         <Link href="/" className="flex-shrink-0 text-gray-400 hover:text-gray-200 transition-colors p-1 -ml-1">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
@@ -179,7 +180,7 @@ export default function ChatRoom({
           <button
             onClick={() => setShowOhang(v => !v)}
             className={`flex-shrink-0 transition-colors p-1.5 rounded-lg ${
-              showOhang ? 'text-purple-400 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1e1e2a]'
+              showOhang ? 'text-[#d0bcff] bg-[#d0bcff]/10' : 'text-[#958ea0] hover:text-[#e4e1e9] hover:bg-[#1f1f25]'
             }`}
             title="오행 분포"
           >
@@ -196,7 +197,7 @@ export default function ChatRoom({
             onClick={() => {
               window.location.href = `/ko/chat/${characterId}?new=true`;
             }}
-            className="flex-shrink-0 text-[11px] font-medium text-gray-400 hover:text-gray-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[#1e1e2a]"
+            className="flex-shrink-0 text-[11px] font-medium text-[#958ea0] hover:text-[#e4e1e9] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[#1f1f25]"
           >
             새대화
           </button>
@@ -223,7 +224,7 @@ export default function ChatRoom({
                 <CharacterAvatar characterId={characterId} size="sm" />
                 <div
                   className="rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed max-w-[80%]"
-                  style={{ backgroundColor: '#1e1e2a', color: '#e2e8f0' }}
+                  style={{ backgroundColor: '#1f1f25', color: '#e4e1e9' }}
                 >
                   {characterId === 'charon_m' ? (
                     <>흠.. 나 <strong>{character.name}</strong>인데. 사주 한번 봐줄까? 아래 정보 좀 알려줘.</>
@@ -254,11 +255,14 @@ export default function ChatRoom({
                   <button
                     onClick={handleUsePrevious}
                     disabled={isCreatingFromPrevious}
-                    className="w-full bg-[#13131a] border border-purple-500/30 rounded-2xl p-4 text-left hover:border-purple-500/60 transition-colors group disabled:opacity-60"
+                    className="w-full rounded-2xl p-4 text-left transition-colors group disabled:opacity-60"
+                    style={{ backgroundColor: '#1f1f25', border: '1px solid rgba(208,188,255,0.2)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(208,188,255,0.4)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(208,188,255,0.2)'; }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center flex-shrink-0">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="w-10 h-10 rounded-full bg-[#d0bcff]/15 flex items-center justify-center flex-shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d0bcff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                           <circle cx="8.5" cy="7" r="4" />
                           <polyline points="17 11 19 13 23 9" />
@@ -281,9 +285,9 @@ export default function ChatRoom({
               {/* 또는 구분선 */}
               {previousBirthInfo && (
                 <div className="ml-2 sm:ml-10 max-w-sm flex items-center gap-3 px-1">
-                  <div className="flex-1 h-px bg-[#2a2a3a]" />
-                  <span className="text-[11px] text-gray-600">또는 새로 입력</span>
-                  <div className="flex-1 h-px bg-[#2a2a3a]" />
+                  <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(73,68,84,0.3)' }} />
+                  <span className="text-[11px] text-[#494454]">또는 새로 입력</span>
+                  <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(73,68,84,0.3)' }} />
                 </div>
               )}
 
@@ -304,16 +308,16 @@ export default function ChatRoom({
             >
               <div className="relative">
                 <CharacterAvatar characterId={characterId} size="lg" />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-purple-500 rounded-full border-2 border-[#0a0a0f] animate-pulse" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#d0bcff] rounded-full border-2 border-[#131318] animate-pulse" />
               </div>
               <div className="text-center">
                 <p className="text-sm font-semibold text-gray-200">
                   {character.name}이(가) 사주를 분석하고 있어요
                 </p>
                 <div className="flex items-center justify-center gap-1 mt-2">
-                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                  <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:0ms]" />
+                  <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:150ms]" />
+                  <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:300ms]" />
                 </div>
               </div>
             </motion.div>
@@ -325,7 +329,7 @@ export default function ChatRoom({
               <CharacterAvatar characterId={characterId} size="sm" />
               <div
                 className="rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed max-w-[80%]"
-                style={{ backgroundColor: '#1e1e2a', color: '#e2e8f0' }}
+                style={{ backgroundColor: '#1f1f25', color: '#e4e1e9' }}
               >
                 {characterId === 'charon_m' ? (
                   <>사주 확인했어. 궁금한 거 있으면 물어봐.</>
@@ -370,11 +374,11 @@ export default function ChatRoom({
             >
               <CharacterAvatar characterId={characterId} size="sm" />
               <div
-                className="rounded-2xl rounded-bl-md px-4 py-3 flex gap-1 bg-[#1e1e2a]"
+                className="rounded-2xl rounded-bl-md px-4 py-3 flex gap-1" style={{ backgroundColor: '#1f1f25' }}
               >
-                <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 bg-[#d0bcff] rounded-full animate-bounce [animation-delay:300ms]" />
               </div>
             </motion.div>
           )}

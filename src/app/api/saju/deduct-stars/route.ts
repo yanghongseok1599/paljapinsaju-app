@@ -10,33 +10,21 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient();
 
-  // 인증 확인
+  // Auth check
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.id !== userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // 잔액 조회
-  const { data: stars } = await supabase
-    .from('user_stars')
-    .select('balance')
-    .eq('user_id', userId)
-    .single();
+  // C4: Atomic deduct — single UPDATE with balance >= amount guard.
+  // Returns new balance, or null if balance was insufficient (race-condition-safe).
+  const { data: newBalance, error } = await supabase.rpc('atomic_deduct_stars', {
+    p_user_id: user.id,
+    p_amount: amount,
+  });
 
-  if (!stars || stars.balance < amount) {
-    return NextResponse.json({ error: 'Insufficient stars' }, { status: 400 });
-  }
-
-  const newBalance = stars.balance - amount;
-
-  // 잔액 차감
-  const { error: updateError } = await supabase
-    .from('user_stars')
-    .update({ balance: newBalance })
-    .eq('user_id', userId);
-
-  if (updateError) {
-    return NextResponse.json({ error: 'Failed to deduct stars' }, { status: 500 });
+  if (error || newBalance === null || newBalance === undefined) {
+    return NextResponse.json({ error: 'Insufficient balance' }, { status: 402 });
   }
 
   // 거래 이력 기록

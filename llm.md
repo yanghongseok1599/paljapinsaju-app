@@ -1,4 +1,4 @@
-# AI Coding Agent Guide — 닥터사주 (Dr.Saju)
+# AI Coding Agent Guide — 팔자핀사주 (Paljapin Saju)
 
 > **사용법**: AI 코딩 도구(Claude Code, Cursor, Windsurf 등)에 이 파일을 컨텍스트로 전달하세요.
 > "이 프로젝트 셋업해줘" 또는 "이 프로젝트 분석해줘"라고 말하면 됩니다.
@@ -9,7 +9,7 @@
 
 ## 프로젝트 개요
 
-**닥터사주(Dr.Saju)** — AI 기반 사주팔자/자미두수/서양점성술 분석 서비스
+**팔자핀사주(Paljapin Saju)** — AI 기반 사주팔자/자미두수/서양점성술 분석 서비스
 
 - 전통 만세력 계산은 TypeScript 코드로, 해석은 Google Gemini AI로 처리
 - MIT 라이선스 오픈소스
@@ -256,7 +256,7 @@ npx vercel
 // 캐릭터 데이터 구조
 {
   id: 'doctor',
-  name: '닥터사주',
+  name: '팔자핀사주',
   description: '정통 사주 전문가',
   personality: '...',
   avatarPath: '/characters/doctor.png',

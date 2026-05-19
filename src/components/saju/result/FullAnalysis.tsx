@@ -16,8 +16,8 @@ interface SectionCardProps {
 
 function SectionCard({ title, children }: SectionCardProps) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <h3 className="text-lg font-semibold text-[#191F28] mb-3">{title}</h3>
+    <div className="glass-panel rounded-2xl p-6" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+      <h3 className="text-lg font-semibold mb-3 text-[#e4e1e9]">{title}</h3>
       {children}
     </div>
   );
@@ -37,7 +37,7 @@ export default function FullAnalysis({ analysis, reading }: FullAnalysisProps) {
     <div className="flex flex-col gap-4">
       {SECTIONS.map(({ key, title }) => (
         <SectionCard key={key} title={title}>
-          <p className="text-sm text-[#191F28] leading-relaxed whitespace-pre-line">
+          <p className="text-sm leading-relaxed whitespace-pre-line text-[#cac4d0]">
             {analysis[key]}
           </p>
         </SectionCard>
@@ -52,7 +52,7 @@ export default function FullAnalysis({ analysis, reading }: FullAnalysisProps) {
       </SectionCard>
 
       <SectionCard title="종합 코멘트">
-        <p className="text-sm text-[#191F28] leading-relaxed whitespace-pre-line">
+        <p className="text-sm leading-relaxed whitespace-pre-line text-[#cac4d0]">
           {analysis.summary}
         </p>
       </SectionCard>

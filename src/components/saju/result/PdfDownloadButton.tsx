@@ -24,7 +24,7 @@ export default function PdfDownloadButton({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `닥터사주_${name}_분석리포트.pdf`;
+      a.download = `팔자핀사주_${name}_분석리포트.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

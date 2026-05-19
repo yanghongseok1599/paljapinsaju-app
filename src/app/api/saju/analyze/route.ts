@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { generateFullAnalysis } from '@/lib/saju/ai/analyzer';
 import { generateAdvancedSajuContext } from '@/lib/saju/advanced-analysis';
+import { checkRateLimit } from '@/lib/rate-limit';
 import type { FourPillarsDetail } from 'manseryeok';
 import type {
   FiveElementDistribution,
@@ -23,6 +24,18 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
+    // Auth check — must be logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
+    const rl = checkRateLimit(`analyze:${user.id}`, 10, 60_000);
+    if (!rl.success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     // reading 조회
     const { data: reading, error: readError } = await supabase
       .from('saju_readings')
@@ -37,7 +50,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 결제 확인
+    // Ownership check — reading must belong to the authenticated user
+    if (reading.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // 결제 확인 — status + ownership (never trust status alone)
     if (reading.status !== 'paid') {
       return NextResponse.json(
         { error: 'Payment required. Current status: ' + reading.status },

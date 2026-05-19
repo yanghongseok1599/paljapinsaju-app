@@ -95,10 +95,10 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#191F28]">
+        <h2 className="text-2xl font-bold text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
           생년월일을 알려주세요
         </h2>
-        <p className="mt-2 text-[#8B95A1] text-sm">
+        <p className="mt-2 text-sm text-[#958ea0]">
           정확한 사주 분석을 위해 정보를 입력해주세요
         </p>
       </div>
@@ -107,7 +107,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
       <div>
         <Label
           htmlFor="name"
-          className="text-sm font-medium text-[#191F28] mb-1.5 block"
+          className="text-sm font-medium mb-1.5 block text-[#cac4d0]"
         >
           이름
         </Label>
@@ -116,7 +116,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
           placeholder="이름을 입력하세요"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="h-12 rounded-xl border-gray-200 text-base"
+          className="h-12 rounded-xl text-base text-[#e4e1e9] bg-[#0e0e13] border-[rgba(73,68,84,0.3)] placeholder:text-[#494454] focus:border-[rgba(208,188,255,0.4)]"
         />
         {errors.name && (
           <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -125,7 +125,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
 
       {/* 생년월일 */}
       <div>
-        <Label className="text-sm font-medium text-[#191F28] mb-1.5 block">
+        <Label className="text-sm font-medium mb-1.5 block text-[#cac4d0]">
           생년월일
         </Label>
         <div className="flex gap-2">
@@ -137,7 +137,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             max={2010}
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="flex-[2] border border-gray-200 rounded-xl px-3 py-3 text-center text-lg focus:border-[#3182F6] focus:ring-1 focus:ring-[#3182F6] outline-none"
+            className="flex-[2] rounded-xl px-3 py-3 text-center text-lg outline-none text-[#e4e1e9] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] focus:border-[rgba(208,188,255,0.4)]"
           />
           <input
             type="number"
@@ -147,7 +147,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             max={12}
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 text-center text-lg focus:border-[#3182F6] focus:ring-1 focus:ring-[#3182F6] outline-none"
+            className="flex-1 rounded-xl px-3 py-3 text-center text-lg outline-none text-[#e4e1e9] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] focus:border-[rgba(208,188,255,0.4)]"
           />
           <input
             type="number"
@@ -157,7 +157,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             max={maxDay}
             value={day}
             onChange={(e) => setDay(e.target.value)}
-            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 text-center text-lg focus:border-[#3182F6] focus:ring-1 focus:ring-[#3182F6] outline-none"
+            className="flex-1 rounded-xl px-3 py-3 text-center text-lg outline-none text-[#e4e1e9] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] focus:border-[rgba(208,188,255,0.4)]"
           />
         </div>
         {(errors.year || errors.month || errors.day) && (
@@ -167,11 +167,11 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
 
       {/* 태어난 시간 */}
       <div>
-        <Label className="text-sm font-medium text-[#191F28] mb-1.5 block">
+        <Label className="text-sm font-medium mb-1.5 block text-[#cac4d0]">
           태어난 시간
         </Label>
         <Select value={time} onValueChange={setTime}>
-          <SelectTrigger className="h-12 rounded-xl border-gray-200 text-base">
+          <SelectTrigger className="h-12 rounded-xl text-base text-[#e4e1e9] bg-[#0e0e13] border-[rgba(73,68,84,0.3)] focus:border-[rgba(208,188,255,0.4)]">
             <SelectValue placeholder="시간을 선택하세요 (선택)" />
           </SelectTrigger>
           <SelectContent>
@@ -186,7 +186,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
 
       {/* 성별 */}
       <div>
-        <Label className="text-sm font-medium text-[#191F28] mb-1.5 block">
+        <Label className="text-sm font-medium mb-1.5 block text-[#cac4d0]">
           성별
         </Label>
         <div className="grid grid-cols-2 gap-2">
@@ -195,8 +195,8 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             onClick={() => setGender("male")}
             className={`h-12 rounded-xl border text-base font-medium transition-all ${
               gender === "male"
-                ? "border-[#3182F6] bg-[#3182F6]/5 text-[#3182F6]"
-                : "border-gray-200 text-[#191F28] hover:border-gray-300"
+                ? "border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]"
+                : "border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]"
             }`}
           >
             남
@@ -206,8 +206,8 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             onClick={() => setGender("female")}
             className={`h-12 rounded-xl border text-base font-medium transition-all ${
               gender === "female"
-                ? "border-[#3182F6] bg-[#3182F6]/5 text-[#3182F6]"
-                : "border-gray-200 text-[#191F28] hover:border-gray-300"
+                ? "border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]"
+                : "border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]"
             }`}
           >
             여
@@ -220,7 +220,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
 
       {/* 음력/양력 */}
       <div>
-        <Label className="text-sm font-medium text-[#191F28] mb-1.5 block">
+        <Label className="text-sm font-medium mb-1.5 block text-[#cac4d0]">
           달력 구분
         </Label>
         <div className="grid grid-cols-2 gap-2">
@@ -229,8 +229,8 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             onClick={() => setCalendar("solar")}
             className={`h-12 rounded-xl border text-base font-medium transition-all ${
               calendar === "solar"
-                ? "border-[#3182F6] bg-[#3182F6]/5 text-[#3182F6]"
-                : "border-gray-200 text-[#191F28] hover:border-gray-300"
+                ? "border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]"
+                : "border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]"
             }`}
           >
             양력
@@ -240,8 +240,8 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
             onClick={() => setCalendar("lunar")}
             className={`h-12 rounded-xl border text-base font-medium transition-all ${
               calendar === "lunar"
-                ? "border-[#3182F6] bg-[#3182F6]/5 text-[#3182F6]"
-                : "border-gray-200 text-[#191F28] hover:border-gray-300"
+                ? "border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]"
+                : "border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]"
             }`}
           >
             음력
@@ -252,7 +252,7 @@ export default function BirthDateForm({ onSubmit }: BirthDateFormProps) {
       {/* 다음 버튼 */}
       <button
         type="submit"
-        className="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-xl py-4 text-lg font-semibold transition-colors mt-2"
+        className="w-full oracle-gradient rounded-xl py-4 text-lg font-semibold transition-opacity hover:opacity-90 mt-2" style={{ color: '#3c0091' }}
       >
         다음
       </button>

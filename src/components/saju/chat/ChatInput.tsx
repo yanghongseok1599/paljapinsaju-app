@@ -45,7 +45,10 @@ export default function ChatInput({
   );
 
   return (
-    <div className="sticky bottom-0 bg-[#0a0a0f] border-t border-[#2a2a3a] px-3 sm:px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <div
+      className="sticky bottom-0 px-3 sm:px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+      style={{ backgroundColor: '#131318', borderTop: '1px solid rgba(73,68,84,0.2)' }}
+    >
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
         <textarea
           ref={textareaRef}
@@ -54,16 +57,23 @@ export default function ChatInput({
           disabled={disabled}
           onInput={handleResize}
           onKeyDown={handleKeyDown}
-          className="flex-1 resize-none rounded-xl border border-[#2a2a3a] bg-[#13131a] px-4 py-2.5 text-sm text-gray-200
-            focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50
-            disabled:bg-[#0e0e15] disabled:text-gray-600 disabled:cursor-not-allowed
-            placeholder:text-gray-600"
+          className="flex-1 resize-none rounded-xl px-4 py-2.5 text-sm text-[#e4e1e9]
+            focus:outline-none
+            disabled:cursor-not-allowed
+            placeholder:text-[#494454]"
+          style={{
+            border: '1px solid rgba(73,68,84,0.3)',
+            backgroundColor: '#1f1f25',
+          }}
+          onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(208,188,255,0.4)'; }}
+          onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(73,68,84,0.3)'; }}
         />
         <button
           type="submit"
           disabled={disabled}
-          className="flex-shrink-0 w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center
-            hover:bg-purple-500 transition-colors disabled:bg-gray-700 disabled:cursor-not-allowed"
+          className="flex-shrink-0 w-9 h-9 rounded-full text-[#3c0091] flex items-center justify-center
+            transition-all disabled:cursor-not-allowed disabled:opacity-40"
+          style={{ background: 'linear-gradient(135deg, #d0bcff 0%, #a078ff 100%)' }}
         >
           <svg
             width="18"

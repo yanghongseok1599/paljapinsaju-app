@@ -12,6 +12,7 @@ import type {
   Gender,
   ConcernType,
 } from "@/types/saju";
+import { COMPAT_COST } from "@/types/saju";
 
 // --- Zod Schemas ---
 
@@ -191,6 +192,7 @@ export async function updateReadingBirthInfo(
 
 /**
  * ID로 사주 분석 레코드를 조회합니다.
+ * 인증된 유저 본인의 레코드만 반환합니다. (C5: ownership check)
  */
 export async function getReading(
   id: string
@@ -202,10 +204,18 @@ export async function getReading(
 
   const supabase = await createClient();
 
+  // Must be authenticated
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { data: null, error: "Unauthorized" };
+  }
+
+  // Add user_id filter — if the reading belongs to a different user, .single() returns null
   const { data, error } = await supabase
     .from("saju_readings")
     .select("*")
     .eq("id", id)
+    .eq("user_id", user.id)
     .single();
 
   return {
@@ -217,6 +227,7 @@ export async function getReading(
 /**
  * 사주 분석 레코드의 상태를 업데이트합니다.
  * 추가 데이터(preview_summary, full_analysis, paddle_transaction_id, pdf_url 등)도 함께 업데이트 가능합니다.
+ * H3: requires authentication and ownership; validates status enum.
  */
 export async function updateReadingStatus(
   id: string,
@@ -231,17 +242,47 @@ export async function updateReadingStatus(
     >
   >
 ): Promise<{ data: SajuReading | null; error: string | null }> {
-  const parsed = z.string().uuid().safeParse(id);
-  if (!parsed.success) {
+  const parsedId = z.string().uuid().safeParse(id);
+  if (!parsedId.success) {
     return { data: null, error: "Invalid reading ID" };
+  }
+
+  // Validate status against known enum values (H3)
+  const statusSchema = z.enum([
+    "pending",
+    "preview",
+    "paid",
+    "generating",
+    "completed",
+    "failed",
+  ]);
+  const parsedStatus = statusSchema.safeParse(status);
+  if (!parsedStatus.success) {
+    return { data: null, error: "Invalid status value" };
   }
 
   const supabase = await createClient();
 
+  // Ownership check: only the reading owner may update status (H3)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { data: null, error: "Unauthorized" };
+  }
+
+  const { data: existing } = await supabase
+    .from("saju_readings")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (!existing || existing.user_id !== user.id) {
+    return { data: null, error: "Forbidden" };
+  }
+
   const { data: updated, error } = await supabase
     .from("saju_readings")
     .update({
-      status,
+      status: parsedStatus.data,
       ...data,
       updated_at: new Date().toISOString(),
     })
@@ -313,7 +354,7 @@ export async function createCompatibility(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("saju_compatibility")
+    .from("saju_compatibilities")
     .insert({
       reading_id: form.readingId,
       partner_name: form.partnerName,
@@ -352,7 +393,7 @@ export async function getCompatibility(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("saju_compatibility")
+    .from("saju_compatibilities")
     .select("*")
     .eq("id", id)
     .single();
@@ -386,4 +427,103 @@ export async function getUserReadings(
     data: (data ?? []) as SajuReading[],
     error: error?.message ?? null,
   };
+}
+
+/**
+ * 궁합 분석 비용을 별로 차감하고 status를 'paid'로 설정합니다.
+ * - 인증 및 소유권 확인 (reading이 현재 유저 소유인지)
+ * - 관리자(ADMIN_EMAILS)는 별 차감 없이 바이패스
+ * - 원자적 차감: atomic_deduct_stars RPC 사용 (잔액 부족 시 null 반환)
+ */
+export async function payCompatibilityWithStars(
+  compatibilityId: string
+): Promise<{ error: string | null }> {
+  const parsedId = z.string().uuid().safeParse(compatibilityId);
+  if (!parsedId.success) {
+    return { error: "Invalid compatibility ID" };
+  }
+
+  const supabase = await createClient();
+
+  // 인증 확인
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 궁합 레코드 조회
+  const { data: compat, error: compatError } = await supabase
+    .from("saju_compatibilities")
+    .select("id, status, reading_id")
+    .eq("id", compatibilityId)
+    .single();
+
+  if (compatError || !compat) {
+    return { error: "궁합 레코드를 찾을 수 없습니다." };
+  }
+
+  // 이미 결제된 경우 중복 차감 방지
+  if (compat.status === "paid" || compat.status === "completed") {
+    return { error: null };
+  }
+
+  // 소유권 확인: reading이 현재 유저 소유인지 검증
+  const { data: reading, error: readError } = await supabase
+    .from("saju_readings")
+    .select("user_id")
+    .eq("id", compat.reading_id)
+    .single();
+
+  if (readError || !reading) {
+    return { error: "원본 사주 레코드를 찾을 수 없습니다." };
+  }
+
+  if (reading.user_id !== user.id) {
+    return { error: "접근 권한이 없습니다." };
+  }
+
+  // 관리자 바이패스
+  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+
+  if (!isAdmin) {
+    // 원자적 별 차감
+    const { data: newBalance, error: deductError } = await supabase.rpc(
+      "atomic_deduct_stars",
+      {
+        p_user_id: user.id,
+        p_amount: COMPAT_COST,
+      }
+    );
+
+    if (deductError || newBalance === null || newBalance === undefined) {
+      return { error: `별이 부족합니다. (필요: ${COMPAT_COST}개)` };
+    }
+
+    // 거래 이력 기록
+    await supabase.from("star_transactions").insert({
+      user_id: user.id,
+      amount: -COMPAT_COST,
+      balance_after: newBalance,
+      type: "compatibility",
+      reading_id: compat.reading_id,
+    });
+  }
+
+  // status를 'paid'로 설정 (서버사이드에서만 — 클라이언트 신뢰 금지)
+  const { error: updateError } = await supabase
+    .from("saju_compatibilities")
+    .update({ status: "paid", updated_at: new Date().toISOString() })
+    .eq("id", compatibilityId);
+
+  if (updateError) {
+    return { error: "상태 업데이트에 실패했습니다." };
+  }
+
+  return { error: null };
 }

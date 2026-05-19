@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { analyzeSaju } from '@/lib/saju/calculator';
 import { generateCompatibility } from '@/lib/saju/ai/analyzer';
+import { checkRateLimit } from '@/lib/rate-limit';
 import type { FourPillarsDetail } from 'manseryeok';
 import type {
   FiveElementDistribution,
@@ -21,6 +22,18 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createClient();
+
+    // Auth check — must be logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
+    const rl = checkRateLimit(`compatibility:${user.id}`, 10, 60_000);
+    if (!rl.success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
 
     // 궁합 레코드 조회
     const { data: compat, error: compatError } = await supabase
@@ -56,6 +69,11 @@ export async function POST(req: NextRequest) {
         { error: 'Original reading not found' },
         { status: 404 },
       );
+    }
+
+    // Ownership check — the underlying reading must belong to the authenticated user
+    if (reading.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // status를 generating으로 변경

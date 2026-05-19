@@ -71,17 +71,17 @@ export default function PaymentSuccess({ readingId }: PaymentSuccessProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-5">
+    <div className="min-h-screen flex items-center justify-center px-5" style={{ backgroundColor: '#131318' }}>
       <div className="max-w-sm w-full text-center">
         {/* 결제 완료 */}
         <div className="mb-8">
-          <div className="w-16 h-16 bg-[#E8F3FF] rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(208,188,255,0.15)' }}>
             <svg
               width="32"
               height="32"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#3182F6"
+              stroke="#d0bcff"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -89,41 +89,41 @@ export default function PaymentSuccess({ readingId }: PaymentSuccessProps) {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[#191F28] mb-2">
+          <h1 className="text-2xl font-bold mb-2 text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
             결제가 완료되었습니다
           </h1>
         </div>
 
         {/* 분석 상태 */}
         {state === "analyzing" && (
-          <div className="bg-[#F9FAFB] rounded-2xl p-6 mb-6">
-            <div className="h-8 w-8 border-3 border-[#3182F6] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-[#191F28] font-semibold mb-1">
+          <div className="glass-panel rounded-2xl p-6 mb-6" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+            <div className="h-8 w-8 rounded-full animate-spin mx-auto mb-4" style={{ border: '3px solid rgba(208,188,255,0.2)', borderTopColor: '#d0bcff' }} />
+            <p className="font-semibold mb-1 text-[#e4e1e9]">
               AI가 사주를 분석하고 있어요...
             </p>
-            <p className="text-sm text-[#8B95A1]">
+            <p className="text-sm text-[#958ea0]">
               잠시만 기다려주세요. 보통 30초 이내에 완료됩니다.
             </p>
           </div>
         )}
 
         {state === "completed" && (
-          <div className="bg-[#E8F7EF] rounded-2xl p-6 mb-6">
-            <p className="text-[#191F28] font-semibold mb-1">
+          <div className="rounded-2xl p-6 mb-6" style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
+            <p className="font-semibold mb-1 text-[#10B981]">
               분석이 완료되었습니다
             </p>
-            <p className="text-sm text-[#8B95A1]">
+            <p className="text-sm text-[#958ea0]">
               결과 페이지로 이동합니다...
             </p>
           </div>
         )}
 
         {state === "failed" && (
-          <div className="bg-[#FFF0F0] rounded-2xl p-6 mb-6">
-            <p className="text-[#191F28] font-semibold mb-1">
+          <div className="rounded-2xl p-6 mb-6" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+            <p className="font-semibold mb-1 text-[#EF4444]">
               분석 중 문제가 발생했습니다
             </p>
-            <p className="text-sm text-[#8B95A1] mb-4">
+            <p className="text-sm mb-4 text-[#958ea0]">
               다시 시도해주세요. 문제가 계속되면 고객센터로 연락해주세요.
             </p>
             <Button
@@ -131,7 +131,7 @@ export default function PaymentSuccess({ readingId }: PaymentSuccessProps) {
                 setState("idle");
                 startAnalysis();
               }}
-              className="bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-xl px-6 h-11 text-sm font-semibold"
+              className="oracle-gradient rounded-xl px-6 h-11 text-sm font-semibold hover:opacity-90 transition-opacity" style={{ color: '#3c0091' }}
             >
               다시 시도
             </Button>
@@ -140,17 +140,17 @@ export default function PaymentSuccess({ readingId }: PaymentSuccessProps) {
 
         {/* 로그인 유도 (비로그인 상태일 때만) */}
         {isLoggedIn === false && (
-          <div className="bg-[#F9FAFB] rounded-2xl p-5 mt-4">
-            <p className="text-sm text-[#191F28] font-medium mb-1">
+          <div className="glass-panel rounded-2xl p-5 mt-4" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+            <p className="text-sm font-medium mb-1 text-[#e4e1e9]">
               로그인하면 언제든 다시 확인할 수 있어요
             </p>
-            <p className="text-xs text-[#8B95A1] mb-3">
+            <p className="text-xs mb-3 text-[#958ea0]">
               구글 계정으로 간편 로그인
             </p>
             <Button
               onClick={handleGoogleLogin}
               variant="outline"
-              className="w-full h-11 rounded-xl text-sm font-semibold border-gray-200 text-[#191F28]"
+              className="w-full h-11 rounded-xl text-sm font-semibold text-[#cac4d0] hover:text-[#e4e1e9] hover:bg-[rgba(208,188,255,0.05)]" style={{ border: '1px solid rgba(73,68,84,0.3)' }}
             >
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                 <path

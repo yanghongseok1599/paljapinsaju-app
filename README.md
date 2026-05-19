@@ -1,4 +1,4 @@
-<h1 align="center">닥터사주 (Dr.Saju)</h1>
+<h1 align="center">팔자핀사주 (Paljapin Saju)</h1>
 
 <p align="center">
   <strong>AI 기반 사주팔자 분석 서비스 | AI-Powered Four Pillars of Destiny Analysis</strong>
@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ecf8e?logo=supabase" alt="Supabase" />
-  <img src="https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=google" alt="Gemini" />
+  <img src="https://img.shields.io/badge/AI-OpenAI%20GPT--4o-412991?logo=openai" alt="OpenAI" />
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License" />
 </p>
 
@@ -23,11 +23,11 @@
 
 ## 소개
 
-**닥터사주(Dr.Saju)** 는 전통 동양 점술인 **사주팔자(四柱八字)** 를 현대 AI 기술과 결합한 오픈소스 프로젝트입니다.
+**팔자핀사주(Paljapin Saju)** 는 전통 동양 점술인 **사주팔자(四柱八字)** 를 현대 AI 기술과 결합한 오픈소스 프로젝트입니다.
 
 > "계산은 코드, 해석은 AI"
 
-만세력 계산은 TypeScript 코드로 정확하게 처리하고, 사주 해석은 Google Gemini AI가 담당합니다. 생년월일시를 입력하면 사주팔자를 계산하고, AI가 종합적인 운세 분석을 제공하며, 아름다운 PDF 리포트로 다운로드할 수 있습니다.
+만세력 계산은 TypeScript 코드로 정확하게 처리하고, 사주 해석은 OpenAI GPT-4o AI가 담당합니다. 생년월일시를 입력하면 사주팔자를 계산하고, AI가 종합적인 운세 분석을 제공하며, 아름다운 PDF 리포트로 다운로드할 수 있습니다.
 
 ## 주요 기능
 
@@ -51,7 +51,7 @@
 | 프레임워크 | Next.js 16 (App Router) |
 | 언어 | TypeScript |
 | 인증 + DB | Supabase (Auth + PostgreSQL) |
-| AI | Vercel AI SDK + Google Gemini |
+| AI | Vercel AI SDK + OpenAI GPT-4o / GPT-4o-mini |
 | PDF 생성 | @react-pdf/renderer |
 | 결제 | Paddle |
 | UI | shadcn/ui + Tailwind CSS 4 |
@@ -77,7 +77,7 @@ cat llm.md  # 자동으로 컨텍스트에 포함됩니다
 - Node.js 18+
 - npm 또는 yarn
 - Supabase 프로젝트
-- Google Gemini API 키
+- OpenAI API 키
 
 ### 설치
 
@@ -99,7 +99,7 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | O | Supabase 프로젝트 URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | O | Supabase 익명 키 |
 | `SUPABASE_SERVICE_ROLE_KEY` | O | Supabase 서비스 역할 키 |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | O | Google Gemini API 키 |
+| `OPENAI_API_KEY` | O | OpenAI API 키 |
 | `PADDLE_API_KEY` | - | Paddle 서버 API 키 |
 | `PADDLE_WEBHOOK_SECRET` | - | Paddle 웹훅 시크릿 |
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | - | Paddle 클라이언트 토큰 |
@@ -196,11 +196,11 @@ SEO 점검, 보안 감사, AI 팀 병렬 작업, UI 빌더 등 서비스 개발�
 
 ## Introduction
 
-**Dr.Saju** is an open-source project that combines the traditional Eastern divination system **Saju Palja (Four Pillars of Destiny / 四柱八字)** with modern AI technology.
+**Paljapin Saju** is an open-source project that combines the traditional Eastern divination system **Saju Palja (Four Pillars of Destiny / 四柱八字)** with modern AI technology.
 
 > "Calculation by code, interpretation by AI"
 
-The Manseryeok (Ten Thousand Year Calendar) calculations are handled precisely by TypeScript code, while Saju interpretations are powered by Google Gemini AI. Enter your birth date and time, and the system calculates your Four Pillars, provides comprehensive fortune analysis via AI, and generates a beautifully formatted PDF report for download.
+The Manseryeok (Ten Thousand Year Calendar) calculations are handled precisely by TypeScript code, while Saju interpretations are powered by OpenAI GPT-4o AI. Enter your birth date and time, and the system calculates your Four Pillars, provides comprehensive fortune analysis via AI, and generates a beautifully formatted PDF report for download.
 
 ## Key Features
 
@@ -224,7 +224,7 @@ The Manseryeok (Ten Thousand Year Calendar) calculations are handled precisely b
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
 | Auth + DB | Supabase (Auth + PostgreSQL) |
-| AI | Vercel AI SDK + Google Gemini |
+| AI | Vercel AI SDK + OpenAI GPT-4o / GPT-4o-mini |
 | PDF Generation | @react-pdf/renderer |
 | Payments | Paddle |
 | UI | shadcn/ui + Tailwind CSS 4 |
@@ -248,7 +248,7 @@ If you're using Claude Code, Cursor, Windsurf, or similar AI coding tools, pass 
 - Node.js 18+
 - npm or yarn
 - Supabase project
-- Google Gemini API key
+- OpenAI API key
 
 ### Installation
 
@@ -270,7 +270,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Yes | Google Gemini API key |
+| `OPENAI_API_KEY` | Yes | OpenAI API key |
 | `PADDLE_API_KEY` | No | Paddle server API key |
 | `PADDLE_WEBHOOK_SECRET` | No | Paddle webhook secret |
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | No | Paddle client token |

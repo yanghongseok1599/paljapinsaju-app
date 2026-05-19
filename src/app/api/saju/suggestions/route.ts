@@ -1,7 +1,35 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from "ai";
-import { google } from "@ai-sdk/google";
+import { createClient } from "@/utils/supabase/server";
+import { getChatModel } from "@/lib/ai/model";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function POST(req: Request) {
+// Allowlist of valid character IDs — keep in sync with src/lib/saju/characters.ts CharacterType
+const VALID_CHARACTER_IDS = new Set([
+  "charon_m",
+  "charon_f",
+  "minjun",
+  "haeun",
+  "jian",
+  "seojun",
+  "doyun",
+]);
+
+export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+
+  // Auth check — must be logged in
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
+  const rl = checkRateLimit(`suggestions:${user.id}`, 10, 60_000);
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const { characterId, characterName, lastAssistantMessage } =
     (await req.json()) as {
       characterId: string;
@@ -9,13 +37,25 @@ export async function POST(req: Request) {
       lastAssistantMessage: string;
     };
 
-  // AI 답변의 마지막 500자만 사용 (토큰 절약)
-  const context = lastAssistantMessage.slice(-500);
+  // Input validation and caps
+  if (!VALID_CHARACTER_IDS.has(characterId)) {
+    return NextResponse.json({ error: 'Invalid characterId' }, { status: 400 });
+  }
+
+  // Cap characterName to 30 chars max
+  const safeName = typeof characterName === 'string'
+    ? characterName.slice(0, 30)
+    : '';
+
+  // Cap lastAssistantMessage to 500 chars (already sliced below, but enforce here too)
+  const safeMessage = typeof lastAssistantMessage === 'string'
+    ? lastAssistantMessage.slice(-500)
+    : '';
 
   const { text } = await generateText({
-    model: google("gemini-2.5-flash-lite"),
+    model: getChatModel(),
     system: `너는 사주 상담 서비스의 추천 질문 생성기야.
-사용자가 "${characterName}" 캐릭터에게 다음에 물어볼 만한 후속 질문 3개를 만들어.
+사용자가 "${safeName}" 캐릭터에게 다음에 물어볼 만한 후속 질문 3개를 만들어.
 
 ## 필수 규칙
 - 반드시 사용자 본인이 직접 물어보는 형태의 존댓말 질문이어야 해.
@@ -31,9 +71,9 @@ export async function POST(req: Request) {
 
 ## 나쁜 예시 (절대 이렇게 쓰지 마)
 ["김민수, 네 재물운이랑 사업운이 궁금해!", "내 재능으로 돈을 크게 벌 수 있는 방법이 있을까?"]`,
-    prompt: `캐릭터: ${characterName} (${characterId})
+    prompt: `캐릭터: ${safeName} (${characterId})
 이전 AI 답변:
-${context}
+${safeMessage}
 
 위 답변을 읽고, 사용자가 다음에 궁금해할 후속 질문 3개를 JSON 배열로 생성해.`,
     maxOutputTokens: 150,
@@ -43,11 +83,11 @@ ${context}
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       const suggestions = JSON.parse(jsonMatch[0]) as string[];
-      return Response.json({ suggestions: suggestions.slice(0, 3) });
+      return NextResponse.json({ suggestions: suggestions.slice(0, 3) });
     }
   } catch {
     // 파싱 실패 시 빈 배열
   }
 
-  return Response.json({ suggestions: [] });
+  return NextResponse.json({ suggestions: [] });
 }

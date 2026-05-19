@@ -16,22 +16,22 @@ export default function MonthlyFortuneGrid({
       {monthlyFortune.map((item) => (
         <div
           key={item.month}
-          className={`rounded-xl p-4 border ${
-            item.month === currentMonth
-              ? "border-[#3182F6] bg-[#F2F7FF]"
-              : "border-gray-100 bg-gray-50"
-          }`}
+          className="rounded-xl p-4"
+          style={item.month === currentMonth ? {
+            border: '1px solid rgba(208,188,255,0.4)',
+            backgroundColor: 'rgba(208,188,255,0.08)',
+          } : {
+            border: '1px solid rgba(73,68,84,0.2)',
+            backgroundColor: '#1f1f25',
+          }}
         >
           <span
-            className={`text-sm font-semibold ${
-              item.month === currentMonth
-                ? "text-[#3182F6]"
-                : "text-[#8B95A1]"
-            }`}
+            className="text-sm font-semibold"
+            style={{ color: item.month === currentMonth ? '#d0bcff' : '#958ea0' }}
           >
             {item.month}월
           </span>
-          <p className="mt-1 text-sm text-[#191F28] leading-relaxed">
+          <p className="mt-1 text-sm leading-relaxed text-[#cac4d0]">
             {item.fortune}
           </p>
         </div>

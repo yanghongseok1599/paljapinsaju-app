@@ -17,14 +17,20 @@ export async function GET(
   const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
   const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
 
-  // Fetch reading (어드민은 status 무관, 일반 유저는 completed만)
+  // Non-admin must be authenticated
+  if (!isAdmin && !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Fetch reading (어드민은 status 무관, 일반 유저는 completed + 본인 소유만)
   let query = supabase
     .from("saju_readings")
     .select("*")
     .eq("id", id);
 
   if (!isAdmin) {
-    query = query.eq("status", "completed");
+    // Ownership check: restrict to the authenticated user's own reading (H1)
+    query = query.eq("status", "completed").eq("user_id", user!.id);
   }
 
   const { data: reading, error } = await query.single();

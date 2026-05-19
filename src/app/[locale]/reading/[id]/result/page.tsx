@@ -34,16 +34,16 @@ export default async function ResultPage({
   const elements = reading.five_elements;
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
+    <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
       <SajuNavbar />
 
-      <main className="max-w-3xl mx-auto px-5 py-8 flex flex-col gap-6">
+      <main className="max-w-3xl mx-auto px-5 py-8 pt-24 flex flex-col gap-6">
         {/* 사주 정보 요약 */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h1 className="text-xl font-bold text-[#191F28]">
+        <div className="glass-panel rounded-2xl p-6" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+          <h1 className="text-xl font-bold text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
             {reading.name}님의 사주분석 결과
           </h1>
-          <p className="mt-1 text-sm text-[#8B95A1]">
+          <p className="mt-1 text-sm text-[#958ea0]">
             {reading.birth_year}년 {reading.birth_month}월 {reading.birth_day}일
             {reading.birth_hour !== null ? ` ${reading.birth_hour}시` : ""}
             {reading.is_lunar ? " (음력)" : " (양력)"}

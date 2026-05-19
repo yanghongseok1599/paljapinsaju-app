@@ -3,28 +3,78 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
-import { CHARACTER_LIST } from "@/lib/saju/characters";
 import { loginWithGoogle } from "@/services/auth/actions";
+import { motion, useMotionValue, useTransform, useSpring, useReducedMotion, useInView } from "framer-motion";
 
 interface CharacterCardsProps {
   isLoggedIn?: boolean;
 }
 
+const PRIMARY_CHARS = [
+  {
+    id: "soyeon",
+    href: "/chat/charon_f",
+    name: "소연",
+    service: "연애 분석 / Love Analysis",
+    tagline: "당신의 영혼을 타인과 잇는 감정의 실타래를 풀어냅니다.",
+    cardImage: "/characters/soyeon-card-v2.jpg",
+    color: "#d0bcff",
+    glowColor: "rgba(208,188,255,0.4)",
+    borderHover: "hover:border-[#d0bcff]/40",
+  },
+  {
+    id: "minjun",
+    href: "/chat/minjun",
+    name: "민준",
+    service: "재물 전략 / Wealth Strategy",
+    tagline: "번영의 흐름과 물질적 풍요를 데이터로 계산합니다.",
+    cardImage: "/characters/minjun-card.jpg",
+    color: "#89ceff",
+    glowColor: "rgba(137,206,255,0.4)",
+    borderHover: "hover:border-[#89ceff]/40",
+  },
+  {
+    id: "haeun",
+    href: "/chat/haeun",
+    name: "하은",
+    service: "시간 항해사 / Time Navigator",
+    tagline: "과거의 순환과 미래의 문을 해독하여 방향을 제시합니다.",
+    cardImage: "/characters/haeun-card.jpg",
+    color: "#ffb95f",
+    glowColor: "rgba(255,185,95,0.4)",
+    borderHover: "hover:border-[#ffb95f]/40",
+  },
+  {
+    id: "jian",
+    href: "/chat/jian",
+    name: "지안",
+    service: "운명 설계 / Destiny Architect",
+    tagline: "당신 삶의 거대한 청사진과 아키텍처를 분석합니다.",
+    cardImage: "/characters/jian-card.jpg",
+    color: "#cbc3d7",
+    glowColor: "rgba(203,195,215,0.35)",
+    borderHover: "hover:border-white/40",
+    chipBg: "rgba(53,52,58,0.4)",
+    chipBorder: "rgba(73,68,84,0.3)",
+  },
+] as const;
+
 export default function CharacterCards({ isLoggedIn = false }: CharacterCardsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const scrollLeft = el.scrollLeft;
     const children = el.children;
     if (!children.length) return;
     const firstChild = children[0] as HTMLElement;
     const cardWidth = firstChild.offsetWidth;
     const gap = parseFloat(getComputedStyle(el).columnGap || "0");
-    const index = Math.round(scrollLeft / (cardWidth + gap));
-    if (index >= 0 && index < CHARACTER_LIST.length) {
+    const index = Math.round(el.scrollLeft / (cardWidth + gap));
+    if (index >= 0 && index < PRIMARY_CHARS.length) {
       setActiveIndex(index);
     }
   }, []);
@@ -45,146 +95,301 @@ export default function CharacterCards({ isLoggedIn = false }: CharacterCardsPro
     el.scrollTo({ left: child.offsetLeft - el.offsetLeft, behavior: "smooth" });
   }, []);
 
-  // 5초마다 자동 스크롤 (무한루프)
-  const isHoveredRef = useRef(false);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (isHoveredRef.current) return;
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % CHARACTER_LIST.length;
-        scrollTo(next);
-        return next;
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [scrollTo]);
-
   return (
-    <div className="pt-5 md:pt-8 pb-3 md:pb-6">
-      <div
-        ref={scrollRef}
-        onMouseEnter={() => { isHoveredRef.current = true; }}
-        onMouseLeave={() => { isHoveredRef.current = false; }}
-        onTouchStart={() => { isHoveredRef.current = true; }}
-        onTouchEnd={() => { isHoveredRef.current = false; }}
-        className="grid grid-flow-col auto-cols-[72vw] md:auto-cols-[280px] gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory px-4 md:px-8 scrollbar-hide"
+    <section ref={sectionRef} className="py-28 px-8 max-w-7xl mx-auto">
+      {/* Section header */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6"
       >
-        {CHARACTER_LIST.map((char) => (
-          <div key={char.id} className="snap-center">
-            <CharacterCard char={char} isLoggedIn={isLoggedIn} />
-          </div>
+        <div>
+          <h2
+            className="text-4xl md:text-5xl font-bold mb-4"
+            style={{ fontFamily: "Plus Jakarta Sans, Pretendard, sans-serif" }}
+          >
+            운세 전문가를 만나보세요
+          </h2>
+          <p className="text-[#958ea0] text-lg leading-relaxed">
+            시간을 관통하는 네 가지 관점으로 당신의 여정을 안내합니다.
+          </p>
+        </div>
+        <span className="font-['Space_Grotesk'] text-[#e9ddff]/60 text-xs tracking-widest uppercase">
+          디지털 엔티티 v2.4
+        </span>
+      </motion.div>
+
+      {/* Mobile: horizontal scroll carousel */}
+      <div className="md:hidden">
+        <div
+          ref={scrollRef}
+          className="grid grid-flow-col auto-cols-[78vw] gap-4 overflow-x-auto snap-x snap-mandatory px-2 scrollbar-hide"
+        >
+          {PRIMARY_CHARS.map((char) => (
+            <div key={char.id} className="snap-center">
+              <CharacterCard char={char} isLoggedIn={isLoggedIn} index={0} isInView={isInView} />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center gap-1.5 pt-4">
+          {PRIMARY_CHARS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => scrollTo(i)}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i === activeIndex ? "w-6 bg-[#d0bcff]" : "w-1.5 bg-[#494454]"
+              }`}
+              aria-label={`캐릭터 ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: 4-column grid */}
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {PRIMARY_CHARS.map((char, i) => (
+          <CharacterCard key={char.id} char={char} isLoggedIn={isLoggedIn} index={i} isInView={isInView} />
         ))}
       </div>
-      <div className="flex justify-center gap-1.5 py-3">
-        {CHARACTER_LIST.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollTo(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === activeIndex ? "w-6 bg-purple-500" : "w-1.5 bg-gray-600"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
 
-function CharacterCard({ char, isLoggedIn = false }: { char: (typeof CHARACTER_LIST)[number]; isLoggedIn?: boolean }) {
+type PrimaryChar = typeof PRIMARY_CHARS[number];
+
+function CharacterCard({
+  char,
+  isLoggedIn = false,
+  index,
+  isInView,
+}: {
+  char: PrimaryChar;
+  isLoggedIn?: boolean;
+  index: number;
+  isInView: boolean;
+}) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const prefersReduced = useReducedMotion();
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // 3D tilt values
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 200, damping: 25 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 200, damping: 25 });
+  const glowX = useTransform(mouseX, [-0.5, 0.5], ["20%", "80%"]);
+  const glowY = useTransform(mouseY, [-0.5, 0.5], ["20%", "80%"]);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (prefersReduced) return;
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
+
+  const chipBg = "chipBg" in char ? (char as { chipBg?: string }).chipBg : `${char.color}28`;
+  const chipBorder = "chipBorder" in char ? (char as { chipBorder?: string }).chipBorder : `${char.color}45`;
+  const textColor = char.id === "jian" ? "#cbc3d7" : char.color;
 
   const cardContent = (
-    <div className="group rounded-2xl overflow-hidden cursor-pointer bg-[#13131a] border border-[#2a2a3a] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
-      {/* 이미지 영역 — 고정 비율 */}
-      <div className="aspect-[2/3] relative flex-shrink-0">
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: prefersReduced ? 0 : rotateX,
+        rotateY: prefersReduced ? 0 : rotateY,
+        transformOrigin: "center center",
+      }}
+      className="group relative rounded-3xl h-[520px] flex flex-col cursor-pointer"
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+      aria-label={`${char.name} - ${char.service}`}
+    >
+      {/* Inner clip wrapper — keeps image within border-radius */}
+      <div className="absolute inset-0 rounded-3xl overflow-hidden" />
+
+      {/* Base card glass layer */}
+      <div
+        className="absolute inset-0 rounded-3xl"
+        style={{
+          background: "rgba(20,19,26,0.6)",
+          border: "1px solid rgba(73,68,84,0.25)",
+          backdropFilter: "blur(8px)",
+        }}
+      />
+
+      {/* Character image — visible with light moody treatment */}
+      <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
         <Image
           src={char.cardImage}
           alt={char.name}
           fill
-          className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
-          sizes="(min-width: 768px) 25vw, 75vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          style={{
+            // Moody but VISIBLE: slight desaturation + subtle darkening only
+            filter: "saturate(0.75) brightness(0.7) contrast(1.05)",
+          }}
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 78vw"
         />
-        <div className="absolute top-3 left-3 z-[1]">
+
+        {/* Atmospheric color tint — transparent enough to see character */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-500 group-hover:opacity-50"
+          style={{
+            background: `linear-gradient(160deg, ${char.color}18 0%, rgba(13,13,24,0.3) 50%, rgba(13,13,24,0.1) 100%)`,
+            mixBlendMode: "color",
+            opacity: 0.8,
+          }}
+        />
+
+        {/* Per-character glow on hover that intensifies */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(ellipse 60% 50% at ${glowX} ${glowY}, ${char.color}30 0%, transparent 70%)`,
+            mixBlendMode: "screen",
+          }}
+        />
+
+        {/* Bottom gradient for text legibility — stronger */}
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-[#0e0e13] via-[#131318]/80 via-[40%] to-transparent pointer-events-none"
+        />
+        {/* Left edge vignette */}
+        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#0e0e13]/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#0e0e13]/40 to-transparent pointer-events-none" />
+      </div>
+
+      {/* Hover glow border ring */}
+      <div
+        className="absolute -inset-px rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          boxShadow: `0 0 0 1px ${char.color}50, 0 0 60px ${char.color}25 inset`,
+        }}
+      />
+      {/* Outer glow halo */}
+      <div
+        className="absolute -inset-1 rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        style={{
+          boxShadow: `0 8px 60px ${char.color}30, 0 0 80px ${char.color}15`,
+        }}
+      />
+
+      {/* Scanline texture — subtle */}
+      <div
+        className="absolute inset-0 opacity-[0.04] group-hover:opacity-[0.02] mix-blend-overlay pointer-events-none transition-opacity duration-700 rounded-3xl overflow-hidden"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(208,188,255,0.3) 4px, transparent 5px)",
+        }}
+      />
+
+      {/* Content pinned to bottom */}
+      <div className="relative z-10 p-7 mt-auto" style={{ transform: "translateZ(20px)" }}>
+        {/* Service chip */}
+        <div
+          className="backdrop-blur-md px-3 py-1 rounded-full w-fit mb-4"
+          style={{
+            backgroundColor: chipBg,
+            border: `1px solid ${chipBorder}`,
+          }}
+        >
           <span
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-lg"
-            style={{ backgroundColor: char.color }}
+            className="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-tight"
+            style={{ color: textColor }}
           >
             {char.service}
           </span>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-        <div
-          className="absolute bottom-0 left-0 right-0 p-4"
-          style={{ textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}
+
+        <h3
+          className="text-3xl font-bold mb-2"
+          style={{
+            fontFamily: "Plus Jakarta Sans, Pretendard, sans-serif",
+            textShadow: "0 2px 20px rgba(0,0,0,0.8)",
+          }}
         >
-          <h3 className="text-lg md:text-xl font-bold text-white">{char.name}</h3>
-          <p className="text-xs text-white/80 font-medium">{char.title}</p>
-        </div>
-      </div>
-
-      {/* 정보 영역 */}
-      <div className="p-4 flex flex-col flex-1">
-        <p className="text-sm text-gray-300 italic leading-snug line-clamp-2">
-          &ldquo;{char.quote}&rdquo;
+          {char.name}
+        </h3>
+        <p className="text-[#a8a0b8] text-sm leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-400 max-h-0 group-hover:max-h-20 overflow-hidden transition-all">
+          {char.tagline}
         </p>
-
-        <div className="flex gap-1.5 mt-2.5 overflow-hidden">
-          {char.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[11px] px-2 py-1 rounded-full border border-[#2a2a3a] text-gray-400 bg-[#0e0e15] whitespace-nowrap"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-[#2a2a3a] mt-auto">
-          {!isLoggedIn && (
-            <span className="text-xs font-medium text-gray-500 flex items-center gap-1">
-              <span className="text-yellow-400">&#9733;</span> 가입시 3별 무료 지급
-            </span>
-          )}
-          <span className={`text-xs font-bold bg-purple-600 text-white px-3 py-1.5 rounded-lg shadow-md group-hover:bg-purple-500 transition-colors ${isLoggedIn ? 'ml-auto' : ''}`}>
-            대화하기
-          </span>
-        </div>
       </div>
-    </div>
+    </motion.div>
+  );
+
+  const motionWrapper = (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={{
+        duration: 0.7,
+        delay: 0.15 + index * 0.1,
+        ease: "easeOut",
+      }}
+      className="h-full"
+      style={{ perspective: "1200px" }}
+    >
+      {cardContent}
+    </motion.div>
   );
 
   if (isLoggedIn) {
-    return <Link href={`/chat/${char.id}`} className="block h-full">{cardContent}</Link>;
+    return (
+      <Link href={char.href} className="block h-full">
+        {motionWrapper}
+      </Link>
+    );
   }
 
   return (
     <>
-      <div className="h-full" onClick={() => setShowLoginPrompt(true)}>{cardContent}</div>
+      <div className="h-full" onClick={() => setShowLoginPrompt(true)}>
+        {motionWrapper}
+      </div>
 
       {showLoginPrompt && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#131318]/70 backdrop-blur-md px-4"
           onClick={() => setShowLoginPrompt(false)}
         >
-          <div
-            className="bg-[#13131a] border border-[#2a2a3a] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="glass-panel rounded-3xl p-8 max-w-sm w-full glow-primary"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <span className="text-2xl">&#9733;</span>
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-[#d0bcff]/15 flex items-center justify-center">
+                <span className="text-2xl text-[#ffb95f]">★</span>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">가입하고 바로 시작하세요</h3>
-              <p className="text-sm text-gray-400 mb-5">
-                가입하면 <span className="text-yellow-400 font-semibold">★ 3개</span>를 무료로 드려요!
+              <h3
+                className="text-xl font-bold text-[#e4e1e9] mb-2"
+                style={{ fontFamily: "Plus Jakarta Sans, Pretendard, sans-serif" }}
+              >
+                가입하고 바로 시작하세요
+              </h3>
+              <p className="text-sm text-[#958ea0] mb-6 leading-relaxed">
+                가입하면{" "}
+                <span className="text-[#ffb95f] font-semibold">★ 3개</span>를 무료로 드려요!
                 <br />
-                바로 대화를 시작할 수 있어요
+                바로 대화를 시작할 수 있어요.
               </p>
 
-              <form action={async () => { await loginWithGoogle(`/chat/${char.id}`); }}>
+              <form action={async () => { await loginWithGoogle(char.href); }}>
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 rounded-xl transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2.5 glass-panel font-semibold py-3.5 rounded-2xl transition-colors cursor-pointer text-sm text-[#e4e1e9] hover:border-[rgba(208,188,255,0.3)]"
+                  style={{ borderColor: "rgba(73,68,84,0.3)" }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -198,12 +403,12 @@ function CharacterCard({ char, isLoggedIn = false }: { char: (typeof CHARACTER_L
 
               <button
                 onClick={() => setShowLoginPrompt(false)}
-                className="mt-3 text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                className="mt-3 text-sm text-[#958ea0] hover:text-[#cbc3d7] transition-colors"
               >
                 나중에 할게요
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </>

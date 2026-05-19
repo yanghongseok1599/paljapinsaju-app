@@ -206,7 +206,9 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
     }
   };
 
-  const inputClass = "w-full border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-3 py-2.5 text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600";
+  const inputClass = "w-full rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-[#494454]"
+    + " border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] text-[#e4e1e9]"
+    + " focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)]";
 
   // 궁합 step 2: 상대방 정보 입력
   if (step === 2) {
@@ -217,13 +219,13 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
         transition={{ duration: 0.3 }}
         className="ml-2 sm:ml-10 max-w-sm"
       >
-        <div className="bg-[#13131a] rounded-2xl border border-[#2a2a3a] p-5 space-y-4">
+        <div className="rounded-2xl glass-panel p-5 space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center">
               <span className="text-xs">💕</span>
             </div>
-            <p className="text-sm font-semibold text-gray-200">상대방 정보</p>
-            <span className="text-[11px] text-gray-500 ml-auto">2/2</span>
+            <p className="text-sm font-semibold text-[#e4e1e9]">상대방 정보</p>
+            <span className="text-[11px] ml-auto text-[#958ea0]">2/2</span>
           </div>
 
           {error && (
@@ -231,25 +233,25 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
           )}
 
           <div>
-            <label className="text-xs font-semibold text-gray-300 mb-1 block">이름</label>
+            <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">이름</label>
             <input type="text" placeholder="상대방 이름" value={partnerName} onChange={(e) => setPartnerName(e.target.value)} className={inputClass} />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-300 mb-1 block">생년월일</label>
+            <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">생년월일</label>
             <div className="flex gap-1.5">
               <input type="number" inputMode="numeric" placeholder="1990" min={1940} max={2025} value={partnerYear} onChange={(e) => setPartnerYear(e.target.value)}
-                className="flex-[2] border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+                className="flex-[2] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
               <input type="number" inputMode="numeric" placeholder="월" min={1} max={12} value={partnerMonth} onChange={(e) => setPartnerMonth(e.target.value)}
-                className="flex-1 border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+                className="flex-1 border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
               <input type="number" inputMode="numeric" placeholder="일" min={1} max={partnerMaxDay} value={partnerDay} onChange={(e) => setPartnerDay(e.target.value)}
-                className="flex-1 border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+                className="flex-1 border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-300 mb-1 block">태어난 시간</label>
-            <select value={partnerTime} onChange={(e) => setPartnerTime(e.target.value)} className={`${inputClass} bg-[#0e0e15]`}>
+            <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">태어난 시간</label>
+            <select value={partnerTime} onChange={(e) => setPartnerTime(e.target.value)} className={inputClass}>
               {SIJI.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
@@ -257,14 +259,14 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-300 mb-1 block">성별</label>
+            <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">성별</label>
             <div className="grid grid-cols-2 gap-2">
               {(['male', 'female'] as const).map((g) => (
                 <button key={g} type="button" onClick={() => setPartnerGender(g)}
                   className={`py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     partnerGender === g
-                      ? 'border-purple-500 bg-purple-500/10 text-purple-300'
-                      : 'border-[#2a2a3a] text-gray-300 hover:border-[#3a3a4a]'
+                      ? 'border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]'
+                      : 'border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]'
                   }`}>
                   {g === 'male' ? '남' : '여'}
                 </button>
@@ -273,14 +275,14 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-300 mb-1 block">달력</label>
+            <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">달력</label>
             <div className="grid grid-cols-2 gap-2">
               {(['solar', 'lunar'] as const).map((c) => (
                 <button key={c} type="button" onClick={() => setPartnerCalendar(c)}
                   className={`py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     partnerCalendar === c
-                      ? 'border-purple-500 bg-purple-500/10 text-purple-300'
-                      : 'border-[#2a2a3a] text-gray-300 hover:border-[#3a3a4a]'
+                      ? 'border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]'
+                      : 'border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]'
                   }`}>
                   {c === 'solar' ? '양력' : '음력'}
                 </button>
@@ -290,11 +292,11 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
 
           <div className="flex gap-2">
             <button onClick={() => { setStep(1); setError(null); }}
-              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors border border-[#2a2a3a] text-gray-300 hover:bg-[#1e1e2a]">
+              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors text-[#cac4d0] hover:bg-[rgba(208,188,255,0.05)]" style={{ border: '1px solid rgba(73,68,84,0.3)' }}>
               이전
             </button>
             <button onClick={handleStep2Submit} disabled={isSubmitting}
-              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50 bg-pink-600 text-white hover:bg-pink-500">
+              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-opacity disabled:opacity-50 oracle-gradient hover:opacity-90" style={{ color: '#3c0091' }}>
               {isSubmitting ? '분석 중...' : '궁합 분석 시작'}
             </button>
           </div>
@@ -311,14 +313,14 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
       transition={{ duration: 0.3, delay: 0.3 }}
       className="ml-2 sm:ml-10 max-w-sm"
     >
-      <div className="bg-[#13131a] rounded-2xl border border-[#2a2a3a] p-5 space-y-4">
+      <div className="rounded-2xl glass-panel p-5 space-y-4">
         {isCompatibility(characterId) && !editMode && (
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(208,188,255,0.15)' }}>
               <span className="text-xs">👤</span>
             </div>
-            <p className="text-sm font-semibold text-gray-200">내 정보</p>
-            <span className="text-[11px] text-gray-500 ml-auto">1/2</span>
+            <p className="text-sm font-semibold text-[#e4e1e9]">내 정보</p>
+            <span className="text-[11px] ml-auto text-[#958ea0]">1/2</span>
           </div>
         )}
 
@@ -327,30 +329,30 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
         )}
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">이름</label>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">이름</label>
           <div className="flex gap-1.5">
             <input type="text" placeholder="성 (Last)" value={lastName} onChange={(e) => setLastName(e.target.value)}
-              className={`flex-[2] border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-3 py-2.5 text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600`} />
+              className={`flex-[2] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-3 py-2.5 text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]`} />
             <input type="text" placeholder="이름 (First)" value={firstName} onChange={(e) => setFirstName(e.target.value)}
-              className={`flex-[3] border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-3 py-2.5 text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600`} />
+              className={`flex-[3] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-3 py-2.5 text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]`} />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">생년월일</label>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">생년월일</label>
           <div className="flex gap-1.5">
             <input type="number" inputMode="numeric" placeholder="1990" min={1940} max={2025} value={year} onChange={(e) => setYear(e.target.value)}
-              className="flex-[2] border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+              className="flex-[2] border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
             <input type="number" inputMode="numeric" placeholder="월" min={1} max={12} value={month} onChange={(e) => setMonth(e.target.value)}
-              className="flex-1 border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+              className="flex-1 border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
             <input type="number" inputMode="numeric" placeholder="일" min={1} max={maxDay} value={day} onChange={(e) => setDay(e.target.value)}
-              className="flex-1 border border-[#2a2a3a] bg-[#0e0e15] rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 outline-none placeholder:text-gray-600" />
+              className="flex-1 border border-[rgba(73,68,84,0.3)] bg-[#0e0e13] rounded-xl px-2 py-2.5 text-center text-sm text-[#e4e1e9] focus:border-[rgba(208,188,255,0.4)] focus:ring-1 focus:ring-[rgba(208,188,255,0.15)] outline-none placeholder:text-[#494454]" />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">태어난 시간</label>
-          <select value={time} onChange={(e) => setTime(e.target.value)} className={`${inputClass} bg-[#0e0e15]`}>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">태어난 시간</label>
+          <select value={time} onChange={(e) => setTime(e.target.value)} className={inputClass}>
             {SIJI.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
@@ -358,14 +360,14 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">성별</label>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">성별</label>
           <div className="grid grid-cols-2 gap-2">
             {(['male', 'female'] as const).map((g) => (
               <button key={g} type="button" onClick={() => setGender(g)}
                 className={`py-2.5 rounded-xl border text-sm font-medium transition-all ${
                   gender === g
-                    ? 'border-purple-500 bg-purple-500/10 text-purple-300'
-                    : 'border-[#2a2a3a] text-gray-300 hover:border-[#3a3a4a]'
+                    ? 'border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]'
+                    : 'border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]'
                 }`}>
                 {g === 'male' ? '남' : '여'}
               </button>
@@ -374,14 +376,14 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">달력</label>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">달력</label>
           <div className="grid grid-cols-2 gap-2">
             {(['solar', 'lunar'] as const).map((c) => (
               <button key={c} type="button" onClick={() => setCalendar(c)}
                 className={`py-2.5 rounded-xl border text-sm font-medium transition-all ${
                   calendar === c
-                    ? 'border-purple-500 bg-purple-500/10 text-purple-300'
-                    : 'border-[#2a2a3a] text-gray-300 hover:border-[#3a3a4a]'
+                    ? 'border-[rgba(208,188,255,0.5)] bg-[rgba(208,188,255,0.08)] text-[#d0bcff]'
+                    : 'border-[rgba(73,68,84,0.3)] text-[#cac4d0] hover:border-[rgba(208,188,255,0.3)]'
                 }`}>
                 {c === 'solar' ? '양력' : '음력'}
               </button>
@@ -390,19 +392,19 @@ export default function BirthInfoCard({ characterId, onComplete, editMode, readi
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-gray-300 mb-1 block">태어난 곳</label>
+          <label className="text-xs font-semibold mb-1 block text-[#cac4d0]">태어난 곳</label>
           <input type="text" placeholder="서울, 부산, Tokyo 등" value={birthCity} onChange={(e) => setBirthCity(e.target.value)} className={inputClass} />
         </div>
 
         <div className="flex gap-2">
           {editMode && onCancel && (
             <button onClick={onCancel}
-              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors border border-[#2a2a3a] text-gray-300 hover:bg-[#1e1e2a]">
+              className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors text-[#cac4d0] hover:bg-[rgba(208,188,255,0.05)]" style={{ border: '1px solid rgba(73,68,84,0.3)' }}>
               취소
             </button>
           )}
           <button onClick={handleStep1Submit} disabled={isSubmitting}
-            className="flex-1 rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50 bg-purple-600 text-white hover:bg-purple-500">
+            className="flex-1 rounded-xl py-3 text-sm font-semibold transition-opacity disabled:opacity-50 oracle-gradient hover:opacity-90" style={{ color: '#3c0091' }}>
             {isSubmitting ? '저장 중...' : editMode ? '정보 수정하기' : isCompatibility(characterId) ? '다음 (상대방 정보)' : '사주 분석 시작'}
           </button>
         </div>

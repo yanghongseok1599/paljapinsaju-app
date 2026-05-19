@@ -3,12 +3,17 @@
 import { useState } from "react";
 import PreviewCard from "@/components/saju/preview/PreviewCard";
 import PaywallOverlay from "@/components/saju/preview/PaywallOverlay";
-import { openCheckout } from "@/lib/paddle/client";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
+import { TOSS_CONFIG, STAR_PACKS } from "@/lib/toss/config";
 import type { SajuReading } from "@/types/saju";
 
 interface ReadingPreviewProps {
   reading: SajuReading;
   locale: string;
+}
+
+function generateOrderId(packId: string): string {
+  return `${packId}__${crypto.randomUUID()}`;
 }
 
 export default function ReadingPreview({
@@ -19,15 +24,31 @@ export default function ReadingPreview({
 
   const handlePayClick = async () => {
     if (isLoading) return;
+    if (!TOSS_CONFIG.clientKey) return;
+
     setIsLoading(true);
     try {
-      await openCheckout({
-        productType: "stars30",
-        userId: reading.user_id ?? "",
-        successUrl: `${window.location.origin}/${locale}/coin-shop?paid=true`,
+      // 읽기 미리보기에서는 가장 작은 팩(star_30) 기본 안내
+      const pack = STAR_PACKS[0];
+      const tossPayments = await loadTossPayments(TOSS_CONFIG.clientKey);
+      const widget = tossPayments.widgets({
+        customerKey: reading.user_id ?? "anonymous",
+      });
+      const orderId = generateOrderId(pack.id);
+
+      await widget.setAmount({ currency: "KRW", value: pack.priceKrw });
+
+      await widget.requestPayment({
+        orderId,
+        orderName: pack.name,
+        successUrl: `${window.location.origin}/api/payments/toss/confirm`,
+        failUrl: `${window.location.origin}/${locale}/coin-shop?error=payment_cancelled`,
       });
     } catch (err) {
-      console.error("Paddle checkout error:", err);
+      const msg = err instanceof Error ? err.message : "";
+      if (!msg.includes("PAY_PROCESS_CANCELED")) {
+        console.error("Toss checkout error:", err);
+      }
     } finally {
       setIsLoading(false);
     }

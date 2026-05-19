@@ -1,20 +1,18 @@
 "use server";
 
 import { z } from "zod";
+import { randomBytes } from "node:crypto";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 // --- 유틸리티 ---
 
 /**
- * 8자리 랜덤 레퍼럴 코드 생성 (영문 대문자 + 숫자)
+ * 8자리 암호학적으로 안전한 레퍼럴 코드 생성 (H6: replaced Math.random with crypto)
+ * Uses 6 random bytes encoded as base64url, uppercased, truncated to 8 chars.
  */
 function generateReferralCode(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 혼동하기 쉬운 O/0/1/I 제외
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
+  return randomBytes(6).toString("base64url").slice(0, 8).toUpperCase();
 }
 
 // --- Zod Schemas ---
@@ -141,45 +139,33 @@ export async function processReferral(
     return { success: false, error: "레퍼럴 처리에 실패했습니다." };
   }
 
-  // 양쪽에 별 1개씩 지급
+  // 양쪽에 별 1개씩 지급 (admin client — atomic_grant_stars는 service_role 전용)
   const REWARD_STARS = 1;
+  const admin = createAdminClient();
 
-  // 초대받은 사람 (현재 유저) 별 지급
-  await addStarsToUser(supabase, user.id, REWARD_STARS);
-
-  // 초대한 사람 별 지급
-  await addStarsToUser(supabase, codeData.user_id, REWARD_STARS);
+  await addStarsToUser(admin, user.id, REWARD_STARS, codeData.id);
+  await addStarsToUser(admin, codeData.user_id, REWARD_STARS, codeData.id);
 
   return { success: true, error: null };
 }
 
 /**
  * 유저에게 별을 추가하는 내부 함수
+ * C4 + hardening: atomic_grant_stars RPC는 service_role만 호출 가능하므로
+ * 반드시 createAdminClient()로 만든 supabase를 전달해야 함.
  */
 async function addStarsToUser(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: ReturnType<typeof createAdminClient>,
   userId: string,
-  amount: number
+  amount: number,
+  referenceId?: string
 ) {
-  // 현재 잔액 조회
-  const { data: existing } = await supabase
-    .from("user_stars")
-    .select("balance")
-    .eq("user_id", userId)
-    .single();
-
-  if (existing) {
-    const newBalance = (existing.balance || 0) + amount;
-    await supabase
-      .from("user_stars")
-      .update({ balance: newBalance })
-      .eq("user_id", userId);
-  } else {
-    // user_stars 레코드가 없으면 생성
-    await supabase
-      .from("user_stars")
-      .insert({ user_id: userId, balance: amount });
-  }
+  await supabase.rpc("atomic_grant_stars", {
+    p_user_id: userId,
+    p_amount: amount,
+    p_source: "referral",
+    p_reference: referenceId ?? "referral",
+  });
 }
 
 /**

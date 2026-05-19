@@ -32,8 +32,8 @@ export default function ShareCard({ readingId, name }: ShareCardProps) {
 
   return (
     <section className="mt-8 mx-auto max-w-md px-5">
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-bold text-[#191F28] text-center mb-5">
+      <div className="glass-panel rounded-2xl p-6" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+        <h3 className="text-lg font-bold text-center mb-5 text-[#e4e1e9]">
           친구에게 공유하기
         </h3>
 
@@ -42,7 +42,7 @@ export default function ShareCard({ readingId, name }: ShareCardProps) {
 
           <button
             onClick={handleCopyUrl}
-            className="flex items-center justify-center gap-2 w-full bg-[#F2F4F6] hover:bg-[#E5E8EB] text-[#4E5968] rounded-xl py-3.5 font-semibold transition-colors"
+            className="flex items-center justify-center gap-2 w-full rounded-xl py-3.5 font-semibold transition-colors text-[#cac4d0] hover:bg-[rgba(208,188,255,0.05)]" style={{ backgroundColor: 'rgba(73,68,84,0.15)' }}
           >
             <svg
               width="18"

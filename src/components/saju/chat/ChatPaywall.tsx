@@ -29,18 +29,19 @@ export default function ChatPaywall({
 
       <div className="max-w-[85%]">
         <p className="text-xs text-gray-500 mb-1 ml-1">{character.name}</p>
-        <div className="rounded-2xl rounded-bl-md bg-[#13131a] border border-[#2a2a3a] p-5">
-          <p className="text-sm text-gray-200 leading-relaxed mb-1">
+        <div className="rounded-2xl rounded-bl-md p-5 glass-panel" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
+          <p className="text-sm leading-relaxed mb-1" style={{ color: '#e4e1e9' }}>
             별이 모두 소진되었어요.
           </p>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs mb-4" style={{ color: '#958ea0' }}>
             코인샵에서 별을 충전하면 계속 대화할 수 있어요.
           </p>
 
           <Link
             href="/coin-shop"
-            className="block w-full py-3 rounded-xl bg-purple-600 text-white text-sm font-semibold text-center
-              hover:bg-purple-500 transition-colors active:scale-[0.98]"
+            className="block w-full py-3 rounded-xl oracle-gradient text-sm font-semibold text-center
+              hover:opacity-90 transition-opacity active:scale-[0.98]"
+            style={{ color: '#3c0091' }}
           >
             별 충전하러 가기
           </Link>

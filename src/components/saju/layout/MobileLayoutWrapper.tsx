@@ -51,10 +51,10 @@ export default function MobileLayoutWrapper({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
       <SajuNavbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} onMenuToggle={() => setSidebarOpen((v) => !v)} />
 
-      <div className="flex">
+      <div className="flex pt-16">
         {/* 데스크톱: 기존 사이드바 */}
         <LoginSidebar
           user={sidebarUser}
@@ -69,9 +69,10 @@ export default function MobileLayoutWrapper({
             className="fixed inset-0 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-[#131318]/60 backdrop-blur-sm" />
             <aside
-              className="absolute left-0 top-0 h-full w-72 bg-[#0e0e15] border-r border-[#2a2a3a] overflow-y-auto flex flex-col animate-slide-in-left"
+              className="absolute left-0 top-0 h-full w-72 overflow-y-auto flex flex-col animate-slide-in-left"
+              style={{ backgroundColor: '#0e0e13', borderRight: '1px solid rgba(73,68,84,0.2)' }}
               onClick={(e) => e.stopPropagation()}
             >
               <LoginSidebar

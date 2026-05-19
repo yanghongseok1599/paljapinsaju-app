@@ -1,47 +1,39 @@
 export default function SajuFooter() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-[#0a0a0f] border-t border-[#2a2a3a] py-5 px-5">
-      <div className="max-w-3xl mx-auto flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        {/* 왼쪽: 사업자 정보 */}
-        <div className="text-[11px] text-gray-600 leading-relaxed space-y-0.5">
-          <p>Your Company Name | 대표 Your Name | 사업자등록번호 000-00-00000</p>
-          <p>통신판매업 제 0000-지역-0000 호</p>
-          <p>Your Address</p>
+    <footer className="bg-[#131318] w-full py-12 px-8" style={{ borderTop: '1px solid rgba(73,68,84,0.15)' }}>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
+
+        {/* Brand + copyright — left column */}
+        <div className="flex flex-col gap-4">
+          <div className="text-lg font-bold text-[#d0bcff] font-['Pretendard'] uppercase tracking-widest">
+            팔자핀사주
+          </div>
+          <p className="text-[#d0bcff] font-['Pretendard'] text-[0.75rem] uppercase tracking-widest">
+            © {currentYear} 팔자핀사주. 디지털 오라클.
+          </p>
         </div>
 
-        {/* 오른쪽: 링크 + 카피라이트 */}
-        <div className="flex flex-col items-start sm:items-end gap-1.5 shrink-0">
-          <div className="flex items-center gap-3">
-            <a
-              href="mailto:your-email@example.com"
-              className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors"
-            >
-              문의
-            </a>
-            <a
-              href="/terms"
-              className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors"
-            >
-              이용약관
-            </a>
-            <a
-              href="/privacy-policy"
-              className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors"
-            >
-              개인정보처리방침
-            </a>
-            <a
-              href="/refund-policy"
-              className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors"
-            >
-              환불정책
-            </a>
-          </div>
-          <p className="text-[11px] text-gray-700">
-            &copy; 2026 닥터사주
-          </p>
+        {/* Links — right column, flex-wrap justify-end */}
+        <div className="flex flex-wrap md:justify-end gap-8">
+          <FooterLink href="/privacy-policy">개인정보 처리방침</FooterLink>
+          <FooterLink href="/terms">이용약관</FooterLink>
+          <FooterLink href="/refund-policy">환불정책</FooterLink>
+          <FooterLink href="mailto:your-email@example.com">문의</FooterLink>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="text-slate-500 font-['Pretendard'] text-[0.75rem] uppercase tracking-widest hover:text-[#8B5CF6] transition-colors opacity-80 hover:opacity-100"
+    >
+      {children}
+    </a>
   );
 }

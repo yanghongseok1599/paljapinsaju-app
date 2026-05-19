@@ -43,10 +43,10 @@ export default function ConcernSelector({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#191F28]">
+        <h2 className="text-2xl font-bold text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
           어떤 고민이 있으신가요?
         </h2>
-        <p className="mt-2 text-[#8B95A1] text-sm">
+        <p className="mt-2 text-sm text-[#958ea0]">
           궁금한 분야를 선택하면 더 정확한 분석을 받을 수 있어요
         </p>
       </div>
@@ -62,8 +62,8 @@ export default function ConcernSelector({
               onClick={() => toggle(concern.id)}
               className={`px-5 py-3 rounded-full text-base font-medium transition-colors ${
                 isSelected
-                  ? "bg-[#3182F6] text-white"
-                  : "bg-gray-100 text-[#191F28] hover:bg-gray-200"
+                  ? "oracle-gradient text-[#3c0091]"
+                  : "bg-[#1f1f25] text-[#cac4d0] hover:bg-[rgba(208,188,255,0.1)] border border-[rgba(73,68,84,0.3)]"
               }`}
             >
               {concern.label}
@@ -80,14 +80,14 @@ export default function ConcernSelector({
         <button
           type="button"
           onClick={handleSubmit}
-          className="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-xl py-4 text-lg font-semibold transition-colors"
+          className="w-full oracle-gradient rounded-xl py-4 text-lg font-semibold transition-opacity hover:opacity-90" style={{ color: '#3c0091' }}
         >
           분석 시작하기
         </button>
         <button
           type="button"
           onClick={onBack}
-          className="w-full text-[#8B95A1] hover:text-[#191F28] py-3 text-base transition-colors"
+          className="w-full py-3 text-base transition-colors text-[#958ea0] hover:text-[#e4e1e9]"
         >
           이전으로
         </button>

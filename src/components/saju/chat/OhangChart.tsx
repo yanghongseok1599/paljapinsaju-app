@@ -44,13 +44,13 @@ export default function OhangChart({ fiveElements, isVisible, onClose }: OhangCh
           transition={{ duration: 0.25 }}
           className="overflow-hidden"
         >
-          <div className="bg-[#13131a] border border-[#2a2a3a] rounded-2xl mx-3 sm:mx-4 mb-3 p-4">
+          <div className="glass-panel rounded-2xl mx-3 sm:mx-4 mb-3 p-4" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
             {/* 헤더 */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-gray-200">오행 분포</h3>
+              <h3 className="text-sm font-bold text-[#e4e1e9]">오행 분포</h3>
               <button
                 onClick={onClose}
-                className="text-gray-500 hover:text-gray-300 transition-colors p-0.5"
+                className="transition-colors p-0.5 text-[#958ea0] hover:text-[#e4e1e9]"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -77,7 +77,7 @@ export default function OhangChart({ fiveElements, isVisible, onClose }: OhangCh
                     </div>
 
                     {/* 바 */}
-                    <div className="flex-1 h-5 bg-[#1e1e2a] rounded-full overflow-hidden relative">
+                    <div className="flex-1 h-5 rounded-full overflow-hidden relative" style={{ backgroundColor: '#1f1f25' }}>
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${barWidth}%` }}
@@ -92,7 +92,7 @@ export default function OhangChart({ fiveElements, isVisible, onClose }: OhangCh
                       <span className="text-xs font-bold" style={{ color: el.color }}>
                         {value}
                       </span>
-                      <span className="text-[10px] text-gray-600 ml-0.5">
+                      <span className="text-[10px] ml-0.5 text-[#958ea0]">
                         ({pct}%)
                       </span>
                     </div>
@@ -102,15 +102,15 @@ export default function OhangChart({ fiveElements, isVisible, onClose }: OhangCh
             </div>
 
             {/* 요약 */}
-            <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex items-center gap-3 text-[11px]">
+            <div className="mt-3 pt-3 flex items-center gap-3 text-[11px]" style={{ borderTop: '1px solid rgba(73,68,84,0.3)' }}>
               <div className="flex items-center gap-1">
-                <span className="text-gray-500">가장 강한:</span>
+                <span className="text-[#958ea0]">가장 강한:</span>
                 <span style={{ color: strongest.color }} className="font-semibold">
                   {strongest.emoji} {strongest.label}({strongest.hanja})
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-gray-500">가장 약한:</span>
+                <span className="text-[#958ea0]">가장 약한:</span>
                 <span style={{ color: weakest.color }} className="font-semibold">
                   {weakest.emoji} {weakest.label}({weakest.hanja})
                 </span>

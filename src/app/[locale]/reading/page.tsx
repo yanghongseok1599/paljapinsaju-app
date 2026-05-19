@@ -130,19 +130,19 @@ export default function ReadingPage() {
   const currentProgress = step <= 2 ? step : 2;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
       {/* 진행 바 (Step 3에서는 숨김) */}
       {step <= 2 && (
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-100">
+        <div className="sticky top-0 z-10" style={{ backgroundColor: '#131318', borderBottom: '1px solid rgba(73,68,84,0.2)' }}>
           <div className="max-w-md mx-auto px-5 py-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-[#191F28]">
+              <span className="text-sm font-medium text-[#cac4d0]">
                 {currentProgress}/{totalSteps}
               </span>
             </div>
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(73,68,84,0.3)' }}>
               <motion.div
-                className="h-full bg-[#3182F6] rounded-full"
+                className="h-full rounded-full oracle-gradient"
                 initial={{ width: 0 }}
                 animate={{
                   width: `${(currentProgress / totalSteps) * 100}%`,

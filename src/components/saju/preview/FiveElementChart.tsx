@@ -31,15 +31,15 @@ export default function FiveElementChart({ elements }: FiveElementChartProps) {
     <div className="w-full flex flex-col items-center">
       <ResponsiveContainer width="100%" height={260}>
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="#E5E7EB" />
+          <PolarGrid stroke="rgba(73,68,84,0.4)" />
           <PolarAngleAxis
             dataKey="element"
-            tick={{ fill: "#4B5563", fontSize: 13, fontWeight: 600 }}
+            tick={{ fill: "#cac4d0", fontSize: 13, fontWeight: 600 }}
           />
           <Radar
             dataKey="value"
-            stroke="#3182F6"
-            fill="#3182F6"
+            stroke="#d0bcff"
+            fill="#d0bcff"
             fillOpacity={0.2}
             strokeWidth={2}
           />
@@ -52,7 +52,7 @@ export default function FiveElementChart({ elements }: FiveElementChartProps) {
               className="inline-block w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: color }}
             />
-            <span className="text-[#4B5563] font-medium">
+            <span className="font-medium text-[#cac4d0]">
               {label} {elements[key]}
             </span>
           </div>

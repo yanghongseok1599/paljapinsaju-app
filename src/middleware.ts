@@ -6,10 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
-// 인증이 필요한 보호 경로
+// 인증이 필요한 보호 경로 (H4)
 // - /my-readings: 내 분석 목록
 // - /reading/[id]/result: 결제 완료 후 전체 결과
-const PROTECTED_PATTERN = /^\/(ko\/)?(my-readings|reading\/[^/]+\/result)/;
+// - /coin-shop: 별 충전 페이지
+// - /saju-report: 리포트 페이지
+// - /chat/[characterId]: AI 채팅 (동적 경로)
+// NOTE: /invite/[code] is intentionally PUBLIC — the referral receive flow
+// must be accessible to unauthenticated users.
+const PROTECTED_PATTERN =
+  /^\/(ko|en|ja|zh)?\/(my-readings|reading\/[^/]+\/result|coin-shop|saju-report|chat)(\/|$)/;
 
 export async function middleware(request: NextRequest) {
   // 1. Run next-intl middleware to handle locale redirects and get the base response

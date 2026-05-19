@@ -26,8 +26,8 @@ export async function sendWelcomeEmail({
   const dashboardUrl = `${baseUrl}/${locale}/dashboard`;
 
   const subjects = {
-    en: "Welcome to Dr.Saju! 🎉",
-    ko: "닥터사주에 오신 것을 환영해요! 🎉",
+    en: "Welcome to Paljapin Saju! 🎉",
+    ko: "팔자핀사주에 오신 것을 환영해요! 🎉",
   };
 
   try {

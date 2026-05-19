@@ -13,6 +13,10 @@ export default async function SajuReportPage() {
     redirect("/ko?login=required");
   }
 
+  // 관리자 판정 — ADMIN_EMAILS 환경변수와 이메일 일치 시 별 체크 우회
+  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map(s => s.trim()).filter(Boolean);
+  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+
   // 별 잔액 조회
   const { data: stars } = await supabase
     .from("user_stars")
@@ -50,6 +54,7 @@ export default async function SajuReportPage() {
         userId={user.id}
         starBalance={starBalance}
         previousBirthInfo={previousBirthInfo}
+        isAdmin={isAdmin}
       />
     </SajuLayout>
   );

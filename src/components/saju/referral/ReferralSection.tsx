@@ -71,12 +71,12 @@ export default function ReferralSection({ isOpen, onClose }: { isOpen: boolean; 
       onClick={onClose}
     >
       <div
-        className="bg-[#13131a] border border-[#2a2a3a] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+        className="glass-panel rounded-2xl p-6 max-w-sm w-full" style={{ borderColor: 'rgba(73,68,84,0.2)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid rgba(208,188,255,0.2)', borderTopColor: '#d0bcff' }} />
           </div>
         ) : (
           <div className="space-y-4">
@@ -91,29 +91,33 @@ export default function ReferralSection({ isOpen, onClose }: { isOpen: boolean; 
                   <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">친구 초대</h3>
-              <p className="text-sm text-gray-400">
+              <h3 className="text-lg font-bold mb-1 text-[#e4e1e9]">친구 초대</h3>
+              <p className="text-sm text-[#958ea0]">
                 친구를 초대하면 나와 친구 모두{' '}
-                <span className="text-yellow-400 font-bold">별 1개</span>를 받아요!
+                <span className="font-bold" style={{ color: '#ffb95f' }}>별 1개</span>를 받아요!
               </p>
             </div>
 
             {/* 초대 코드 + 복사 */}
             {referralCode && (
               <div>
-                <label className="text-[11px] font-semibold text-gray-400 mb-1.5 block">
+                <label className="text-[11px] font-semibold mb-1.5 block text-[#cac4d0]">
                   내 초대 코드
                 </label>
-                <div className="bg-[#0a0a0f] border border-[#2a2a3a] rounded-lg px-3 py-2.5 text-base font-mono text-purple-300 tracking-widest text-center select-all mb-3">
+                <div className="rounded-lg px-3 py-2.5 text-base font-mono tracking-widest text-center select-all mb-3 text-[#d0bcff]" style={{ backgroundColor: '#0e0e13', border: '1px solid rgba(73,68,84,0.3)' }}>
                   {referralCode}
                 </div>
                 <button
                   onClick={handleCopy}
-                  className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${
-                    copied
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                      : 'bg-purple-600 text-white hover:bg-purple-500'
-                  }`}
+                  className={`w-full py-3 rounded-xl text-sm font-semibold transition-all`}
+                  style={copied ? {
+                    backgroundColor: 'rgba(16,185,129,0.15)',
+                    color: '#10B981',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                  } : {
+                    background: 'linear-gradient(135deg, #d0bcff 0%, #a078ff 100%)',
+                    color: '#3c0091',
+                  }}
                 >
                   {copied ? '복사되었습니다!' : '초대 링크 복사하기'}
                 </button>
@@ -122,19 +126,19 @@ export default function ReferralSection({ isOpen, onClose }: { isOpen: boolean; 
 
             {/* 초대 현황 */}
             {stats && stats.totalInvited > 0 && (
-              <div className="bg-[#0a0a0f] border border-[#2a2a3a] rounded-xl px-3 py-3">
+              <div className="rounded-xl px-3 py-3" style={{ backgroundColor: '#0e0e13', border: '1px solid rgba(73,68,84,0.2)' }}>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-lg font-bold text-gray-200">{stats.totalInvited}</p>
-                    <p className="text-[10px] text-gray-500">초대한 친구</p>
+                    <p className="text-lg font-bold text-[#e4e1e9]">{stats.totalInvited}</p>
+                    <p className="text-[10px] text-[#958ea0]">초대한 친구</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-gray-200">{stats.rewardedCount}</p>
-                    <p className="text-[10px] text-gray-500">가입 완료</p>
+                    <p className="text-lg font-bold text-[#e4e1e9]">{stats.rewardedCount}</p>
+                    <p className="text-[10px] text-[#958ea0]">가입 완료</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-yellow-400">{stats.totalRewardStars}</p>
-                    <p className="text-[10px] text-gray-500">획득한 별</p>
+                    <p className="text-lg font-bold" style={{ color: '#ffb95f' }}>{stats.totalRewardStars}</p>
+                    <p className="text-[10px] text-[#958ea0]">획득한 별</p>
                   </div>
                 </div>
               </div>
@@ -143,7 +147,7 @@ export default function ReferralSection({ isOpen, onClose }: { isOpen: boolean; 
             {/* 닫기 */}
             <button
               onClick={onClose}
-              className="w-full text-sm text-gray-500 hover:text-gray-300 transition-colors pt-1"
+              className="w-full text-sm transition-colors pt-1 text-[#958ea0] hover:text-[#e4e1e9]"
             >
               닫기
             </button>

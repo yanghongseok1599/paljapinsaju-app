@@ -2,13 +2,13 @@ import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "이용약관 | 닥터사주",
-  description: "닥터사주 서비스 이용약관",
+  title: "이용약관",
+  description: "팔자핀사주 서비스 이용약관",
 };
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-gray-200">
+    <div className="min-h-screen text-[#e4e1e9]" style={{ backgroundColor: '#131318' }}>
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         {/* 뒤로가기 */}
         <Link
@@ -47,7 +47,7 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-300">
               이 약관은 Your Company Name(이하 &quot;회사&quot;)가 운영하는
-              &quot;닥터사주&quot;(drsaju.com, 이하 &quot;서비스&quot;)의 이용과
+              &quot;팔자핀사주&quot;(drsaju.com, 이하 &quot;서비스&quot;)의 이용과
               관련하여 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한
               사항을 규정함을 목적으로 합니다.
             </p>
@@ -278,7 +278,7 @@ export default function TermsPage() {
                 개인정보처리방침은{" "}
                 <Link
                   href="/privacy-policy"
-                  className="text-purple-400 hover:text-purple-300 underline underline-offset-2"
+                  className="text-[#d0bcff] hover:text-[#e4e1e9] underline underline-offset-2"
                 >
                   여기
                 </Link>
@@ -389,7 +389,7 @@ export default function TermsPage() {
                 <span className="text-gray-500">이메일:</span>{" "}
                 <a
                   href="mailto:your-email@example.com"
-                  className="text-purple-400 hover:text-purple-300 underline underline-offset-2"
+                  className="text-[#d0bcff] hover:text-[#e4e1e9] underline underline-offset-2"
                 >
                   your-email@example.com
                 </a>

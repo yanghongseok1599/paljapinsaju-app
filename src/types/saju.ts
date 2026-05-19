@@ -43,6 +43,9 @@ export type ConcernType =
   | 'relationship'
   | 'other';
 
+/** 궁합 분석 별 차감 비용 */
+export const COMPAT_COST = 10;
+
 /** 고민 카테고리 한국어 라벨 */
 export const CONCERN_LABELS: Record<ConcernType, string> = {
   love: '연애/결혼',
@@ -89,8 +92,23 @@ export interface LuckyElements {
   number: string;
 }
 
+/** 십신 상세 항목 */
+export interface TenGodDetail {
+  name: string;       // 예: "정관(正官)"
+  description: string; // 200자+ 설명
+}
+
+/** 대운 10년 단위 항목 */
+export interface DecadeCycle {
+  ageRange: string;   // 예: "32세 ~ 41세"
+  stem: string;       // 천간 (예: "甲")
+  branch: string;     // 지지 (예: "子")
+  summary: string;    // 200자+ 요약
+}
+
 /** 사주 분석 결과 (AI 생성) */
 export interface SajuAnalysis {
+  // ─── 기존 필드 (변경 금지) ───────────────────────────────
   personality: string;
   love: string;
   career: string;
@@ -100,11 +118,31 @@ export interface SajuAnalysis {
   monthlyFortune: MonthlyFortune[];
   luckyElements: LuckyElements;
   summary: string;
-  // 추가 심화 섹션 (optional, 기존 데이터 호환)
-  tenGods?: string;         // 십신 분석
-  majorCycles?: string;     // 대운 흐름
-  relationship?: string;    // 대인관계·사회운
-  actionAdvice?: string;    // 실천 조언
+  tenGods?: string;         // 십신 분석 (기존)
+  majorCycles?: string;     // 대운 흐름 (기존)
+  relationship?: string;    // 대인관계·사회운 (기존)
+  actionAdvice?: string;    // 실천 조언 (기존)
+
+  // ─── 신규 확장 필드 (optional, 기존 DB 레코드 호환) ─────
+  overview?: string;          // 총론 / 시작하는 글 (1000자+)
+  dayMasterDeep?: string;     // 일간 심층 해설 (1200자+)
+  pillarReadings?: {
+    year: string;    // 연주(年柱) 해설 (400자+)
+    month: string;   // 월주(月柱) 해설 (400자+)
+    day: string;     // 일주(日柱) 해설 (400자+)
+    hour: string;    // 시주(時柱) 해설 (400자+, 시간 모를 경우 간략)
+  };
+  elementsDeep?: string;      // 오행 심층 해설 (1000자+)
+  tenGodsDetail?: TenGodDetail[];  // 십신별 상세 (최대 10개, 각 200자+)
+  decadeCycles?: DecadeCycle[];    // 대운 10년 단위 (보통 8개, 각 200자+)
+  selfManagement?: string;    // 자기관리·생활습관 (800자+)
+  socialLife?: string;        // 사회생활·대인관계 심화 (800자+)
+  studyAptitude?: string;     // 학업·적성 (800자+)
+  ziweiAnalysis?: string;     // 자미두수 심층 해설 (1000자+)
+  astrologyAnalysis?: string; // 서양 점성술 해설 (800자+)
+  cautionPeriods?: string;    // 주의 시기 종합 (600자+)
+  glossary?: { term: string; meaning: string }[]; // 사주 용어 풀이 (10개+)
+  closingMessage?: string;    // 맺음말 (400자+)
 }
 
 /** 궁합 분석 결과 (AI 생성) */

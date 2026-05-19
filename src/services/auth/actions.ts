@@ -86,6 +86,67 @@ export async function loginWithMagicLink(email: string) {
 }
 
 /**
+ * Signs up a new user with email and password.
+ */
+export async function signUpWithEmail(email: string, password: string) {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.error("Email Sign Up Error:", error);
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Signs in an existing user with email and password.
+ */
+export async function signInWithEmail(email: string, password: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error("Email Sign In Error:", error);
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Sends a password reset email.
+ */
+export async function sendPasswordReset(email: string) {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/reset-password`,
+  });
+
+  if (error) {
+    console.error("Password Reset Error:", error);
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+/**
  * Signs out the current user and redirects to the home page.
  */
 export async function logout() {

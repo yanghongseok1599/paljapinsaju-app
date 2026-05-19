@@ -3,6 +3,8 @@ import CharacterCards from "@/components/saju/landing/CharacterCards";
 import SajuTestimonials from "@/components/saju/landing/SajuTestimonials";
 import SajuFAQ from "@/components/saju/landing/SajuFAQ";
 import SajuFooter from "@/components/saju/landing/SajuFooter";
+import LandingHero from "@/components/saju/landing/LandingHero";
+import LandingCTA from "@/components/saju/landing/LandingCTA";
 import { createClient } from "@/utils/supabase/server";
 import type { CharacterType } from "@/lib/saju/characters";
 import type { SajuReading } from "@/types/saju";
@@ -41,12 +43,23 @@ export default async function HomePage() {
 
   return (
     <SajuLayout currentReading={currentReading}>
-      {/* 카드 + 이용방법 = 한 영역 */}
-      <div className="bg-[#0a0a0f]">
+      {/* Hero — aurora + nebula bg, centered CTA */}
+      <LandingHero isLoggedIn={!!user} />
+
+      {/* Character cards grid */}
+      <div style={{ backgroundColor: '#131318' }}>
         <CharacterCards isLoggedIn={!!user} />
       </div>
+
+      {/* Testimonials */}
       <SajuTestimonials />
+
+      {/* FAQ */}
       <SajuFAQ />
+
+      {/* Final CTA */}
+      <LandingCTA />
+
       <SajuFooter />
     </SajuLayout>
   );

@@ -347,7 +347,7 @@ export async function getBehaviorData(from: string, to: string) {
 
   // 궁합 분석 이용률
   const { count: compatibilityCount } = await supabase
-    .from("saju_compatibility")
+    .from("saju_compatibilities")
     .select("id", { count: "exact", head: true })
     .gte("created_at", from)
     .lte("created_at", to);
@@ -444,7 +444,7 @@ export async function getRevenueData(from: string, to: string) {
     .from("saju_readings")
     .select("id", { count: "exact", head: true });
   const { count: totalCompatAll } = await supabase
-    .from("saju_compatibility")
+    .from("saju_compatibilities")
     .select("id", { count: "exact", head: true });
 
   const estimatedRevenue = ((totalReadingsAll || 0) * 19900) + ((totalCompatAll || 0) * 9900);
@@ -567,7 +567,7 @@ export async function getUserDetail(userId: string) {
 
   // 궁합 분석 내역
   const { data: compatibility } = await supabase
-    .from("saju_compatibility")
+    .from("saju_compatibilities")
     .select("id, reading_id, partner_name, created_at")
     .in("reading_id", readingIds)
     .order("created_at", { ascending: false });

@@ -8,7 +8,7 @@ interface JsonLdProps {
 // 기본 Organization 데이터
 const defaultOrganization = {
   "@type": "Organization",
-  name: "Dr.Saju",
+  name: "Paljapin Saju",
   url: process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com",
   logo: `${process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com"}/logo.png`,
   contactPoint: {
@@ -21,7 +21,7 @@ const defaultOrganization = {
 // 기본 WebSite 데이터
 const defaultWebSite = {
   "@type": "WebSite",
-  name: "Dr.Saju",
+  name: "Paljapin Saju",
   url: process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com",
   potentialAction: {
     "@type": "SearchAction",
@@ -36,7 +36,7 @@ const defaultWebSite = {
 // SaaS 애플리케이션 데이터
 const defaultSoftwareApplication = {
   "@type": "SoftwareApplication",
-  name: "Dr.Saju",
+  name: "Paljapin Saju",
   applicationCategory: "EntertainmentApplication",
   operatingSystem: "Web",
   offers: {

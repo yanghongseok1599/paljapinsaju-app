@@ -1,7 +1,7 @@
 {
   "name": "drsaju-opensource",
   "version": "1.0.0",
-  "description": "Dr.Saju - AI-powered Korean Four Pillars (Saju) analysis service",
+  "description": "Paljapin Saju - AI-powered Korean Four Pillars (Saju) analysis service",
   "author": "Dr.Saju Contributors",
   "license": "MIT",
   "private": true,
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",
+    "@ai-sdk/openai": "^3.0.63",
     "@ai-sdk/react": "^3.0.99",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -38,6 +39,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@tosspayments/tosspayments-sdk": "^2.7.0",
     "@types/canvas-confetti": "^1.9.0",
     "ai": "^6.0.86",
     "canvas-confetti": "^1.9.4",

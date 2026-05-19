@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { analyzeSaju } from '@/lib/saju/calculator';
 import { generatePreview } from '@/lib/saju/ai/analyzer';
+import { checkRateLimit } from '@/lib/rate-limit';
 import type { Gender } from '@/types/saju';
 
 export async function POST(req: NextRequest) {
@@ -18,6 +19,18 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
+    // Auth check — must be logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
+    const rl = checkRateLimit(`preview:${user.id}`, 10, 60_000);
+    if (!rl.success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     // reading 조회
     const { data: reading, error: readError } = await supabase
       .from('saju_readings')
@@ -30,6 +43,11 @@ export async function POST(req: NextRequest) {
         { error: 'Reading not found' },
         { status: 404 },
       );
+    }
+
+    // Ownership check — reading must belong to the authenticated user (H2)
+    if (reading.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // 만세력 계산

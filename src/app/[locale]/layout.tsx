@@ -1,15 +1,32 @@
 import { Toaster } from "@/components/ui/sonner";
-import { Noto_Sans_KR } from "next/font/google";
+import { Noto_Sans_KR, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import type { Metadata } from "next";
 import "../globals.css";
 
 import { ClientWidgets } from "@/components/shared/ClientWidgets";
 
+// Pretendard loaded via CDN in <head> (no npm package, best quality)
+// Plus Jakarta Sans — display/headline font
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  display: "swap",
+});
+
+// Space Grotesk — label/mono-feel font
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "500", "700"],
+  display: "swap",
+});
+
+// NotoSansKR kept for PDF rendering (react-pdf uses it)
 const notoSansKR = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
   subsets: ["latin"],
@@ -26,8 +43,8 @@ export async function generateMetadata({
 
   return {
     title: {
-      template: "%s | 닥터사주",
-      default: "닥터사주 - 데이터 기반 AI 사주",
+      template: "%s | 팔자핀사주",
+      default: "팔자핀사주 - 데이터 기반 AI 사주",
     },
     description:
       "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
@@ -35,8 +52,8 @@ export async function generateMetadata({
     alternates: {
       canonical: baseUrl,
     },
-    authors: [{ name: "닥터사주" }],
-    creator: "닥터사주",
+    authors: [{ name: "팔자핀사주" }],
+    creator: "팔자핀사주",
     publisher: "Your Company Name",
     icons: {
       icon: [
@@ -54,7 +71,7 @@ export async function generateMetadata({
       "사주팔자",
       "운세",
       "2026년 운세",
-      "닥터사주",
+      "팔자핀사주",
       "사주 상담",
       "자미두수",
       "서양점성술",
@@ -64,8 +81,8 @@ export async function generateMetadata({
     ],
     openGraph: {
       type: "website",
-      siteName: "닥터사주",
-      title: "닥터사주 - 데이터 기반 AI 사주",
+      siteName: "팔자핀사주",
+      title: "팔자핀사주 - 데이터 기반 AI 사주",
       description:
         "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
       url: baseUrl,
@@ -75,13 +92,13 @@ export async function generateMetadata({
           url: `${baseUrl}/og-image.png`,
           width: 1200,
           height: 630,
-          alt: "닥터사주 - 데이터 기반 AI 사주",
+          alt: "팔자핀사주 - 데이터 기반 AI 사주",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "닥터사주 - 데이터 기반 AI 사주",
+      title: "팔자핀사주 - 데이터 기반 AI 사주",
       description:
         "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
       images: [`${baseUrl}/og-image.png`],
@@ -116,8 +133,20 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale });
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} data-theme="drsaju" suppressHydrationWarning>
       <head>
+        {/* Pretendard — primary body/UI font (CDN, best Korean coverage) */}
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+          as="style"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+          rel="stylesheet"
+          crossOrigin="anonymous"
+        />
         {/* JSON-LD: WebSite */}
         <script
           type="application/ld+json"
@@ -125,7 +154,7 @@ export default async function LocaleLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              name: "닥터사주",
+              name: "팔자핀사주",
               url: "https://drsaju.com",
               description:
                 "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석 서비스. 무료 3회 체험.",
@@ -157,7 +186,7 @@ export default async function LocaleLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Product",
-              name: "닥터사주 별 충전",
+              name: "팔자핀사주 별 충전",
               description:
                 "데이터 기반 AI 사주 분석 서비스. 사주팔자 · 자미두수 · 서양점성술 통합 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
               offers: {
@@ -181,10 +210,10 @@ export default async function LocaleLayout({
               mainEntity: [
                 {
                   "@type": "Question",
-                  name: "닥터사주는 어떤 서비스인가요?",
+                  name: "팔자핀사주는 어떤 서비스인가요?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "닥터사주는 사주팔자 · 자미두수 · 서양점성술을 데이터 기반으로 통합 분석하는 AI 사주 서비스입니다. 생년월일시를 입력하면 AI가 성격, 연애, 재물, 직업, 건강 등을 실시간 채팅으로 분석해줍니다.",
+                    text: "팔자핀사주는 사주팔자 · 자미두수 · 서양점성술을 데이터 기반으로 통합 분석하는 AI 사주 서비스입니다. 생년월일시를 입력하면 AI가 성격, 연애, 재물, 직업, 건강 등을 실시간 채팅으로 분석해줍니다.",
                   },
                 },
                 {
@@ -209,20 +238,12 @@ export default async function LocaleLayout({
         />
       </head>
       <body
-        className={`${notoSansKR.variable} font-sans antialiased`}
+        className={`${notoSansKR.variable} ${plusJakartaSans.variable} ${spaceGrotesk.variable} font-sans antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="data-theme"
-            defaultTheme="drsaju"
-            forcedTheme="drsaju"
-            disableTransitionOnChange
-            value={{ drsaju: "drsaju" }}
-          >
-            {children}
-            <Toaster />
-            <ClientWidgets />
-          </ThemeProvider>
+          {children}
+          <Toaster />
+          <ClientWidgets />
         </NextIntlClientProvider>
       </body>
     </html>

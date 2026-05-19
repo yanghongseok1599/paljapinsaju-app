@@ -191,5 +191,36 @@
       "copy": "コピー",
       "copied": "コピーしました！"
     }
+  },
+  "Auth": {
+    "loginTitle": "ログイン",
+    "loginDescription": "Googleアカウントでログインしてください。",
+    "googleLogin": "Googleで続ける",
+    "softAgreement": "ログインすることで、<terms>利用規約</terms>および<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。",
+    "signInWithKakao": "Kakaoでログイン",
+    "signUpWithKakao": "Kakaoで登録",
+    "email": {
+      "signInTitle": "メールでログイン",
+      "signUpTitle": "メールで登録",
+      "label": "メールアドレス",
+      "passwordLabel": "パスワード",
+      "passwordConfirmLabel": "パスワード確認"
+    },
+    "signInButton": "ログイン",
+    "signUpButton": "登録",
+    "toggleToSignUp": "新規登録へ",
+    "toggleToSignIn": "ログインへ",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "errors": {
+      "invalidEmail": "有効なメールアドレスを入力してください。",
+      "passwordTooShort": "パスワードは英字と数字を含む8文字以上である必要があります。",
+      "passwordMismatch": "パスワードが一致しません。",
+      "signInFailed": "メールアドレスまたはパスワードが正しくありません。",
+      "signUpFailed": "登録に失敗しました。もう一度お試しください。",
+      "emailAlreadyExists": "このメールアドレスはすでに使用されています。"
+    },
+    "success": {
+      "signUpEmailSent": "確認メールを送信しました。メールボックスをご確認ください。"
+    }
   }
 }

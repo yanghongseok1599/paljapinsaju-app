@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-gray-200">
+    <div className="min-h-screen text-[#e4e1e9]" style={{ backgroundColor: '#131318' }}>
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         {/* 뒤로가기 */}
         <Link
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
               1. 개인정보의 처리 목적
             </h2>
             <p className="mb-2">
-              닥터사주(이하 &quot;서비스&quot;)는 다음의 목적을 위하여 개인정보를
+              팔자핀사주(이하 &quot;서비스&quot;)는 다음의 목적을 위하여 개인정보를
               처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는
               이용되지 않으며, 이용 목적이 변경되는 경우에는 별도의 동의를
               받는 등 필요한 조치를 이행할 예정입니다.

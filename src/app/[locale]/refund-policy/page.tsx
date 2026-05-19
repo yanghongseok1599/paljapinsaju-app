@@ -3,13 +3,13 @@ import SajuLayout from "@/components/saju/layout/SajuLayout";
 import SajuFooter from "@/components/saju/landing/SajuFooter";
 
 export const metadata: Metadata = {
-  title: "환불 정책 | 닥터사주",
+  title: "환불 정책",
 };
 
 export default function RefundPolicyPage() {
   return (
     <SajuLayout>
-      <div className="bg-[#0a0a0f] min-h-screen">
+      <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
         <div className="max-w-2xl mx-auto px-5 py-12">
           <h1 className="text-xl font-bold text-gray-100 mb-2">환불 정책</h1>
           <p className="text-xs text-gray-600 mb-8">최종 수정일: 2026년 3월 10일</p>
@@ -18,7 +18,7 @@ export default function RefundPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-gray-100 mb-3">1. 개요</h2>
               <p>
-                본 환불 정책은 Your Company Name(이하 &ldquo;회사&rdquo;)가 운영하는 닥터사주(drsaju.com, 이하 &ldquo;서비스&rdquo;)에서
+                본 환불 정책은 Your Company Name(이하 &ldquo;회사&rdquo;)가 운영하는 팔자핀사주(drsaju.com, 이하 &ldquo;서비스&rdquo;)에서
                 제공하는 유료 서비스의 환불 조건 및 절차를 규정합니다.
               </p>
             </section>
@@ -52,7 +52,7 @@ export default function RefundPolicyPage() {
                 <li>결제일로부터 7일이 경과한 경우</li>
                 <li>이용자의 단순 변심인 경우 (서비스 이용 후)</li>
               </ul>
-              <div className="mt-4 bg-[#1a1a25] rounded-xl px-4 py-3 border border-[#2a2a3a]">
+              <div className="mt-4 rounded-xl px-4 py-3" style={{ backgroundColor: '#1b1b20', border: '1px solid rgba(73,68,84,0.2)' }}>
                 <p className="text-xs text-gray-400">
                   본 서비스는 &ldquo;전자상거래 등에서의 소비자보호에 관한 법률&rdquo; 제17조 제2항 제5호에 따라,
                   디지털 콘텐츠의 제공이 개시된 경우 청약철회가 제한됩니다.
@@ -64,7 +64,7 @@ export default function RefundPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-gray-100 mb-3">5. 환불 절차</h2>
               <ol className="list-decimal list-inside space-y-1.5 text-gray-400">
-                <li>이메일(<a href="mailto:your-email@example.com" className="text-purple-400 hover:text-purple-300">your-email@example.com</a>)로 환불 요청</li>
+                <li>이메일(<a href="mailto:your-email@example.com" className="text-[#d0bcff] hover:text-[#e4e1e9]">your-email@example.com</a>)로 환불 요청</li>
                 <li>요청 시 기재 사항: 결제자 이메일, 결제일시, 결제금액, 환불 사유</li>
                 <li>회사는 요청 접수 후 3영업일 이내에 환불 가능 여부를 안내합니다</li>
                 <li>환불 승인 시, 원래 결제 수단으로 5~10영업일 이내에 환불 처리됩니다</li>
@@ -83,7 +83,7 @@ export default function RefundPolicyPage() {
               <h2 className="text-base font-semibold text-gray-100 mb-3">7. 문의</h2>
               <div className="text-gray-400 space-y-1">
                 <p>환불 관련 문의는 아래로 연락해 주세요.</p>
-                <p>이메일: <a href="mailto:your-email@example.com" className="text-purple-400 hover:text-purple-300">your-email@example.com</a></p>
+                <p>이메일: <a href="mailto:your-email@example.com" className="text-[#d0bcff] hover:text-[#e4e1e9]">your-email@example.com</a></p>
                 <p>상호: Your Company Name | 대표: Your Name</p>
               </div>
             </section>

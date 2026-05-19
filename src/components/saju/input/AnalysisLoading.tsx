@@ -39,7 +39,7 @@ export default function AnalysisLoading({ onComplete }: AnalysisLoadingProps) {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 rounded-full border-4 border-gray-200 border-t-[#3182F6]"
+            className="w-16 h-16 rounded-full" style={{ border: '4px solid rgba(73,68,84,0.3)', borderTopColor: '#d0bcff' }}
           />
         </div>
 
@@ -64,7 +64,7 @@ export default function AnalysisLoading({ onComplete }: AnalysisLoadingProps) {
                       <motion.svg
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-6 h-6 text-[#3182F6]"
+                        className="w-6 h-6 text-[#d0bcff]"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -84,21 +84,16 @@ export default function AnalysisLoading({ onComplete }: AnalysisLoadingProps) {
                           repeat: Infinity,
                           ease: "linear",
                         }}
-                        className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#3182F6]"
+                        className="w-5 h-5 rounded-full" style={{ border: '2px solid rgba(73,68,84,0.3)', borderTopColor: '#d0bcff' }}
                       />
                     ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-200" />
+                      <div className="w-5 h-5 rounded-full" style={{ border: '2px solid rgba(73,68,84,0.3)' }} />
                     )}
                   </div>
 
                   <span
-                    className={`text-base ${
-                      isCompleted
-                        ? "text-[#3182F6] font-medium"
-                        : isActive
-                          ? "text-[#191F28] font-medium"
-                          : "text-[#8B95A1]"
-                    }`}
+                    className="text-base"
+                    style={{ color: isCompleted ? '#d0bcff' : isActive ? '#e4e1e9' : '#958ea0', fontWeight: isCompleted || isActive ? 500 : 400 }}
                   >
                     {step.label}
                   </span>

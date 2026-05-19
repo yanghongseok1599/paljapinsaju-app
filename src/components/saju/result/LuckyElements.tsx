@@ -45,8 +45,7 @@ export default function LuckyElements({ luckyElements }: LuckyElementsProps) {
       value: luckyElements.color,
       chip: (
         <div
-          className="w-8 h-8 rounded-full border border-gray-200"
-          style={{ backgroundColor: getColorHex(luckyElements.color) }}
+          className="w-8 h-8 rounded-full" style={{ border: '1px solid rgba(73,68,84,0.3)', backgroundColor: getColorHex(luckyElements.color) }}
         />
       ),
     },
@@ -67,18 +66,18 @@ export default function LuckyElements({ luckyElements }: LuckyElementsProps) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4"
+          className="flex flex-col items-center gap-2 rounded-xl p-4" style={{ border: '1px solid rgba(73,68,84,0.2)', backgroundColor: '#1f1f25' }}
         >
           {item.chip ? (
             item.chip
           ) : (
-            <span className="text-2xl font-bold text-[#3182F6]">
+            <span className="text-2xl font-bold text-[#d0bcff]">
               {item.value}
             </span>
           )}
-          <span className="text-xs text-[#8B95A1]">{item.label}</span>
+          <span className="text-xs text-[#958ea0]">{item.label}</span>
           {item.chip && (
-            <span className="text-sm font-medium text-[#191F28]">
+            <span className="text-sm font-medium text-[#e4e1e9]">
               {item.value}
             </span>
           )}

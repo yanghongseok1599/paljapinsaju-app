@@ -38,14 +38,14 @@ export default function BirthCitySelect({ value, onChange }: BirthCitySelectProp
 
   return (
     <div>
-      <Label className="text-sm font-medium text-[#191F28] mb-1.5 block">
+      <Label className="text-sm font-medium mb-1.5 block text-[#cac4d0]">
         태어난 곳
       </Label>
       <Select
         value={isOverseas ? "__overseas__" : value || "서울"}
         onValueChange={handleSelectChange}
       >
-        <SelectTrigger className="h-12 rounded-xl border-gray-200 text-base">
+        <SelectTrigger className="h-12 rounded-xl text-base text-[#e4e1e9] bg-[#0e0e13] border-[rgba(73,68,84,0.3)] focus:border-[rgba(208,188,255,0.4)]">
           <SelectValue placeholder="도시를 선택하세요" />
         </SelectTrigger>
         <SelectContent>
@@ -63,7 +63,7 @@ export default function BirthCitySelect({ value, onChange }: BirthCitySelectProp
           placeholder="도시 이름을 입력하세요 (예: Tokyo, New York)"
           value={overseasCity}
           onChange={(e) => handleOverseasChange(e.target.value)}
-          className="mt-2 h-12 rounded-xl border-gray-200 text-base"
+          className="mt-2 h-12 rounded-xl text-base text-[#e4e1e9] bg-[#0e0e13] border-[rgba(73,68,84,0.3)] placeholder:text-[#494454] focus:border-[rgba(208,188,255,0.4)]"
         />
       )}
     </div>

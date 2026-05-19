@@ -1,10 +1,11 @@
 import { streamText, generateText } from "ai";
 import type { ModelMessage } from "@ai-sdk/provider-utils";
-import { google } from "@ai-sdk/google";
 import { createClient } from "@/utils/supabase/server";
+import { getChatModel } from "@/lib/ai/model";
 import { getCharacter } from "@/lib/saju/characters";
 import { extractSajuSummary } from "@/lib/saju/calculator";
 import { generateAdvancedSajuContext } from "@/lib/saju/advanced-analysis";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { CharacterType } from "@/types/saju";
 import type { FourPillarsDetail } from "manseryeok";
 import type { FiveElementDistribution } from "@/types/saju";
@@ -65,15 +66,28 @@ export async function POST(req: Request) {
 
   const supabase = await createClient();
 
-  // 어드민 체크
+  // Auth check — must be logged in
   const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  if (!user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
-  // 1. reading 데이터 조회
+  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+
+  // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
+  if (!isAdmin) {
+    const rl = checkRateLimit(`chat:${user.id}`, 10, 60_000);
+    if (!rl.success) {
+      return new Response("Too many requests", { status: 429 });
+    }
+  }
+
+  // 1. reading 데이터 조회 — scoped to authenticated user's own readings
   const { data: reading } = await supabase
     .from("saju_readings")
     .select("*")
     .eq("id", readingId)
+    .eq("user_id", user.id)
     .single();
 
   if (!reading) {
@@ -86,14 +100,14 @@ export async function POST(req: Request) {
     let { data: stars } = await supabase
       .from("user_stars")
       .select("balance")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .single();
 
     if (!stars) {
       // 신규 유저: 3개 보너스 생성
       await supabase
         .from("user_stars")
-        .insert({ user_id: user!.id, balance: 3 });
+        .insert({ user_id: user.id, balance: 3 });
       stars = { balance: 3 };
     }
 
@@ -132,7 +146,7 @@ export async function POST(req: Request) {
   let compatContext = '';
   if (characterId === 'charon_f' || characterId === 'jian') {
     const { data: compat } = await supabase
-      .from('saju_compatibility')
+      .from('saju_compatibilities')
       .select('*')
       .eq('reading_id', readingId)
       .single();
@@ -231,7 +245,7 @@ ${compatContext ? `- 이것은 궁합 분석이야. ${firstName} 씨와 상대�
 
   // 4. 스트리밍 응답
   const result = streamText({
-    model: google("gemini-2.5-flash-lite"),
+    model: getChatModel(),
     system: systemPrompt + "\n\n" + sajuContext,
     messages: toModelMessages(rawMessages),
     maxOutputTokens: isFree ? 1500 : 8000,
@@ -265,7 +279,7 @@ ${compatContext ? `- 이것은 궁합 분석이야. ${firstName} 씨와 상대�
         const userText = extractText(userMessage);
         try {
           const { text: title } = await generateText({
-            model: google("gemini-2.5-flash-lite"),
+            model: getChatModel(),
             system: "사용자의 사주 상담 질문을 보고, 짧은 대화 제목(15자 이내)을 만들어. 제목만 출력해. 따옴표나 부호 없이.",
             prompt: userText,
             maxOutputTokens: 30,

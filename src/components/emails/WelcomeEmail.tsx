@@ -22,7 +22,7 @@ interface WelcomeEmailProps {
 
 const translations = {
   en: {
-    preview: "Welcome to Dr.Saju! Your journey starts here.",
+    preview: "Welcome to Paljapin Saju! Your journey starts here.",
     title: "Welcome! 🎉",
     greeting: "Hi",
     message1: "Thanks for joining us. We're thrilled to have you on board!",
@@ -31,10 +31,10 @@ const translations = {
     ctaButton: "Go to Dashboard",
     helpTitle: "Need Help?",
     helpText: "Reply to this email or visit our help center anytime.",
-    footer: "Built with ❤️ by Dr.Saju",
+    footer: "Built with ❤️ by Paljapin Saju",
   },
   ko: {
-    preview: "닥터사주에 오신 것을 환영해요! 여정이 시작됩니다.",
+    preview: "팔자핀사주에 오신 것을 환영해요! 여정이 시작됩니다.",
     title: "환영해요! 🎉",
     greeting: "안녕하세요",
     message1: "저희와 함께해주셔서 감사해요. 정말 기뻐요!",
@@ -43,7 +43,7 @@ const translations = {
     ctaButton: "대시보드로 이동",
     helpTitle: "도움이 필요하세요?",
     helpText: "이 이메일에 답장하거나 언제든 헬프센터를 방문해주세요.",
-    footer: "닥터사주가 ❤️ 로 만들었어요",
+    footer: "팔자핀사주가 ❤️ 로 만들었어요",
   },
 };
 
@@ -64,7 +64,7 @@ export const WelcomeEmail = ({
           <Container className="bg-white rounded-lg my-[40px] mx-auto p-[32px] max-w-[500px] shadow-lg">
             <Section className="text-center mb-[24px]">
               <Text className="text-2xl font-bold text-gray-900">
-                🔮 Dr.Saju
+                🔮 Paljapin Saju
               </Text>
             </Section>
 
