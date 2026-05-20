@@ -16,12 +16,13 @@ import {
   signInWithEmail,
   sendPasswordReset,
 } from "@/services/auth/actions";
+import { DEMO_TEST_EMAIL, DEMO_TEST_PASSWORD } from "@/lib/saju/demo-auth";
 import { useRouter } from "next/navigation";
 
 type AuthTab = "signin" | "signup";
 
 function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return email.trim() === DEMO_TEST_EMAIL || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function validatePassword(password: string): string | null {
@@ -70,7 +71,11 @@ export function AuthForm() {
       return;
     }
 
-    const pwError = validatePassword(password);
+    const isDemoSignin =
+      tab === "signin" &&
+      email.trim() === DEMO_TEST_EMAIL &&
+      password === DEMO_TEST_PASSWORD;
+    const pwError = isDemoSignin ? null : validatePassword(password);
     if (pwError) {
       setFieldError(pwError);
       return;
@@ -98,7 +103,7 @@ export function AuthForm() {
         if (result?.error) {
           setFieldError("이메일 또는 비밀번호가 올바르지 않습니다.");
         } else {
-          router.refresh();
+          router.push("/reading");
         }
       }
     });
@@ -222,6 +227,11 @@ export function AuthForm() {
         {/* Email form */}
         {showEmailForm && (
           <div className="space-y-3">
+            {tab === "signin" && !showForgotPassword && (
+              <div className="rounded-lg border border-[rgba(208,188,255,0.2)] bg-[rgba(208,188,255,0.08)] px-3 py-2 text-xs leading-relaxed text-[#d0bcff]">
+                테스트 계정: admin / 1111
+              </div>
+            )}
             {/* Tabs */}
             {!showForgotPassword && (
               <div className="flex rounded-lg overflow-hidden border border-[rgba(73,68,84,0.3)]">
@@ -256,12 +266,12 @@ export function AuthForm() {
                   가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.
                 </p>
                 <input
-                  type="email"
-                  placeholder="이메일"
+                  type="text"
+                  placeholder="이메일 또는 테스트 아이디"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
-                  autoComplete="email"
+                  autoComplete="username"
                   required
                 />
                 {fieldError && (
@@ -291,12 +301,12 @@ export function AuthForm() {
             ) : (
               <form onSubmit={handleEmailSubmit} className="space-y-2.5">
                 <input
-                  type="email"
-                  placeholder="이메일"
+                  type="text"
+                  placeholder="이메일 또는 테스트 아이디"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
-                  autoComplete="email"
+                  autoComplete="username"
                   required
                 />
                 <input

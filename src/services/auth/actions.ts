@@ -2,13 +2,45 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import {
+  createDemoAuth,
+  DEMO_AUTH_COOKIE,
+  DEMO_TEST_EMAIL,
+  DEMO_TEST_PASSWORD,
+  type DemoAuthProvider,
+} from "@/lib/saju/demo-auth";
+
+function isLocalPlaceholderAuth() {
+  return (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL === "https://your-project-id.supabase.co" ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL === "your_supabase_url"
+  );
+}
+
+async function loginWithDemoProvider(provider: DemoAuthProvider, next?: string) {
+  const auth = createDemoAuth(provider);
+  const cookieStore = await cookies();
+
+  cookieStore.set(DEMO_AUTH_COOKIE, encodeURIComponent(JSON.stringify(auth)), {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: "lax",
+  });
+
+  redirect(next || "/reading");
+}
 
 /**
  * Initiates the Google OAuth flow.
  * It redirects the user to Google's login page.
  */
 export async function loginWithGoogle(next?: string) {
+  if (isLocalPlaceholderAuth()) {
+    await loginWithDemoProvider("google", next);
+  }
+
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -38,6 +70,10 @@ export async function loginWithGoogle(next?: string) {
  * Initiates the Kakao OAuth flow.
  */
 export async function loginWithKakao(next?: string) {
+  if (isLocalPlaceholderAuth()) {
+    await loginWithDemoProvider("kakao", next);
+  }
+
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -112,6 +148,14 @@ export async function signUpWithEmail(email: string, password: string) {
  * Signs in an existing user with email and password.
  */
 export async function signInWithEmail(email: string, password: string) {
+  if (isLocalPlaceholderAuth()) {
+    if (email.trim() !== DEMO_TEST_EMAIL || password !== DEMO_TEST_PASSWORD) {
+      return { error: "테스트 계정 정보가 올바르지 않습니다." };
+    }
+
+    await loginWithDemoProvider("email", "/reading");
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -150,6 +194,12 @@ export async function sendPasswordReset(email: string) {
  * Signs out the current user and redirects to the home page.
  */
 export async function logout() {
+  if (isLocalPlaceholderAuth()) {
+    const cookieStore = await cookies();
+    cookieStore.delete(DEMO_AUTH_COOKIE);
+    redirect("/");
+  }
+
   const supabase = await createClient();
   await supabase.auth.signOut();
 

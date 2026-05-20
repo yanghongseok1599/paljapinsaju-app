@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import MobileLayoutWrapper from './MobileLayoutWrapper';
 import { CHARACTERS, type CharacterType } from '@/lib/saju/characters';
+import { cookies } from 'next/headers';
+import { DEMO_AUTH_COOKIE, type DemoAuth } from '@/lib/saju/demo-auth';
 
 interface SajuLayoutProps {
   children: React.ReactNode;
@@ -20,10 +22,21 @@ interface SajuLayoutProps {
 
 export default async function SajuLayout({ children, currentReading }: SajuLayoutProps) {
   const supabase = await createClient();
+  const cookieStore = await cookies();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let demoAuth: DemoAuth | null = null;
+  const demoAuthCookie = cookieStore.get(DEMO_AUTH_COOKIE)?.value;
+  if (!user && demoAuthCookie) {
+    try {
+      demoAuth = JSON.parse(decodeURIComponent(demoAuthCookie)) as DemoAuth;
+    } catch {
+      demoAuth = null;
+    }
+  }
 
   // 로그인 유저면 대화 기록 조회
   let chatHistory: {
@@ -84,9 +97,15 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
   }
 
   const ADMIN_EMAILS_LIST = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean);
-  const isAdminUser = user?.email ? ADMIN_EMAILS_LIST.includes(user.email) : false;
+  const isAdminUser = demoAuth?.email === 'admin' || (user?.email ? ADMIN_EMAILS_LIST.includes(user.email) : false);
 
-  const sidebarUser = user
+  const sidebarUser = demoAuth
+    ? {
+        id: 'demo-admin',
+        email: demoAuth.email,
+        name: demoAuth.name,
+      }
+    : user
     ? {
         id: user.id,
         email: user.email ?? undefined,
@@ -97,11 +116,11 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
 
   return (
     <MobileLayoutWrapper
-      isLoggedIn={!!user}
+      isLoggedIn={!!user || !!demoAuth}
       sidebarUser={sidebarUser}
       chatHistory={chatHistory}
       currentReading={currentReading}
-      totalCoins={totalCoins}
+      totalCoins={demoAuth ? 99999 : totalCoins}
       isAdmin={isAdminUser}
     >
       {children}

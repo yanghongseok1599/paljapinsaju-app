@@ -3,13 +3,20 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { LogIn } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import BirthDateForm, {
   type BirthDateFormData,
 } from "@/components/saju/input/BirthDateForm";
 import ConcernSelector from "@/components/saju/input/ConcernSelector";
 import AnalysisLoading from "@/components/saju/input/AnalysisLoading";
-import { createReading } from "@/services/saju/actions";
+import {
+  readDemoAuth,
+  saveDemoAuth,
+  type DemoAuth,
+  type DemoAuthProvider,
+} from "@/lib/saju/demo-auth";
+import { createDemoReading, saveDemoReading } from "@/lib/saju/demo-reading";
 import type { ConcernType } from "@/types/saju";
 
 /** 시진 value를 시간(hour)으로 변환 */
@@ -38,6 +45,15 @@ export default function ReadingPage() {
   const [formData, setFormData] = useState<BirthDateFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [demoAuth, setDemoAuth] = useState<DemoAuth | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDemoAuth(readDemoAuth());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // URL search params에서 히어로 폼 데이터 읽기
   useEffect(() => {
@@ -50,16 +66,20 @@ export default function ReadingPage() {
     const calendar = searchParams.get("calendar");
 
     if (name && year && month && day && gender) {
-      setFormData({
-        name,
-        year,
-        month,
-        day,
-        time: hour || "unknown",
-        gender: gender as "male" | "female",
-        calendar: (calendar as "solar" | "lunar") || "solar",
-      });
-      setStep(2);
+      const timer = window.setTimeout(() => {
+        setFormData({
+          name,
+          year,
+          month,
+          day,
+          time: hour || "unknown",
+          gender: gender as "male" | "female",
+          calendar: (calendar as "solar" | "lunar") || "solar",
+        });
+        setStep(2);
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
   }, [searchParams]);
 
@@ -68,16 +88,31 @@ export default function ReadingPage() {
     setStep(2);
   };
 
+  const handleDemoLogin = (provider: DemoAuthProvider) => {
+    setDemoAuth(saveDemoAuth(provider));
+    setError(null);
+  };
+
   const handleConcernSubmit = async (concerns: string[]) => {
     if (!formData || isSubmitting) return;
+
+    if (!readDemoAuth()) {
+      setError("Google 또는 카카오 버튼을 눌러 체험 계정으로 로그인해주세요.");
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setStep(3);
 
     try {
       const birthHour = SIJI_TO_HOUR[formData.time] ?? null;
+      const readingId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? `demo-${crypto.randomUUID()}`
+          : `demo-${Date.now()}`;
 
-      const { data, error: createError } = await createReading({
+      const reading = createDemoReading(readingId, {
         name: formData.name,
         gender: formData.gender,
         birthYear: Number(formData.year),
@@ -90,29 +125,11 @@ export default function ReadingPage() {
         concerns: concerns as ConcernType[],
       });
 
-      if (createError || !data) {
-        setError(createError || "분석 생성에 실패했습니다.");
-        setStep(2);
-        setIsSubmitting(false);
-        return;
-      }
+      saveDemoReading(reading);
 
-      // preview API 호출
-      const previewRes = await fetch("/api/saju/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ readingId: data.id }),
-      });
-
-      if (!previewRes.ok) {
-        setError("미리보기 생성에 실패했습니다.");
-        setStep(2);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // 성공 - reading detail 페이지로 이동
-      router.push(`/reading/${data.id}`);
+      window.setTimeout(() => {
+        router.push(`/reading/demo/${reading.id}`);
+      }, 700);
     } catch (err) {
       console.error("Reading creation error:", err);
       setError("오류가 발생했습니다. 다시 시도해주세요.");
@@ -156,6 +173,53 @@ export default function ReadingPage() {
 
       {/* 콘텐츠 */}
       <div className="max-w-md mx-auto px-5 py-8">
+        {step <= 2 && (
+          <div className="mb-6 rounded-2xl border border-[rgba(73,68,84,0.35)] bg-[#1a1a20] p-4">
+            {demoAuth ? (
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-medium text-[#958ea0]">체험 계정</p>
+                  <p className="text-sm font-semibold text-[#e4e1e9]">
+                    {demoAuth.name}
+                  </p>
+                </div>
+                <span className="rounded-full bg-[rgba(208,188,255,0.12)] px-3 py-1 text-xs font-semibold text-[#d0bcff]">
+                  로그인됨
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#e4e1e9]">
+                    체험 계정으로 시작하기
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#958ea0]">
+                    실제 OAuth 설정 없이 버튼만 누르면 임시 계정으로 결과지를 받을 수 있습니다.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin("google")}
+                    className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[rgba(73,68,84,0.45)] bg-[#0e0e13] text-sm font-semibold text-[#e4e1e9] transition-colors hover:bg-[#24242b]"
+                  >
+                    <LogIn size={16} />
+                    Google
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin("kakao")}
+                    className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-sm font-semibold text-[#191600] transition-opacity hover:opacity-90"
+                  >
+                    <LogIn size={16} />
+                    Kakao
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-600 text-sm text-center">
             {error}

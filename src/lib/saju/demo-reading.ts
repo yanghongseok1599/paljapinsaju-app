@@ -1,0 +1,177 @@
+import type { FourPillarsDetail } from "manseryeok";
+import {
+  analyzeSaju,
+  extractSajuSummary,
+  getElementStrength,
+} from "@/lib/saju/calculator";
+import type {
+  ConcernType,
+  FiveElementDistribution,
+  Gender,
+  SajuAnalysis,
+  SajuInputForm,
+  SajuReading,
+} from "@/types/saju";
+import { CONCERN_LABELS } from "@/types/saju";
+
+export const DEMO_READING_STORAGE_KEY = "paljapin.demo.readings";
+
+const ELEMENT_TONES: Record<keyof FiveElementDistribution, string> = {
+  wood: "성장과 기획",
+  fire: "표현과 추진",
+  earth: "안정과 축적",
+  metal: "판단과 정리",
+  water: "지혜와 유연성",
+};
+
+const ELEMENT_COLORS: Record<keyof FiveElementDistribution, string> = {
+  wood: "초록",
+  fire: "레드",
+  earth: "골드",
+  metal: "화이트",
+  water: "네이비",
+};
+
+const DIRECTIONS: Record<keyof FiveElementDistribution, string> = {
+  wood: "동쪽",
+  fire: "남쪽",
+  earth: "중앙",
+  metal: "서쪽",
+  water: "북쪽",
+};
+
+function toPlainPillars(pillars: FourPillarsDetail): FourPillarsDetail {
+  return JSON.parse(JSON.stringify(pillars)) as FourPillarsDetail;
+}
+
+function strongestElement(elements: FiveElementDistribution) {
+  return (Object.entries(elements) as [keyof FiveElementDistribution, number][])
+    .sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function weakestElement(elements: FiveElementDistribution) {
+  return (Object.entries(elements) as [keyof FiveElementDistribution, number][])
+    .sort((a, b) => a[1] - b[1])[0][0];
+}
+
+function concernText(concerns: ConcernType[]) {
+  return concerns.map((concern) => CONCERN_LABELS[concern]).join(", ");
+}
+
+function buildDemoAnalysis(
+  input: SajuInputForm,
+  pillars: FourPillarsDetail,
+  elements: FiveElementDistribution,
+): SajuAnalysis {
+  const summary = extractSajuSummary(pillars, elements);
+  const strength = getElementStrength(elements);
+  const strongest = strongestElement(elements);
+  const weakest = weakestElement(elements);
+  const dayStem = summary.dayMaster.stem;
+  const keywords = summary.personalityKeywords.slice(0, 4).join(", ");
+  const concerns = concernText(input.concerns);
+  const currentYear = new Date().getFullYear();
+
+  return {
+    overview: `${input.name}님의 사주는 일간 ${dayStem}을 중심으로 ${strength.strongest}의 기운이 두드러지고 ${strength.weakest}의 보완이 필요한 구조입니다. 이 결과지는 실제 AI API 없이 로컬에서 계산한 만세력과 오행 분포를 바탕으로 만든 체험용 해석입니다.`,
+    personality: `${input.name}님은 ${keywords}의 성향이 강하게 드러납니다. 강한 기운은 ${ELEMENT_TONES[strongest]}으로 나타나며, 결정을 미루기보다 직접 방향을 잡을 때 장점이 살아납니다. 다만 ${ELEMENT_TONES[weakest]}이 부족하게 느껴지는 순간에는 속도를 늦추고 기록, 확인, 휴식을 의식적으로 넣는 것이 좋습니다.`,
+    love: `연애와 관계에서는 감정의 온도보다 신뢰의 리듬이 중요합니다. 빠른 확신보다 반복되는 행동에서 안정감을 확인할 때 좋은 인연이 오래 갑니다. 상대에게 맞추기만 하기보다 ${input.name}님이 중요하게 여기는 기준을 초반에 부드럽게 공유하면 관계 피로가 줄어듭니다.`,
+    career: `직업운은 ${ELEMENT_TONES[strongest]}을 살리는 역할에서 강합니다. 기획, 설득, 실행, 정리 중 본인이 자연스럽게 에너지가 나는 구간을 중심으로 포지션을 잡으세요. 올해는 한 번에 큰 전환을 하기보다 기존 역량을 눈에 보이는 산출물로 정리할 때 기회가 커집니다.`,
+    wealth: `재물운은 갑작스러운 한 방보다 구조화된 반복에서 좋아집니다. 수입과 지출을 단순히 기록하는 수준을 넘어, 고정비와 투자성 지출을 분리해 관리하면 새는 돈을 줄일 수 있습니다. ${concerns || "현재 고민"}과 연결된 지출은 감정 결제를 조심하는 편이 좋습니다.`,
+    health: `건강운은 생활 리듬의 영향을 크게 받습니다. 오행상 ${strength.balance}으로 보이며, 부족한 ${strength.weakest}의 기운은 수면, 수분, 호흡, 가벼운 유산소처럼 기본 루틴으로 보완하는 것이 안정적입니다. 무리한 단기 관리보다 매일 같은 시간대의 회복 습관이 잘 맞습니다.`,
+    yearlyFortune: `${currentYear}년은 선택지를 넓히기보다 우선순위를 정리하는 해입니다. 이미 하고 있는 일 중 성과가 나는 흐름을 남기고, 에너지만 쓰는 관계나 업무는 정리할 필요가 있습니다. 상반기에는 기반을 다지고, 하반기에는 결과를 공개하거나 제안하는 흐름이 좋습니다.`,
+    monthlyFortune: Array.from({ length: 12 }, (_, index) => {
+      const month = index + 1;
+      const focus =
+        month % 3 === 1
+          ? "준비와 정리"
+          : month % 3 === 2
+            ? "실행과 만남"
+            : "점검과 회복";
+      return {
+        month,
+        fortune: `${focus}에 유리합니다. 중요한 선택은 기록으로 남기고, 감정이 앞설 때는 하루 뒤 결정하세요.`,
+      };
+    }),
+    luckyElements: {
+      color: ELEMENT_COLORS[weakest],
+      direction: DIRECTIONS[weakest],
+      number: String(((input.birthYear + input.birthMonth + input.birthDay) % 9) + 1),
+    },
+    summary: `${input.name}님의 핵심은 강한 ${ELEMENT_TONES[strongest]}을 현실적인 루틴으로 연결하는 것입니다. 부족한 ${ELEMENT_TONES[weakest]}을 보완하면 관계, 일, 돈의 흐름이 더 안정적으로 이어집니다.`,
+    tenGods: `일간 ${dayStem}을 기준으로 보면 본인의 기준과 책임감이 중요한 축입니다. 타인의 기대를 모두 떠안기보다 역할의 경계를 선명하게 두면 장점이 더 잘 발휘됩니다.`,
+    majorCycles: `큰 운의 흐름은 준비기, 확장기, 정리기가 반복되는 구조로 보는 것이 좋습니다. 지금은 무리한 확장보다 다음 기회를 담을 그릇을 정돈하는 쪽이 유리합니다.`,
+    relationship: `대인관계에서는 말의 강도보다 일관성이 신뢰를 만듭니다. 약속을 작게 잡고 정확히 지키는 방식이 ${input.name}님의 평판을 안정적으로 올립니다.`,
+    actionAdvice: `오늘 바로 할 일은 세 가지입니다. 첫째, 최근 고민을 한 문장으로 적기. 둘째, 이번 주에 줄일 일 하나를 정하기. 셋째, 행운색 ${ELEMENT_COLORS[weakest]}을 책상이나 옷차림에 작게 반영하기.`,
+    closingMessage: `이 결과지는 체험용 해석이지만, 입력값에 따른 만세력과 오행 계산은 실제 코드로 처리했습니다. 더 정확한 상담형 해석은 실제 Supabase와 AI 키를 연결하면 확장할 수 있습니다.`,
+  };
+}
+
+export function createDemoReading(
+  id: string,
+  input: SajuInputForm,
+): SajuReading {
+  const { pillars, elements } = analyzeSaju({
+    year: input.birthYear,
+    month: input.birthMonth,
+    day: input.birthDay,
+    hour: input.birthHour ?? 0,
+    minute: input.birthMinute,
+    isLunar: input.isLunar,
+    isLeapMonth: input.isLeapMonth,
+  });
+
+  return {
+    id,
+    user_id: "00000000-0000-4000-8000-000000000000",
+    name: input.name,
+    gender: input.gender as Gender,
+    birth_year: input.birthYear,
+    birth_month: input.birthMonth,
+    birth_day: input.birthDay,
+    birth_hour: input.birthHour,
+    birth_minute: input.birthMinute,
+    is_lunar: input.isLunar,
+    is_leap_month: input.isLeapMonth,
+    concerns: input.concerns,
+    four_pillars: toPlainPillars(pillars),
+    five_elements: elements,
+    preview_summary: null,
+    full_analysis: buildDemoAnalysis(input, pillars, elements),
+    status: "completed",
+    paddle_transaction_id: null,
+    pdf_url: null,
+    birth_city: "서울",
+    birth_longitude: null,
+    chat_credits: 3,
+    chat_used: 0,
+    character_id: "charon_m",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function readDemoReadings(): Record<string, SajuReading> {
+  if (typeof window === "undefined") return {};
+
+  try {
+    return JSON.parse(
+      window.localStorage.getItem(DEMO_READING_STORAGE_KEY) || "{}",
+    ) as Record<string, SajuReading>;
+  } catch {
+    return {};
+  }
+}
+
+export function readDemoReading(id: string): SajuReading | null {
+  return readDemoReadings()[id] ?? null;
+}
+
+export function saveDemoReading(reading: SajuReading) {
+  const readings = readDemoReadings();
+  readings[reading.id] = reading;
+  window.localStorage.setItem(
+    DEMO_READING_STORAGE_KEY,
+    JSON.stringify(readings),
+  );
+}

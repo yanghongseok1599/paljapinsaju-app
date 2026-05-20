@@ -14,6 +14,7 @@ import { deleteReading } from '@/services/saju/chat-actions';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { CHARACTER_LIST, type CharacterType } from '@/lib/saju/characters';
+import { DEMO_TEST_EMAIL, DEMO_TEST_PASSWORD } from '@/lib/saju/demo-auth';
 
 interface ChatHistoryItem {
   id: string;
@@ -104,13 +105,17 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
     setEmailMsg(null);
     const email = emailValue.trim();
     const password = passwordValue;
+    const isDemoSignin =
+      emailMode === 'signin' &&
+      email === DEMO_TEST_EMAIL &&
+      password === DEMO_TEST_PASSWORD;
 
     // 클라이언트 검증
-    if (!email || !email.includes('@')) {
+    if (!email || (!email.includes('@') && email !== DEMO_TEST_EMAIL)) {
       setEmailMsg({ kind: 'error', text: '올바른 이메일을 입력해주세요.' });
       return;
     }
-    if (emailMode !== 'forgot') {
+    if (emailMode !== 'forgot' && !isDemoSignin) {
       if (password.length < 8) {
         setEmailMsg({ kind: 'error', text: '비밀번호는 최소 8자입니다.' });
         return;
@@ -251,7 +256,7 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
           {emailMode === 'closed' ? (
             <button
               type="button"
-              onClick={() => { setEmailMode('signup'); setEmailMsg(null); }}
+              onClick={() => { setEmailMode('signin'); setEmailMsg(null); }}
               className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-[#d0bcff] border border-[rgba(208,188,255,0.3)] hover:bg-[#d0bcff]/10 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,11 +273,17 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
                 {emailMode === 'forgot' && '비밀번호 재설정'}
               </p>
 
+              {emailMode === 'signin' && (
+                <p className="rounded-lg border border-[rgba(208,188,255,0.2)] bg-[rgba(208,188,255,0.08)] px-2.5 py-2 text-[11px] leading-relaxed text-[#d0bcff]">
+                  테스트 계정: admin / 1111
+                </p>
+              )}
+
               <input
-                type="email"
-                inputMode="email"
+                type="text"
+                inputMode="text"
                 autoComplete="email"
-                placeholder="이메일"
+                placeholder="이메일 또는 테스트 아이디"
                 value={emailValue}
                 onChange={(e) => setEmailValue(e.target.value)}
                 disabled={isPendingEmail}
@@ -290,7 +301,7 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
                   disabled={isPendingEmail}
                   className="w-full rounded-lg bg-[#131318] border border-[rgba(73,68,84,0.3)] px-3 py-2.5 text-sm text-gray-200 placeholder-gray-600 focus:border-[#d0bcff]/50 focus:outline-none disabled:opacity-60"
                   required
-                  minLength={8}
+                  minLength={emailMode === 'signin' ? 1 : 8}
                 />
               )}
 
