@@ -10,7 +10,7 @@ interface LandingHeroProps {
 }
 
 // ─── Scroll-scrubbed video frame sequence ────────────────────────────────────
-const HERO_FRAME_COUNT = 150;
+const HERO_FRAME_COUNT = 200;
 
 function heroFrameSrc(n: number): string {
   return `/hero-frames/frame-${String(n).padStart(3, "0")}.jpg`;
