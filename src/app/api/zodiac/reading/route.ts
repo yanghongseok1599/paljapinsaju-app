@@ -2,6 +2,7 @@ import { generateText } from "ai";
 import { createClient } from "@/utils/supabase/server";
 import { getAnalysisModel } from "@/lib/ai/model";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { stripMarkdown } from "@/lib/saju/sanitize";
 import { NextResponse } from "next/server";
 
 const ZODIAC_COST = 3;
@@ -92,7 +93,8 @@ export async function POST(req: Request): Promise<NextResponse> {
   const systemPrompt = `당신은 따뜻하고 통찰력 있는 서양 점성술 전문가입니다.
 한국어로 친근한 존댓말(해요체)을 사용하여 월간 별자리 운세를 작성합니다.
 분석은 구체적이고 실용적이어야 하며, 공포감이나 불안을 조성하지 않습니다.
-총 500~700자 분량으로 작성하세요.`;
+총 500~700자 분량으로 작성하세요.
+마크다운 금지: **, __, *, _, #, \`\`\`, --- 등 어떤 마크다운 마커도 절대 사용하지 마세요. 강조나 구분은 한국어 표현과 줄바꿈으로만 표현하세요.`;
 
   const userPrompt = `${signName}의 ${monthStr} 월간 운세를 작성해 주세요.
 
@@ -113,7 +115,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       prompt: userPrompt,
       maxOutputTokens: 1200,
     });
-    reading = result.text.trim();
+    reading = stripMarkdown(result.text.trim());
   } catch {
     return NextResponse.json({ error: "generation_failed" }, { status: 500 });
   }

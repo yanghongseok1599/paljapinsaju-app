@@ -105,6 +105,12 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
               <Link href="/coin-shop" className="flex items-center gap-1 text-sm text-[#ffb95f] hover:text-[#ffb95f]/80 transition-colors">
                 ★ <span className="font-medium">충전</span>
               </Link>
+              <Link
+                href="/my-readings"
+                className="text-sm font-medium text-slate-300 hover:text-[#d0bcff] transition-colors px-2.5 py-1.5 rounded-lg"
+              >
+                마이페이지
+              </Link>
             </>
           )}
         </div>

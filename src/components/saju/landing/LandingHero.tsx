@@ -10,7 +10,7 @@ interface LandingHeroProps {
 }
 
 // ─── Scroll-scrubbed video frame sequence ────────────────────────────────────
-const HERO_FRAME_COUNT = 100;
+const HERO_FRAME_COUNT = 150;
 
 function heroFrameSrc(n: number): string {
   return `/hero-frames/frame-${String(n).padStart(3, "0")}.jpg`;
@@ -23,14 +23,14 @@ function HeroFrameSequence() {
   const targetFrame = useRef(1);
   const rafId = useRef<number>(0);
   const lastSrc = useRef("");
-  // Scrub completes when scrollY reaches 1.2 * innerHeight (within 220vh track)
+  // Scrub completes when scrollY reaches 1.8 * innerHeight (within 280vh track)
   const scrollRange = useRef(
-    typeof window !== "undefined" ? window.innerHeight * 1.2 : 720
+    typeof window !== "undefined" ? window.innerHeight * 1.8 : 720
   );
 
   useEffect(() => {
     const onResize = () => {
-      scrollRange.current = window.innerHeight * 1.2;
+      scrollRange.current = window.innerHeight * 1.8;
     };
     window.addEventListener("resize", onResize, { passive: true });
 
@@ -82,7 +82,7 @@ function HeroFrameSequence() {
     // Full-width frame: width:100% / height:auto → fills stage width, no side crop.
     // Vertically centered; any letterbox above/below filled with dark #08080c.
     <div
-      className="absolute inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-start justify-center"
       aria-hidden="true"
       style={{ background: "#08080c" }}
     >
@@ -1044,10 +1044,10 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
     },
   };
 
-  // 220vh tall scroll track (100vh when reduced-motion).
-  // The sticky inner stage stays fixed on screen while user scrolls through it,
-  // scrubbing all 100 video frames, then the page scrolls on normally.
-  const trackHeight = prefersReduced ? "100vh" : "220vh";
+  // 280vh tall scroll track (100vh when reduced-motion).
+  // Pin holds for 180vh of scroll; scrub completes at 180vh (180vh = 1.8 * innerHeight),
+  // so the page never scrolls past the hero until the full 150-frame scrub finishes.
+  const trackHeight = prefersReduced ? "100vh" : "280vh";
 
   return (
     <>

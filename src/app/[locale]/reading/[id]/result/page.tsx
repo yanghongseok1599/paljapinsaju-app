@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/routing";
 import { getReading } from "@/services/saju/actions";
-import SajuNavbar from "@/components/saju/landing/SajuNavbar";
+import SajuNavbar from "@/components/saju/landing/SajuNavbarAuto";
 import FiveElementChart from "@/components/saju/preview/FiveElementChart";
 import FullAnalysis from "@/components/saju/result/FullAnalysis";
 import PdfDownloadButton from "@/components/saju/result/PdfDownloadButton";

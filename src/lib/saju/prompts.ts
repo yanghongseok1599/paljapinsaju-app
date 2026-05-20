@@ -6,6 +6,7 @@ import type {
 } from '@/types/saju';
 import { extractSajuSummary, getElementStrength } from './calculator';
 import { CONCERN_LABELS } from '@/types/saju';
+import { stripMarkdownDeep } from './sanitize';
 
 // ─── 사주 분석 프롬프트 ───
 
@@ -68,6 +69,7 @@ export function buildSajuAnalysisPrompt(params: {
 8. 반드시 분석 대상의 이름을 사용하여 호칭하세요 (예: "${name}님"). "남성분", "여성분" 같은 표현은 절대 사용하지 마세요.
 9. 월별 운세도 각 월마다 최소 150자 이상 구체적으로 작성하세요. 그 달의 에너지, 주의할 점, 유리한 행동을 포함하세요.
 10. 절대 추측하지 마세요. "~가능성이 높다", "~일 수 있다", "~에 해당할 수 있습니다" 같은 불확실한 표현 금지. 제공된 데이터를 기반으로 단정적으로 분석하세요. 별자리, 자미두수 데이터가 제공되면 그것을 정확히 사용하고, 생년월일로부터 직접 확정하세요.
+11. 마크다운 금지: **, __, *, _, #, \`\`\`, --- 등 어떤 마크다운 마커도 절대 사용하지 마세요. 강조나 헤딩 표시 없이 순수 한국어 텍스트로만 작성하세요. JSON 문자열 값 안에도 절대 마크다운 마커를 넣지 마세요.
 
 ## 고민 분야별 상세 분석 지시
 사용자가 관심을 표시한 분야는 다른 섹션보다 2배 이상 상세하게 작성하세요:
@@ -190,7 +192,8 @@ export function buildPreviewPrompt(params: {
   const system = `당신은 한국 전통 사주명리학 전문가입니다.
 주어진 사주 데이터를 바탕으로 핵심 성격과 올해의 운세를 2-3문장으로 매우 간결하게 요약하세요.
 흥미를 끌 수 있도록 작성하되, 전체 분석은 유료 서비스에서 확인할 수 있다는 뉘앙스를 담으세요.
-순수 텍스트로만 응답하세요 (JSON 아님). 150자 이내.`;
+순수 텍스트로만 응답하세요 (JSON 아님). 150자 이내.
+마크다운 금지: **, __, *, _, #, \`\`\` 등 어떤 마크다운 마커도 사용하지 마세요.`;
 
   const user = `성별: ${genderLabel}
 사주: ${summary.fourPillars.korean}
@@ -232,6 +235,7 @@ export function buildCompatibilityPrompt(params: {
 2. 긍정적인 면을 먼저 서술하고, 주의할 점도 균형 있게 다루세요.
 3. 구체적이고 실용적인 관계 조언을 제공하세요.
 4. 점수는 50-95 사이에서 합리적으로 매기세요.
+5. 마크다운 금지: **, __, *, _, #, \`\`\` 등 어떤 마크다운 마커도 절대 사용하지 마세요. JSON 문자열 값 안에도 절대 마커를 넣지 마세요.
 
 ## 응답 형식
 반드시 아래 JSON 형식으로만 응답하세요.
@@ -340,6 +344,7 @@ const BASE_SYSTEM = `당신은 30년 경력의 한국 전통 사주명리학 전
 6. 단정적으로 분석하세요. "~일 수 있다", "~가능성이 높다" 등 불확실한 표현 금지.
 7. 미신적 공포감을 주는 표현은 피하세요.
 8. 반드시 순수 JSON만 응답하세요. 코드블록도 없이, 다른 텍스트 없이 JSON만 출력하세요.
+9. 마크다운 금지: **, __, *, _, #, \`\`\`, --- 등 어떤 마크다운 마커도 절대 사용하지 마세요. JSON 문자열 값 안에도 절대 마커를 넣지 마세요. 강조는 한국어 표현으로 표현하세요.
 
 ★ 분량 준수 규칙 (매우 중요 — 반드시 지킬 것):
 - 각 필드의 지정된 최소 글자 수를 반드시 지켜야 합니다.
@@ -541,7 +546,9 @@ export function parseAIResponse<T>(response: string): T {
   const jsonStr = codeBlockMatch ? codeBlockMatch[1].trim() : response.trim();
 
   try {
-    return JSON.parse(jsonStr) as T;
+    const parsed = JSON.parse(jsonStr) as T;
+    // 모델이 지시를 어기고 ** 마커를 남기는 경우를 대비한 방어층.
+    return stripMarkdownDeep(parsed);
   } catch (error) {
     throw new Error(
       `AI 응답 JSON 파싱 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@/i18n/routing";
+import { CONSTELLATIONS } from "./constellations";
 
 // ---------------------------------------------------------------------------
 // Data
@@ -621,42 +622,20 @@ export default function ZodiacPageClient({
       {/* Animated hero */}
       <ZodiacHero />
 
-      {/* Zodiac Grid — 6×2 bento */}
-      <section className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-16" aria-label="별자리 선택">
-        {ZODIAC_SIGNS.map((sign) => {
-          const isActive = selectedSign.id === sign.id;
-          return (
-            <button
-              key={sign.id}
-              onClick={() => handleSignSelect(sign)}
-              className="group relative aspect-square rounded-xl overflow-hidden transition-all duration-500"
-              style={{
-                background: "rgba(31,31,37,0.6)",
-                backdropFilter: "blur(20px)",
-                border: isActive
-                  ? "1px solid rgba(208,188,255,0.4)"
-                  : "1px solid rgba(73,68,84,0.15)",
-                boxShadow: isActive ? "0 0 30px -5px rgba(208,188,255,0.25)" : "none",
-              }}
-              aria-pressed={isActive}
-              aria-label={`${sign.nameKo} 선택`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#131318] via-transparent to-transparent opacity-70" />
-              <div className="absolute inset-0 p-3 flex flex-col justify-end items-start">
-                <span className="font-['Space_Grotesk'] text-[#d0bcff] text-[9px] uppercase tracking-widest mb-0.5 opacity-80">
-                  {sign.dates}
-                </span>
-                <h3 className="text-sm font-bold text-[#e4e1e9]">{sign.nameKo}</h3>
-              </div>
-              <div
-                className="absolute top-3 right-3 text-2xl opacity-25 group-hover:opacity-100 transition-opacity"
-                aria-hidden="true"
-              >
-                {sign.symbol}
-              </div>
-            </button>
-          );
-        })}
+      {/* Zodiac Grid — 6×2 bento with hover constellation */}
+      <section
+        className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-16"
+        aria-label="별자리 선택"
+        style={{ perspective: "1000px" }}
+      >
+        {ZODIAC_SIGNS.map((sign) => (
+          <ZodiacSignCard
+            key={sign.id}
+            sign={sign}
+            isActive={selectedSign.id === sign.id}
+            onSelect={() => handleSignSelect(sign)}
+          />
+        ))}
       </section>
 
       {/* Selected zodiac detail — two-column layout */}
@@ -921,5 +900,179 @@ function LuckyItem({ label, value, icon }: { label: string; value: string; icon:
       <p className="font-['Space_Grotesk'] text-[#d0bcff] text-xs uppercase tracking-wide mb-1">{label}</p>
       <p className="font-bold text-sm text-[#e4e1e9]">{value}</p>
     </div>
+  );
+}
+
+// ─── Zodiac Sign Card with hover constellation ──────────────────────────────
+
+function ZodiacSignCard({
+  sign,
+  isActive,
+  onSelect,
+}: {
+  sign: ZodiacSign;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const constellation = CONSTELLATIONS[sign.id];
+  const showFx = hovered || isActive;
+  const color = sign.elementColor;
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onSelect}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      whileHover={{ scale: 1.08, y: -6, rotateX: -4, rotateY: 4, z: 50 }}
+      whileTap={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 320, damping: 22 }}
+      className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 35%, rgba(255,255,255,0.04) 0%, rgba(31,31,37,0.85) 60%)",
+        backdropFilter: "blur(20px)",
+        border: isActive
+          ? `1px solid ${color}66`
+          : "1px solid rgba(73,68,84,0.18)",
+        boxShadow: showFx
+          ? `0 18px 48px -12px ${color}55, 0 0 0 1px ${color}33, inset 0 0 30px -10px ${color}22`
+          : "none",
+        transformStyle: "preserve-3d",
+      }}
+      aria-pressed={isActive}
+      aria-label={`${sign.nameKo} 선택`}
+    >
+      {/* Element-color radial glow that brightens on hover */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        style={{
+          opacity: showFx ? 0.55 : 0,
+          background: `radial-gradient(circle at 50% 38%, ${color}40 0%, transparent 65%)`,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Constellation SVG — appears on hover, twinkles continuously */}
+      {constellation && (
+        <svg
+          viewBox="0 0 100 100"
+          className="pointer-events-none absolute inset-0 w-full h-full transition-all duration-500"
+          style={{
+            opacity: showFx ? 1 : 0.22,
+            transform: showFx ? "scale(1.0)" : "scale(0.9)",
+            filter: showFx ? `drop-shadow(0 0 6px ${color}cc)` : "none",
+          }}
+          aria-hidden="true"
+        >
+          {/* Lines */}
+          <g
+            stroke={color}
+            strokeWidth={showFx ? 0.6 : 0.3}
+            strokeLinecap="round"
+            opacity={showFx ? 0.8 : 0.35}
+            style={{ transition: "opacity 0.5s, stroke-width 0.5s" }}
+          >
+            {constellation.lines.map(([a, b], i) => {
+              const [x1, y1] = constellation.stars[a];
+              const [x2, y2] = constellation.stars[b];
+              return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
+            })}
+          </g>
+          {/* Stars */}
+          <g>
+            {constellation.stars.map(([x, y], i) => (
+              <circle
+                key={i}
+                cx={x}
+                cy={y}
+                r={showFx ? 1.6 : 1.0}
+                fill="#ffffff"
+                style={{
+                  filter: `drop-shadow(0 0 3px ${color})`,
+                  animation: showFx
+                    ? `zodiacTwinkle 1.4s ease-in-out ${i * 0.12}s infinite`
+                    : "none",
+                  transition: "r 0.4s",
+                }}
+              />
+            ))}
+          </g>
+        </svg>
+      )}
+
+      {/* Bottom gradient + label */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#131318] via-transparent to-transparent opacity-80" />
+      <div className="absolute inset-0 p-3 flex flex-col justify-end items-start">
+        <span
+          className="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mb-0.5"
+          style={{
+            color: showFx ? color : "#d0bcff",
+            opacity: 0.85,
+            transition: "color 0.4s",
+          }}
+        >
+          {sign.dates}
+        </span>
+        <h3
+          className="text-sm font-bold transition-all duration-300"
+          style={{
+            color: showFx ? "#ffffff" : "#e4e1e9",
+            textShadow: showFx ? `0 0 12px ${color}99` : "none",
+          }}
+        >
+          {sign.nameKo}
+        </h3>
+      </div>
+
+      {/* Pop-out symbol — large, glows, lifts forward on hover */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        animate={
+          showFx
+            ? { scale: 1.55, y: -8, opacity: 1 }
+            : { scale: 1.0, y: 0, opacity: 0.22 }
+        }
+        transition={{ type: "spring", stiffness: 280, damping: 18 }}
+        aria-hidden="true"
+      >
+        <span
+          className="text-5xl"
+          style={{
+            color: showFx ? "#ffffff" : color,
+            textShadow: showFx
+              ? `0 0 22px ${color}, 0 0 38px ${color}88, 0 0 60px ${color}55`
+              : "none",
+            transition: "color 0.4s, text-shadow 0.4s",
+          }}
+        >
+          {sign.symbol}
+        </span>
+      </motion.div>
+
+      {/* Sparkle particles on hover */}
+      {showFx && (
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <span
+              key={i}
+              className="absolute block rounded-full"
+              style={{
+                left: `${15 + i * 22}%`,
+                top: `${10 + ((i * 19) % 70)}%`,
+                width: 3,
+                height: 3,
+                backgroundColor: "#ffffff",
+                boxShadow: `0 0 6px ${color}`,
+                animation: `zodiacSparkle 1.6s ease-in-out ${i * 0.18}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </motion.button>
   );
 }

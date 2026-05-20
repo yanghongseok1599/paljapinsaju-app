@@ -18,6 +18,7 @@ import {
   buildChapter5Prompt,
   parseAIResponse,
 } from '../prompts';
+import { stripMarkdown, stripMarkdownDeep } from '../sanitize';
 import { getAnalysisModel } from '@/lib/ai/model';
 
 const model = getAnalysisModel();
@@ -40,7 +41,7 @@ export async function generatePreview(params: {
     temperature: 0.7,
   });
 
-  return text.trim();
+  return stripMarkdown(text.trim());
 }
 
 /**
@@ -68,13 +69,16 @@ async function generateChapter<T>(
     const jsonStr = codeBlockMatch ? codeBlockMatch[1].trim() : raw;
 
     try {
-      return JSON.parse(jsonStr) as Partial<T>;
+      // 모델이 ** 마커를 남기는 경우를 위한 방어층.
+      return stripMarkdownDeep(JSON.parse(jsonStr)) as Partial<T>;
     } catch {
       // JSON 파싱 실패 시 부분 복구 시도 — 마지막 }를 닫아보기
       const lastBrace = jsonStr.lastIndexOf('}');
       if (lastBrace > 0) {
         try {
-          return JSON.parse(jsonStr.slice(0, lastBrace + 1) + '}') as Partial<T>;
+          return stripMarkdownDeep(
+            JSON.parse(jsonStr.slice(0, lastBrace + 1) + '}'),
+          ) as Partial<T>;
         } catch {
           // 복구도 실패
         }

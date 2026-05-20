@@ -82,7 +82,7 @@ export default function LandingCTA() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.08, ease: "easeOut" }}
-          className="font-black leading-[0.9] tracking-tighter mb-16"
+          className="font-black leading-[1.1] tracking-tighter mb-16"
           style={{
             fontFamily: "Plus Jakarta Sans, Pretendard, sans-serif",
             fontSize: "clamp(3.5rem, 9vw, 7rem)",

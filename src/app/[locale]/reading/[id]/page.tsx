@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import type { SajuReading } from "@/types/saju";
-import SajuNavbar from "@/components/saju/landing/SajuNavbar";
+import SajuNavbar from "@/components/saju/landing/SajuNavbarAuto";
 import PaymentSuccess from "@/components/saju/payment/PaymentSuccess";
 import ReadingPreview from "./ReadingPreview";
 
