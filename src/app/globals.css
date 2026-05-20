@@ -468,8 +468,59 @@
   50% { opacity: 0.7; transform: scaleY(1.2); }
 }
 
+/* ===================================================
+   COSMIC STARFIELD — 오행 panel background
+   =================================================== */
+.cosmic-star {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  animation-name: cosmicTwinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  will-change: opacity, transform;
+}
+@keyframes cosmicTwinkle {
+  0%, 100% { opacity: 0.08; transform: scale(0.6); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+.cosmic-shooting {
+  position: absolute;
+  top: 0; left: 0;
+  width: 130px; height: 1.4px;
+  background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.95) 55%, rgba(208,188,255,0.7) 85%, transparent 100%);
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 4px rgba(208,188,255,0.7));
+  opacity: 0;
+  pointer-events: none;
+  animation: cosmicShoot 9s linear infinite;
+}
+@keyframes cosmicShoot {
+  0%   { transform: translate(-10%, 18%) rotate(18deg); opacity: 0; }
+  3%   { opacity: 0.9; }
+  9%   { transform: translate(115%, 62%) rotate(18deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.cosmic-pulse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: cosmicPulse 2.4s ease-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes cosmicPulse {
+  0%   { transform: scale(0.85); opacity: 0; }
+  35%  { opacity: 0.8; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse,
+  .cosmic-star,
+  .cosmic-shooting,
+  .cosmic-pulse,
   [style*="nebulaDrift"],
   [style*="orbFloat"],
   [style*="scrollCueFloat"] {

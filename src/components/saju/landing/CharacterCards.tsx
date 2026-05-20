@@ -17,7 +17,7 @@ const PRIMARY_CHARS = [
     name: "소연",
     service: "연애 분석 / Love Analysis",
     tagline: "당신의 영혼을 타인과 잇는 감정의 실타래를 풀어냅니다.",
-    cardImage: "/characters/soyeon-card-v2.jpg",
+    cardImage: "/characters/soyeon-card-v3.jpg",
     color: "#d0bcff",
     glowColor: "rgba(208,188,255,0.4)",
     borderHover: "hover:border-[#d0bcff]/40",
@@ -28,7 +28,7 @@ const PRIMARY_CHARS = [
     name: "민준",
     service: "재물 전략 / Wealth Strategy",
     tagline: "번영의 흐름과 물질적 풍요를 데이터로 계산합니다.",
-    cardImage: "/characters/minjun-card.jpg",
+    cardImage: "/characters/minjun-card-v2.jpg",
     color: "#89ceff",
     glowColor: "rgba(137,206,255,0.4)",
     borderHover: "hover:border-[#89ceff]/40",
@@ -39,7 +39,7 @@ const PRIMARY_CHARS = [
     name: "하은",
     service: "시간 항해사 / Time Navigator",
     tagline: "과거의 순환과 미래의 문을 해독하여 방향을 제시합니다.",
-    cardImage: "/characters/haeun-card.jpg",
+    cardImage: "/characters/haeun-card-v2.jpg",
     color: "#ffb95f",
     glowColor: "rgba(255,185,95,0.4)",
     borderHover: "hover:border-[#ffb95f]/40",
@@ -50,7 +50,7 @@ const PRIMARY_CHARS = [
     name: "지안",
     service: "운명 설계 / Destiny Architect",
     tagline: "당신 삶의 거대한 청사진과 아키텍처를 분석합니다.",
-    cardImage: "/characters/jian-card.jpg",
+    cardImage: "/characters/jian-card-v2.jpg",
     color: "#cbc3d7",
     glowColor: "rgba(203,195,215,0.35)",
     borderHover: "hover:border-white/40",
@@ -208,17 +208,17 @@ function CharacterCard({
         rotateY: prefersReduced ? 0 : rotateY,
         transformOrigin: "center center",
       }}
-      className="group relative rounded-3xl h-[520px] flex flex-col cursor-pointer"
+      className="group relative rounded-t-3xl h-[520px] flex flex-col cursor-pointer"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
       aria-label={`${char.name} - ${char.service}`}
     >
       {/* Inner clip wrapper — keeps image within border-radius */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden" />
+      <div className="absolute inset-0 rounded-t-3xl overflow-hidden" />
 
       {/* Base card glass layer */}
       <div
-        className="absolute inset-0 rounded-3xl"
+        className="absolute inset-0 rounded-t-3xl"
         style={{
           background: "rgba(20,19,26,0.6)",
           border: "1px solid rgba(73,68,84,0.25)",
@@ -226,16 +226,15 @@ function CharacterCard({
         }}
       />
 
-      {/* Character image — visible with light moody treatment */}
-      <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
+      {/* Character image — bright, premium treatment */}
+      <div className="absolute inset-0 z-0 rounded-t-3xl overflow-hidden">
         <Image
           src={char.cardImage}
           alt={char.name}
           fill
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           style={{
-            // Moody but VISIBLE: slight desaturation + subtle darkening only
-            filter: "saturate(0.75) brightness(0.7) contrast(1.05)",
+            filter: "saturate(0.95) brightness(1.05) contrast(1.02)",
           }}
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 78vw"
         />
@@ -270,14 +269,14 @@ function CharacterCard({
 
       {/* Hover glow border ring */}
       <div
-        className="absolute -inset-px rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        className="absolute -inset-px rounded-t-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
           boxShadow: `0 0 0 1px ${char.color}50, 0 0 60px ${char.color}25 inset`,
         }}
       />
       {/* Outer glow halo */}
       <div
-        className="absolute -inset-1 rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        className="absolute -inset-1 rounded-t-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"
         style={{
           boxShadow: `0 8px 60px ${char.color}30, 0 0 80px ${char.color}15`,
         }}
@@ -285,7 +284,7 @@ function CharacterCard({
 
       {/* Scanline texture — subtle */}
       <div
-        className="absolute inset-0 opacity-[0.04] group-hover:opacity-[0.02] mix-blend-overlay pointer-events-none transition-opacity duration-700 rounded-3xl overflow-hidden"
+        className="absolute inset-0 opacity-[0.04] group-hover:opacity-[0.02] mix-blend-overlay pointer-events-none transition-opacity duration-700 rounded-t-3xl overflow-hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(208,188,255,0.3) 4px, transparent 5px)",
@@ -319,7 +318,7 @@ function CharacterCard({
         >
           {char.name}
         </h3>
-        <p className="text-[#a8a0b8] text-sm leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-400 max-h-0 group-hover:max-h-20 overflow-hidden transition-all">
+        <p className="text-[#a8a0b8] text-sm leading-snug opacity-0 group-hover:opacity-100 mt-2 rounded-none transition-opacity duration-500 ease-out">
           {char.tagline}
         </p>
       </div>

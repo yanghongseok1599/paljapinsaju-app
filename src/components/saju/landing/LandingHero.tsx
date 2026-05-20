@@ -233,40 +233,204 @@ function arcPath(
   return `M ${ax} ${ay} Q ${cpx} ${cpy} ${bx} ${by}`;
 }
 
-interface OhaengDiagramProps {
+// ─── Cosmic starfield — animated backdrop for the 오행 panel ────────────────
+function OhaengCosmos({
+  hoveredId,
+  prefersReduced,
+}: {
+  hoveredId: ElementId | null;
   prefersReduced: boolean;
+}) {
+  // Generated AFTER mount (client-only) so SSR HTML stays empty → no hydration mismatch.
+  const [stars, setStars] = useState<
+    {
+      x: number;
+      y: number;
+      size: number;
+      delay: number;
+      duration: number;
+      color: string;
+    }[]
+  >([]);
+  useEffect(() => {
+    setStars(
+      Array.from({ length: 95 }, () => {
+        const tier = Math.random();
+        const size =
+          tier > 0.96
+            ? 2.2 + Math.random() * 0.9
+            : tier > 0.85
+              ? 1.5 + Math.random() * 0.6
+              : 0.55 + Math.random() * 0.9;
+        const c = Math.random();
+        return {
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size,
+          delay: -Math.random() * 5,
+          duration: 2.4 + Math.random() * 4.6,
+          color:
+            c < 0.17
+              ? "#d0bcff"
+              : c < 0.32
+                ? "#89ceff"
+                : c < 0.39
+                  ? "#ffb95f"
+                  : "#ffffff",
+        };
+      })
+    );
+  }, []);
+
+  const hoverColor = hoveredId
+    ? (ELEMENTS.find((e) => e.id === hoveredId)?.color ?? null)
+    : null;
+
+  return (
+    <div
+      className="absolute inset-0 overflow-hidden"
+      aria-hidden="true"
+      style={{ borderRadius: "inherit" }}
+    >
+      {/* Layered nebula — drifts slowly */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 25% 30%, rgba(160,120,255,0.20) 0%, transparent 65%)," +
+            "radial-gradient(ellipse 55% 50% at 75% 70%, rgba(137,206,255,0.14) 0%, transparent 65%)," +
+            "radial-gradient(ellipse 45% 45% at 50% 50%, rgba(255,185,95,0.06) 0%, transparent 75%)",
+          animation: prefersReduced
+            ? "none"
+            : "nebulaDrift 28s ease-in-out infinite alternate",
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 35% 35% at 80% 25%, rgba(208,188,255,0.10) 0%, transparent 70%)," +
+            "radial-gradient(ellipse 30% 35% at 18% 75%, rgba(137,206,255,0.10) 0%, transparent 70%)",
+          animation: prefersReduced
+            ? "none"
+            : "nebulaDrift 38s ease-in-out infinite alternate-reverse",
+        }}
+      />
+
+      {/* Twinkling stars */}
+      {stars.map((s, i) => (
+        <span
+          key={i}
+          className="cosmic-star"
+          style={{
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: `${s.size}px`,
+            height: `${s.size}px`,
+            background: s.color,
+            boxShadow: `0 0 ${Math.max(s.size * 2.2, 3)}px ${s.color}`,
+            animationDelay: `${s.delay}s`,
+            animationDuration: `${s.duration}s`,
+          }}
+        />
+      ))}
+
+      {/* Shooting stars — occasional streaks */}
+      {!prefersReduced && (
+        <>
+          <span
+            className="cosmic-shooting"
+            style={{ animationDelay: "0s", animationDuration: "11s", top: "8%" }}
+          />
+          <span
+            className="cosmic-shooting"
+            style={{ animationDelay: "5.5s", animationDuration: "13s", top: "62%" }}
+          />
+          <span
+            className="cosmic-shooting"
+            style={{ animationDelay: "8s", animationDuration: "16s", top: "38%" }}
+          />
+        </>
+      )}
+
+      {/* Hover-reactive cosmic glow — tinted by hovered element's color */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: hoverColor
+            ? `radial-gradient(ellipse 70% 70% at 50% 50%, ${hoverColor}3D 0%, ${hoverColor}14 40%, transparent 78%)`
+            : "transparent",
+          opacity: hoverColor ? 1 : 0,
+          transition: "opacity 0.45s ease-out, background 0.45s ease-out",
+          mixBlendMode: "screen",
+        }}
+      />
+      {/* Hover pulse ring */}
+      {hoverColor && !prefersReduced && (
+        <div
+          className="cosmic-pulse"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 36%, ${hoverColor}44 39%, transparent 44%)`,
+          }}
+        />
+      )}
+    </div>
+  );
 }
 
-function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
+interface OhaengDiagramProps {
+  prefersReduced: boolean;
+  onHoverChange?: (id: ElementId | null) => void;
+}
+
+function OhaengDiagram({ prefersReduced, onHoverChange }: OhaengDiagramProps) {
   const [hoveredId, setHoveredId] = useState<ElementId | null>(null);
+
+  // Notify parent when hover state changes (for cosmic background reaction)
+  useEffect(() => {
+    onHoverChange?.(hoveredId);
+  }, [hoveredId, onHoverChange]);
   const [localMouse, setLocalMouse] = useState({ x: 0, y: 0 });
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const rotRef = useRef(0);
   const rafRotRef = useRef<number>(0);
-  const [rotAngle, setRotAngle] = useState(0);
+  // Refs for ref-driven rotation — no React state, no 60fps re-render storm
+  const rotGroupRef = useRef<SVGGElement>(null);
+  const nodeTextRefs = useRef<Map<ElementId, SVGGElement>>(new Map());
 
   const SIZE = 420;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
   const R = 155;
   const NODE_R = 32;
-  const PARTICLE_COUNT = 6;
 
-  // Continuous slow rotation
+  // Continuous slow rotation — applied via SVG <g> transform on a ref, so
+  // arc paths / animateMotion paths stay STATIC and particles glide smoothly.
+  // Element texts are individually counter-rotated to stay upright.
   useEffect(() => {
     if (prefersReduced) return;
     let last = performance.now();
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      rotRef.current = (rotRef.current + dt * 0.006) % 360;
-      setRotAngle(rotRef.current);
+      rotRef.current = (rotRef.current + dt * 0.003) % 360;
+      const a = rotRef.current;
+      if (rotGroupRef.current) {
+        rotGroupRef.current.setAttribute("transform", `rotate(${a} ${CX} ${CY})`);
+      }
+      ELEMENTS.forEach((el) => {
+        const node = nodeTextRefs.current.get(el.id);
+        if (node) {
+          const pos = elementPos(el.angle, R, CX, CY);
+          node.setAttribute("transform", `rotate(${-a} ${pos.x} ${pos.y})`);
+        }
+      });
       rafRotRef.current = requestAnimationFrame(tick);
     };
     rafRotRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRotRef.current);
-  }, [prefersReduced]);
+  }, [prefersReduced, CX, CY, R]);
 
   // Parallax tilt on mouse move over container
   const handleContainerMouseMove = useCallback(
@@ -342,10 +506,10 @@ function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
     });
   }
 
-  // Node positions at current rotation
+  // Base node positions — visual rotation is applied via the SVG group transform.
   const nodePositions = ELEMENTS.map((el) => ({
     ...el,
-    pos: elementPos(el.angle + rotAngle, R, CX, CY),
+    pos: elementPos(el.angle, R, CX, CY),
   }));
 
   const getPos = (id: ElementId) => {
@@ -518,6 +682,10 @@ function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
             strokeWidth="1"
           />
 
+          {/* Rotating group — single SVG transform updated via ref (no React state).
+              Paths inside use BASE positions, so animateMotion paths stay stable. */}
+          <g ref={rotGroupRef}>
+
           {/* ── 상극(剋) — inner pentagram dashed lines ── */}
           {SANGGEUK.map(([from, to]) => {
             const a = getPos(from);
@@ -620,26 +788,6 @@ function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
               );
             })}
 
-          {/* ── Outer orbit particles (decorative ring) ── */}
-          {!prefersReduced &&
-            Array.from({ length: PARTICLE_COUNT }).map((_, i) => {
-              const angle = (i / PARTICLE_COUNT) * 360 + rotAngle * 0.3;
-              const r2 = R * 1.12;
-              const px = CX + r2 * Math.cos(angle * DEG);
-              const py = CY + r2 * Math.sin(angle * DEG);
-              return (
-                <circle
-                  key={`ring-p-${i}`}
-                  cx={px}
-                  cy={py}
-                  r={i % 2 === 0 ? 2 : 1.2}
-                  fill="rgba(208,188,255,0.6)"
-                  opacity="0.5"
-                  style={{ filter: "blur(0.5px)" }}
-                />
-              );
-            })}
-
           {/* ── Element nodes ── */}
           {nodePositions.map((el) => {
             const dimmed = isDimmed(el.id);
@@ -690,49 +838,59 @@ function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
                   filter={isHov ? `url(#glow-${el.id})` : undefined}
                   style={{ transition: "all 0.25s ease-out" }}
                 />
-                {/* Hanja */}
-                <text
-                  x={el.pos.x}
-                  y={el.pos.y - 4}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill={
-                    isHov
-                      ? el.id === "토"
-                        ? "#1a0f00"
-                        : "#ffffff"
-                      : el.color
-                  }
-                  fontSize={isHov ? "22" : "20"}
-                  fontWeight="700"
-                  fontFamily="'Noto Serif KR', 'Nanum Myeongjo', serif"
-                  opacity={dimmed ? 0.2 : 1}
-                  style={{ transition: "all 0.25s", pointerEvents: "none" }}
+                {/* Text labels — counter-rotated via ref so they stay upright */}
+                <g
+                  ref={(g) => {
+                    if (g) nodeTextRefs.current.set(el.id, g);
+                    else nodeTextRefs.current.delete(el.id);
+                  }}
                 >
-                  {el.hanja}
-                </text>
-                {/* Korean name */}
-                <text
-                  x={el.pos.x}
-                  y={el.pos.y + 14}
-                  textAnchor="middle"
-                  fill={
-                    isHov
-                      ? el.id === "토"
-                        ? "rgba(26,15,0,0.8)"
-                        : "rgba(255,255,255,0.85)"
-                      : "rgba(255,255,255,0.4)"
-                  }
-                  fontSize="10"
-                  fontFamily="'Pretendard', sans-serif"
-                  opacity={dimmed ? 0.15 : 1}
-                  style={{ transition: "all 0.25s", pointerEvents: "none" }}
-                >
-                  {el.name}
-                </text>
+                  {/* Hanja */}
+                  <text
+                    x={el.pos.x}
+                    y={el.pos.y - 4}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill={
+                      isHov
+                        ? el.id === "토"
+                          ? "#1a0f00"
+                          : "#ffffff"
+                        : el.color
+                    }
+                    fontSize={isHov ? "22" : "20"}
+                    fontWeight="700"
+                    fontFamily="'Noto Serif KR', 'Nanum Myeongjo', serif"
+                    opacity={dimmed ? 0.2 : 1}
+                    style={{ transition: "all 0.25s", pointerEvents: "none" }}
+                  >
+                    {el.hanja}
+                  </text>
+                  {/* Korean name */}
+                  <text
+                    x={el.pos.x}
+                    y={el.pos.y + 14}
+                    textAnchor="middle"
+                    fill={
+                      isHov
+                        ? el.id === "토"
+                          ? "rgba(26,15,0,0.8)"
+                          : "rgba(255,255,255,0.85)"
+                        : "rgba(255,255,255,0.4)"
+                    }
+                    fontSize="10"
+                    fontFamily="'Pretendard', sans-serif"
+                    opacity={dimmed ? 0.15 : 1}
+                    style={{ transition: "all 0.25s", pointerEvents: "none" }}
+                  >
+                    {el.name}
+                  </text>
+                </g>
               </g>
             );
           })}
+
+          </g>{/* /rotating group */}
 
           {/* Center dot */}
           <circle
@@ -858,6 +1016,8 @@ function OhaengDiagram({ prefersReduced }: OhaengDiagramProps) {
 export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  // Hover state lifted from OhaengDiagram so the cosmic backdrop can react
+  const [panelHoveredId, setPanelHoveredId] = useState<ElementId | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -1138,19 +1298,18 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
             </p>
           </div>
 
-          {/* Living 오행 diagram */}
+          {/* Living 오행 diagram with animated cosmic backdrop */}
           <div className="relative flex items-center justify-center py-8 px-4">
-            {/* Subtle starfield in panel */}
-            <div
-              className="absolute inset-0 opacity-40"
-              aria-hidden="true"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.4) 0.5px, transparent 0)",
-                backgroundSize: "54px 54px",
-              }}
+            <OhaengCosmos
+              hoveredId={panelHoveredId}
+              prefersReduced={prefersReduced ?? false}
             />
-            <OhaengDiagram prefersReduced={prefersReduced ?? false} />
+            <div className="relative z-10">
+              <OhaengDiagram
+                prefersReduced={prefersReduced ?? false}
+                onHoverChange={setPanelHoveredId}
+              />
+            </div>
           </div>
 
           {/* Legend */}
