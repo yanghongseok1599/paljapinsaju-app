@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/routing";
 import { getReading } from "@/services/saju/actions";
 import SajuNavbar from "@/components/saju/landing/SajuNavbarAuto";
-import FiveElementChart from "@/components/saju/preview/FiveElementChart";
+import MoneyReport from "@/components/saju/money-report/MoneyReport";
 import FullAnalysis from "@/components/saju/result/FullAnalysis";
 import PdfDownloadButton from "@/components/saju/result/PdfDownloadButton";
 import CompatibilityUpsell from "@/components/saju/result/CompatibilityUpsell";
@@ -31,14 +31,14 @@ export default async function ResultPage({
     return null;
   }
 
-  const elements = reading.five_elements;
+  const { four_pillars: pillars, five_elements: elements } = reading;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
       <SajuNavbar />
 
       <main className="max-w-3xl mx-auto px-5 py-8 pt-24 flex flex-col gap-6">
-        {/* 사주 정보 요약 */}
+        {/* 사주 정보 요약 (오행 차트는 MoneyReport의 부자 DNA / 오행 프로필이 흡수) */}
         <div className="glass-panel rounded-2xl p-6" style={{ borderColor: 'rgba(73,68,84,0.2)' }}>
           <h1 className="text-xl font-bold text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>
             {reading.name}님의 사주분석 결과
@@ -50,16 +50,14 @@ export default async function ResultPage({
             {" / "}
             {reading.gender === "male" ? "남성" : "여성"}
           </p>
-
-          {/* 오행 차트 */}
-          {elements && (
-            <div className="mt-5">
-              <FiveElementChart elements={elements} />
-            </div>
-          )}
         </div>
 
-        {/* 전체 분석 */}
+        {/* ── 18섹션 재물운 보고서 (상단) ── */}
+        {pillars && elements && (
+          <MoneyReport name={reading.name} pillars={pillars} elements={elements} />
+        )}
+
+        {/* ── 기존 전체 사주 분석 ── */}
         <FullAnalysis analysis={reading.full_analysis} reading={reading} />
 
         {/* PDF 다운로드 */}

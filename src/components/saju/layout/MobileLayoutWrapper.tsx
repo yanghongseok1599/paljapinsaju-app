@@ -54,7 +54,7 @@ export default function MobileLayoutWrapper({
     <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
       <SajuNavbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} onMenuToggle={() => setSidebarOpen((v) => !v)} />
 
-      <div className="flex pt-16">
+      <div className="flex items-start pt-16">
         {/* 데스크톱: 기존 사이드바 */}
         <LoginSidebar
           user={sidebarUser}

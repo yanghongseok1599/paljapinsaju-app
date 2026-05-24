@@ -143,7 +143,14 @@ export default function SajuReportClient({
 }: SajuReportClientProps) {
   const [step, setStep] = useState<Step>('input');
   const [error, setError] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { progress, jumpTo } = useGenerationProgress(step === 'generating');
+
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    };
+  }, [pdfUrl]);
 
   // Form states
   const [name, setName] = useState('');
@@ -246,8 +253,8 @@ export default function SajuReportClient({
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
+      setPdfUrl(url);
       jumpTo(100, '완료!');
       setStep('done');
     } catch (err) {
@@ -331,30 +338,58 @@ export default function SajuReportClient({
 
   if (step === 'done') {
     return (
-      <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4" style={{ backgroundColor: '#131318' }}>
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'rgba(16,185,129,0.15)' }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
+      <div className="min-h-[calc(100vh-64px)] flex flex-col items-center px-4 py-12" style={{ backgroundColor: '#131318' }}>
+        <div className="w-full max-w-4xl">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'rgba(16,185,129,0.15)' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold mb-2 text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>리포트가 생성되었습니다!</h2>
+            <p className="text-sm mb-6 text-[#958ea0]">PDF 파일이 자동으로 다운로드되었습니다. 아래에서 바로 확인하실 수 있어요.</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              {pdfUrl && (
+                <a
+                  href={pdfUrl}
+                  download={`팔자핀사주_${name.trim()}_종합분석리포트_${new Date().toISOString().slice(0, 10)}.pdf`}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium transition-colors text-[#d0bcff] hover:bg-[rgba(208,188,255,0.08)]"
+                  style={{ border: '1px solid rgba(208,188,255,0.3)' }}
+                >
+                  다시 다운로드
+                </a>
+              )}
+              <button
+                onClick={() => {
+                  if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+                  setPdfUrl(null);
+                  setStep('input');
+                  setUsedMyInfo(false);
+                }}
+                className="px-5 py-2.5 rounded-xl oracle-gradient text-sm font-medium hover:opacity-90 transition-opacity" style={{ color: '#3c0091' }}
+              >
+                다른 사람 리포트 받기
+              </button>
+              <Link
+                href="/"
+                className="px-5 py-2.5 rounded-xl text-sm font-medium transition-colors text-[#cac4d0] hover:bg-[rgba(208,188,255,0.05)]" style={{ border: '1px solid rgba(73,68,84,0.3)' }}
+              >
+                홈으로
+              </Link>
+            </div>
           </div>
-          <h2 className="text-xl font-bold mb-2 text-[#e4e1e9]" style={{ fontFamily: 'Plus Jakarta Sans, Pretendard, sans-serif' }}>리포트가 생성되었습니다!</h2>
-          <p className="text-sm mb-8 text-[#958ea0]">PDF 파일이 자동으로 다운로드됩니다.</p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => { setStep('input'); setUsedMyInfo(false); }}
-              className="px-5 py-2.5 rounded-xl oracle-gradient text-sm font-medium hover:opacity-90 transition-opacity" style={{ color: '#3c0091' }}
-            >
-              다른 사람 리포트 받기
-            </button>
-            <Link
-              href="/"
-              className="px-5 py-2.5 rounded-xl text-sm font-medium transition-colors text-[#cac4d0] hover:bg-[rgba(208,188,255,0.05)]" style={{ border: '1px solid rgba(73,68,84,0.3)' }}
-            >
-              홈으로
-            </Link>
-          </div>
+
+          {pdfUrl && (
+            <div className="w-full rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(73,68,84,0.3)', backgroundColor: '#0e0e13' }}>
+              <iframe
+                src={pdfUrl}
+                title="사주 리포트 미리보기"
+                className="w-full"
+                style={{ height: '80vh', minHeight: 600, border: 0 }}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

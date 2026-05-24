@@ -1047,14 +1047,16 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
   // 280vh tall scroll track (100vh when reduced-motion).
   // Pin holds for 180vh of scroll; scrub completes at 180vh (180vh = 1.8 * innerHeight),
   // so the page never scrolls past the hero until the full 150-frame scrub finishes.
-  const trackHeight = prefersReduced ? "100vh" : "280vh";
+  // NOTE: forced to 280vh regardless of reduced-motion preference so the pinned hero always runs.
+  const trackHeight = "280vh";
+  void prefersReduced;
 
   return (
     <>
       {/* ── Pinned hero scroll-scrub section ───────────────────────────────── */}
       <section
         aria-label="메인 히어로 섹션"
-        style={{ height: trackHeight, position: "relative" }}
+        style={{ height: trackHeight, position: "relative", marginTop: "-64px" }}
       >
         {/* Sticky pinned stage — fixed on screen during the 220vh scroll track */}
         <div

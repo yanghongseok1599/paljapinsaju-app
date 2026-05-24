@@ -229,7 +229,7 @@ export function AuthForm() {
           <div className="space-y-3">
             {tab === "signin" && !showForgotPassword && (
               <div className="rounded-lg border border-[rgba(208,188,255,0.2)] bg-[rgba(208,188,255,0.08)] px-3 py-2 text-xs leading-relaxed text-[#d0bcff]">
-                테스트 계정: admin / 1111
+                관리자 계정: admin@saju.local / admin1234
               </div>
             )}
             {/* Tabs */}

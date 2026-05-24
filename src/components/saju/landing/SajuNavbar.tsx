@@ -57,6 +57,7 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
           <NavLink href="/zodiac">별자리</NavLink>
           <NavLink href="/compatibility">궁합</NavLink>
           <NavLink href="/chat/charon_m">오라클</NavLink>
+          <NavLink href="/tarot">타로</NavLink>
         </div>
 
         {/* Mobile hamburger (hidden on md) */}
@@ -142,6 +143,7 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
               { href: "/zodiac", label: "별자리" },
               { href: "/compatibility", label: "궁합" },
               { href: "/chat/charon_m", label: "오라클 채팅" },
+              { href: "/tarot", label: "타로" },
             ].map((item) => (
               <Link
                 key={item.href}
