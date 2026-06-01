@@ -1123,7 +1123,7 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     backgroundClip: "text",
                   }}
                 >
-                  아스트라
+                  천기
                 </span>
                 <br />
                 <span

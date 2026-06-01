@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 
 const faqs = [
   {
-    q: "아스트라 오라클의 알고리즘은 어떻게 작동하나요?",
+    q: "천기 오라클의 알고리즘은 어떻게 작동하나요?",
     a: "본 시스템은 수 세기 동안 축적된 점성술 데이터와 현대의 머신러닝 패턴을 결합하여, 천체 위치와 인간 행동 결과 사이의 통계적 정렬을 찾아냅니다.",
   },
   {
