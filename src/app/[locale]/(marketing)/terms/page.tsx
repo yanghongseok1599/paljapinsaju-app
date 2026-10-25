@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { COMPANY, PAYMENT_PROVIDER } from "@/lib/legal/company";
 
 export const metadata: Metadata = {
   title: "이용약관",
@@ -46,7 +47,7 @@ export default function TermsPage() {
               제1조 (목적)
             </h2>
             <p className="text-gray-300">
-              이 약관은 Your Company Name(이하 &quot;회사&quot;)가 운영하는
+              이 약관은 {COMPANY.name}(이하 &quot;회사&quot;)가 운영하는
               &quot;팔자핀사주&quot;(drsaju.com, 이하 &quot;서비스&quot;)의 이용과
               관련하여 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한
               사항을 규정함을 목적으로 합니다.
@@ -145,7 +146,7 @@ export default function TermsPage() {
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-gray-300 pl-1">
               <li>
-                별 충전 상품은 다음과 같습니다.
+                별 충전 상품은 다음과 같습니다. (부가세 포함)
                 <ul className="list-disc list-inside pl-5 mt-1 space-y-1">
                   <li>30개: 9,900원</li>
                   <li>70개: 19,900원</li>
@@ -153,8 +154,20 @@ export default function TermsPage() {
                 </ul>
               </li>
               <li>
-                결제는 Paddle 결제 시스템을 통해 처리되며, 카카오페이 등 다양한
-                결제 수단을 지원합니다.
+                개별 상품 가격은 다음과 같습니다. (부가세 포함)
+                <ul className="list-disc list-inside pl-5 mt-1 space-y-1">
+                  <li>종합 사주분석: 19,900원</li>
+                  <li>궁합 분석: 9,900원</li>
+                  <li>고민별 상담 — 재회·이별 후, 상대의 마음: 각 9,900원</li>
+                  <li>고민별 상담 — 환승·바람 의심, 이직·합격, 금전·투자: 각 14,900원</li>
+                  <li>고민별 상담 — 궁합·결혼 결정, 신년운세: 각 19,900원</li>
+                </ul>
+              </li>
+              <li>
+                결제는 {PAYMENT_PROVIDER.name}에서 제공하는 결제 페이지를 통해
+                처리됩니다. 결제 시 이용자는 해당 결제 페이지로 이동하며, 결제 완료 후
+                본 서비스로 복귀합니다. 상품의 판매 주체 및 환불 책임은 {COMPANY.name}에
+                있습니다.
               </li>
               <li>
                 별의 유효기간은 충전일로부터 1년입니다. 유효기간이 경과한 별은
@@ -172,13 +185,44 @@ export default function TermsPage() {
                     가능합니다.
                   </li>
                   <li>
-                    환불 요청은 이메일(your-email@example.com)을 통해 접수할 수
+                    환불 요청은 이메일({COMPANY.email})을 통해 접수할 수
                     있습니다.
                   </li>
                   <li>
                     환불 처리는 영업일 기준 3~5일 이내에 완료됩니다.
                   </li>
                 </ul>
+              </li>
+            </ol>
+          </section>
+
+          {/*
+            제5조의2 — 전자상거래법 제13조 제3항에 따른 고지.
+            미성년자에게 "법정대리인 동의 없는 계약은 취소할 수 있다"는 점을
+            알리지 않으면 같은 법 제45조 제4항 제5호에 따라 과태료 대상이 된다.
+            결제를 차단하지는 않는다 (고지 의무이지 금지 규정이 아니다).
+          */}
+          <section>
+            <h2 className="text-lg font-semibold text-white mb-3">
+              제5조의2 (미성년자의 결제)
+            </h2>
+            <ol className="list-decimal list-inside space-y-2 text-gray-300 pl-1">
+              <li>
+                만 19세 미만의 미성년자가 유료 서비스를 결제하는 경우
+                법정대리인의 동의가 필요합니다.
+              </li>
+              <li>
+                <strong className="text-gray-100">
+                  법정대리인의 동의 없이 체결된 계약은 미성년자 본인 또는
+                  법정대리인이 취소할 수 있습니다.
+                </strong>{" "}
+                취소를 원하는 경우 {COMPANY.email} 로 결제자 이메일, 결제일시,
+                결제금액을 기재하여 요청해 주시기 바랍니다.
+              </li>
+              <li>
+                다만 법정대리인이 범위를 정하여 처분을 허락한 재산으로 결제한
+                경우, 또는 미성년자가 속임수로써 성년자인 것처럼 믿게 한 경우에는
+                취소가 제한될 수 있습니다.
               </li>
             </ol>
           </section>
@@ -369,29 +413,30 @@ export default function TermsPage() {
             </p>
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 space-y-1.5 text-gray-300">
               <p>
-                <span className="text-gray-500">상호명:</span> Your Company Name
+                <span className="text-gray-500">상호명:</span> {COMPANY.name}
               </p>
               <p>
-                <span className="text-gray-500">대표자:</span> Your Name
+                <span className="text-gray-500">대표자:</span> {COMPANY.representative}
               </p>
               <p>
                 <span className="text-gray-500">사업자등록번호:</span>{" "}
-                000-00-00000
+                {COMPANY.businessNumber}
               </p>
               <p>
-                <span className="text-gray-500">통신판매업 신고번호:</span> 제
-                0000-지역-0000 호
+                <span className="text-gray-500">통신판매업 신고번호:</span>{" "}
+                {COMPANY.mailOrderNumber}
               </p>
               <p>
-                <span className="text-gray-500">소재지:</span> Your Address
+                <span className="text-gray-500">소재지:</span>{" "}
+                {COMPANY.address}
               </p>
               <p>
                 <span className="text-gray-500">이메일:</span>{" "}
                 <a
-                  href="mailto:your-email@example.com"
+                  href={`mailto:${COMPANY.email}`}
                   className="text-[#d0bcff] hover:text-[#e4e1e9] underline underline-offset-2"
                 >
-                  your-email@example.com
+                  {COMPANY.email}
                 </a>
               </p>
             </div>

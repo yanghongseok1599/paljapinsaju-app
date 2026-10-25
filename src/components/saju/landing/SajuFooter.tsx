@@ -1,3 +1,4 @@
+import { COMPANY } from "@/lib/legal/company";
 export default function SajuFooter() {
   const currentYear = new Date().getFullYear();
 
@@ -20,10 +21,45 @@ export default function SajuFooter() {
           <FooterLink href="/privacy-policy">개인정보 처리방침</FooterLink>
           <FooterLink href="/terms">이용약관</FooterLink>
           <FooterLink href="/refund-policy">환불정책</FooterLink>
-          <FooterLink href="mailto:your-email@example.com">문의</FooterLink>
+          <FooterLink href={`mailto:${COMPANY.email}`}>문의</FooterLink>
         </div>
       </div>
+
+      {/*
+        통신판매업자 신원정보.
+        전자상거래법상 상호·대표자·사업자등록번호·통신판매업 신고번호·주소·연락처를
+        이용자가 쉽게 알 수 있는 곳에 표시해야 한다. 모든 페이지 하단에 노출된다.
+      */}
+      <div
+        className="max-w-7xl mx-auto mt-8 pt-6 w-full"
+        style={{ borderTop: "1px solid rgba(73,68,84,0.15)" }}
+      >
+        <dl className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.7rem] leading-relaxed text-slate-500 font-['Pretendard']">
+          <BizItem label="상호" value={COMPANY.name} />
+          <BizItem label="대표자" value={COMPANY.representative} />
+          <BizItem label="사업자등록번호" value={COMPANY.businessNumber} />
+          <BizItem label="통신판매업 신고번호" value={COMPANY.mailOrderNumber} />
+          <BizItem label="소재지" value={COMPANY.address} />
+          <BizItem label="고객센터" value={COMPANY.phone} />
+          <BizItem label="이메일" value={COMPANY.email} />
+        </dl>
+
+        <p className="mt-4 text-[0.7rem] leading-relaxed text-slate-600 font-['Pretendard']">
+          본 서비스의 사주·운세 해석은 전통 역학 이론과 AI 생성 결과를 바탕으로 한
+          참고용 콘텐츠이며, 의료·법률·금융·투자에 대한 전문적 조언이 아닙니다.
+          이용자의 판단과 선택에 따른 결과에 대해 회사는 책임을 지지 않습니다.
+        </p>
+      </div>
     </footer>
+  );
+}
+
+function BizItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-1.5">
+      <dt className="text-slate-600">{label}</dt>
+      <dd>{value}</dd>
+    </div>
   );
 }
 

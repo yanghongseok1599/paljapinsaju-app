@@ -2,6 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { MOCK_DASHBOARD } from "@/utils/supabase/mock-admin";
+
+// LOCAL-ONLY: 목 모드에서 사용할 가짜 관리자
+const MOCK_ADMIN = { id: "u_0000", email: "admin@example.com" };
 
 /**
  * Admin 권한 확인 유틸리티
@@ -25,6 +29,8 @@ import { redirect } from "next/navigation";
  * }
  */
 export async function requireAdmin() {
+  if (MOCK_DASHBOARD) return MOCK_ADMIN;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -54,6 +60,8 @@ export async function requireAdmin() {
 export async function requireAdminOrRedirect(
   redirectTo: string = "/dashboard"
 ) {
+  if (MOCK_DASHBOARD) return MOCK_ADMIN;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -80,6 +88,8 @@ export async function requireAdminOrRedirect(
  * @returns {Promise<boolean>} Admin 여부
  */
 export async function isAdmin(): Promise<boolean> {
+  if (MOCK_DASHBOARD) return true;
+
   try {
     const supabase = await createClient();
     const {

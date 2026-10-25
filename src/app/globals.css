@@ -217,6 +217,94 @@
    =================================================== */
 @layer utilities {
 
+  /* ── 읽기 모드 ────────────────────────────────────────────────
+     긴 해석문(사주 결과지, 카테고리 상담 리포트) 전용 팔레트.
+
+     다크 배경에서 대비가 10:1을 넘으면 글자 가장자리가 번져 보이는
+     헤일레이션이 생겨 장시간 읽으면 눈이 쉽게 피로해진다. 그래서 다크는
+     본문 대비를 7:1대로 낮추고, 밝은 환경에서 오래 읽을 사람을 위해
+     세피아·라이트 모드를 함께 제공한다. (밝은 배경에서는 높은 대비가
+     오히려 정상이라 값을 낮추지 않는다.)
+
+     UI/랜딩용 색(#cac4d0, #e4e1e9)은 건드리지 않고 여기서만 쓴다. */
+  .reading-surface {
+    --read-bg: #131318;
+    --read-card: #1a1a20;
+    --read-border: rgba(73, 68, 84, 0.35);
+    --read-body: #aca7b1;        /* 7.35:1 */
+    --read-strong: #b6b0bb;      /* 8.18:1 */
+    --read-muted: #8d8992;       /* 5.05:1 */
+    --read-accent: #d0bcff;
+    --read-accent-soft: rgba(208, 188, 255, 0.12);
+    --read-tone-positive: #a8f0d4;
+    --read-tone-caution: #ffb95f;
+    --read-tone-neutral: #89ceff;
+
+    background-color: var(--read-bg);
+    color: var(--read-body);
+  }
+
+  /* 세피아 — 종이에 가까운 톤. 오래 읽기에 가장 부담이 적다. */
+  .reading-surface[data-reading-mode="sepia"] {
+    --read-bg: #f2e9d8;
+    --read-card: #fbf5e9;
+    --read-border: rgba(120, 100, 70, 0.22);
+    --read-body: #4a4238;        /* 9.09:1 */
+    --read-strong: #2f2a22;      /* 13.11:1 */
+    --read-muted: #786c5c;       /* 4.72:1 */
+    --read-accent: #6b46b0;
+    --read-accent-soft: rgba(107, 70, 176, 0.1);
+    --read-tone-positive: #1f7a55;
+    --read-tone-caution: #8a5a10;
+    --read-tone-neutral: #1f5f96;
+  }
+
+  /* 라이트 — 밝은 곳에서 가장 또렷하다. */
+  .reading-surface[data-reading-mode="light"] {
+    --read-bg: #f1f1f4;
+    --read-card: #ffffff;
+    --read-border: rgba(0, 0, 0, 0.1);
+    --read-body: #403e47;        /* 10.51:1 */
+    --read-strong: #302e37;      /* 13.6:1 */
+    --read-muted: #6b6873;       /* 5.45:1 */
+    --read-accent: #6337c9;
+    --read-accent-soft: rgba(99, 55, 201, 0.09);
+    --read-tone-positive: #0f7350;
+    --read-tone-caution: #8a5100;
+    --read-tone-neutral: #15588f;
+  }
+
+  .reading-card {
+    background-color: var(--read-card);
+    border: 1px solid var(--read-border);
+  }
+
+  .reading-body {
+    color: var(--read-body);
+    font-size: 1rem;      /* 16px — 긴 글에 14px는 작다 */
+    line-height: 1.9;
+  }
+
+  .reading-strong {
+    color: var(--read-strong);
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.85;
+  }
+
+  .reading-muted {
+    color: var(--read-muted);
+    font-size: 0.875rem;
+    line-height: 1.75;
+  }
+
+  .reading-heading {
+    color: var(--read-strong);
+  }
+
+  .reading-accent {
+    color: var(--read-accent);
+  }
+
   /* Glass panel — The Veil */
   .glass-panel {
     background: rgba(31, 31, 37, 0.7);

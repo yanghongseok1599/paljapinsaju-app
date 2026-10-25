@@ -16,20 +16,32 @@ type ConcernId = (typeof CONCERNS)[number]["id"];
 interface ConcernSelectorProps {
   onSubmit: (concerns: ConcernId[]) => void;
   onBack: () => void;
+  /** 유료 카테고리로 들어온 경우 미리 선택해 둘 고민 */
+  initialSelected?: string[];
+  /** 선택이 바뀔 때 상위에 알린다 (상담 주제 배너 동기화용) */
+  onChange?: (concerns: ConcernId[]) => void;
 }
 
 export default function ConcernSelector({
   onSubmit,
   onBack,
+  initialSelected,
+  onChange,
 }: ConcernSelectorProps) {
-  const [selected, setSelected] = useState<ConcernId[]>([]);
+  const [selected, setSelected] = useState<ConcernId[]>(
+    () => (initialSelected ?? []).filter(
+      (id): id is ConcernId => CONCERNS.some((c) => c.id === id)
+    )
+  );
   const [error, setError] = useState("");
 
   const toggle = (id: ConcernId) => {
     setError("");
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+    const next = selected.includes(id)
+      ? selected.filter((c) => c !== id)
+      : [...selected, id];
+    setSelected(next);
+    onChange?.(next);
   };
 
   const handleSubmit = () => {

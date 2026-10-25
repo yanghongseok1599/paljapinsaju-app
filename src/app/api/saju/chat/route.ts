@@ -3,6 +3,7 @@ import type { ModelMessage } from "@ai-sdk/provider-utils";
 import { createClient } from "@/utils/supabase/server";
 import { getChatModel } from "@/lib/ai/model";
 import { getCharacter } from "@/lib/saju/characters";
+import { getPaidCategory } from "@/lib/saju/categories";
 import { extractSajuSummary } from "@/lib/saju/calculator";
 import { generateAdvancedSajuContext } from "@/lib/saju/advanced-analysis";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -56,11 +57,24 @@ function toModelMessages(msgs: ChatRequestMessage[]): ModelMessage[] {
 }
 
 export async function POST(req: Request) {
-  const { messages: rawMessages, readingId, characterId } = (await req.json()) as {
-    messages: ChatRequestMessage[];
-    readingId: string;
-    characterId: CharacterType;
-  };
+  const { messages: rawMessages, readingId, characterId, category: categoryParam } =
+    (await req.json()) as {
+      messages: ChatRequestMessage[];
+      readingId: string;
+      characterId: CharacterType;
+      category?: string;
+    };
+
+  // 유료 카테고리로 시작한 상담이면 주제를 좁혀 답하게 한다.
+  const category = categoryParam ? getPaidCategory(categoryParam) : undefined;
+  const categoryContext = category
+    ? `
+${category.focusPrompt}
+
+- 이 상담은 "${category.name}" 주제로 결제된 상담이야. 답변은 이 주제에 붙어 있어야 해.
+- 사용자가 주제와 먼 질문을 하면 답은 하되, 다시 "${category.name}" 관점으로 연결해줘.
+`
+    : "";
 
   const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
 
@@ -246,7 +260,7 @@ ${compatContext ? `- 이것은 궁합 분석이야. ${firstName} 씨와 상대�
   // 4. 스트리밍 응답
   const result = streamText({
     model: getChatModel(),
-    system: systemPrompt + "\n\n" + sajuContext,
+    system: systemPrompt + "\n\n" + sajuContext + categoryContext,
     messages: toModelMessages(rawMessages),
     maxOutputTokens: isFree ? 1500 : 8000,
     onFinish: async ({ text }) => {

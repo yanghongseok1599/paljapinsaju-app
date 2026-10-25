@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import "../globals.css";
 
 import { ClientWidgets } from "@/components/shared/ClientWidgets";
+import { COMPANY } from "@/lib/legal/company";
 
 // Pretendard loaded via CDN in <head> (no npm package, best quality)
 // Plus Jakarta Sans — display/headline font
@@ -54,7 +55,7 @@ export async function generateMetadata({
     },
     authors: [{ name: "팔자핀사주" }],
     creator: "팔자핀사주",
-    publisher: "Your Company Name",
+    publisher: COMPANY.name,
     icons: {
       icon: [
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -169,11 +170,11 @@ export default async function LocaleLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "Your Company Name",
+              name: COMPANY.name,
               url: "https://drsaju.com",
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "your-email@example.com",
+                email: COMPANY.email,
                 contactType: "customer support",
               },
             }),

@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { MOCK_DASHBOARD } from "@/utils/supabase/mock-admin";
+import { getPaidCategory } from "@/lib/saju/categories";
 import { getChatMessages } from "@/services/saju/chat-actions";
 import { CHARACTERS, type CharacterType } from "@/lib/saju/characters";
 import SajuLayout from "@/components/saju/layout/SajuLayout";
@@ -9,12 +11,16 @@ import type { UIMessage } from "ai";
 
 interface ChatPageProps {
   params: Promise<{ characterId: string; locale: string }>;
-  searchParams: Promise<{ r?: string; new?: string }>;
+  searchParams: Promise<{ r?: string; new?: string; category?: string }>;
 }
 
 export default async function ChatPage({ params, searchParams }: ChatPageProps) {
   const { characterId, locale } = await params;
-  const { r: readingIdParam, new: isNewChat } = await searchParams;
+  const { r: readingIdParam, new: isNewChat, category: categoryParam } = await searchParams;
+
+  // 유료 카테고리로 들어온 상담이면 주제를 상담 전체에 전달한다.
+  const category = categoryParam ? getPaidCategory(categoryParam) : undefined;
+  const categoryId = category?.id;
 
   if (!CHARACTERS[characterId as CharacterType]) {
     redirect(`/${locale}`);
@@ -27,6 +33,15 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
   } = await supabase.auth.getUser();
 
   if (!user) {
+    // LOCAL-ONLY: 목 모드에는 실제 로그인이 없으므로, 홈으로 튕기는 대신
+    // 자격증명 없이 동작하는 체험 분석 플로우로 보낸다.
+    if (MOCK_DASHBOARD) {
+      redirect(
+        categoryId
+          ? `/${locale}/reading?category=${categoryId}`
+          : `/${locale}/reading`
+      );
+    }
     redirect(`/${locale}?login=required&character=${characterId}`);
   }
 
@@ -83,6 +98,7 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
           starBalance={starBalance}
           previousBirthInfo={previousBirthInfo}
           isAdmin={isAdmin}
+          categoryId={categoryId}
         />
       </SajuLayout>
     );
@@ -140,6 +156,7 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
           starBalance={starBalance}
           fiveElements={fiveElements}
           isAdmin={isAdmin}
+          categoryId={categoryId}
         />
       </SajuLayout>
     );
@@ -174,6 +191,7 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
         needsBirthInfo
         starBalance={starBalance}
         previousBirthInfo={previousBirthInfo}
+        categoryId={categoryId}
       />
     </SajuLayout>
   );

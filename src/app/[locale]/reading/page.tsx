@@ -17,7 +17,8 @@ import {
   type DemoAuthProvider,
 } from "@/lib/saju/demo-auth";
 import { createDemoReading, saveDemoReading } from "@/lib/saju/demo-reading";
-import type { ConcernType } from "@/types/saju";
+import { CONCERN_LABELS, type ConcernType } from "@/types/saju";
+import { getPaidCategory, type PaidCategoryId } from "@/lib/saju/categories";
 
 /** 시진 value를 시간(hour)으로 변환 */
 const SIJI_TO_HOUR: Record<string, number | null> = {
@@ -46,6 +47,18 @@ export default function ReadingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [demoAuth, setDemoAuth] = useState<DemoAuth | null>(null);
+
+  // 유료 카테고리에서 넘어온 경우의 상담 주제
+  const category = getPaidCategory(searchParams.get("category") ?? "");
+
+  // 사용자가 고른 고민. 카테고리로 들어왔으면 그 고민을 미리 선택해 둔다.
+  const [concerns, setConcerns] = useState<string[]>(
+    category ? [category.concernId] : []
+  );
+
+  // 고른 고민이 상담 주제와 어긋나면 주제를 놓아준다.
+  // (재회로 들어왔더라도 건강만 고르면 건강 분석이 나와야 한다.)
+  const categoryActive = !!category && concerns.includes(category.concernId);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -93,8 +106,10 @@ export default function ReadingPage() {
     setError(null);
   };
 
-  const handleConcernSubmit = async (concerns: string[]) => {
+  const handleConcernSubmit = async (picked: string[]) => {
     if (!formData || isSubmitting) return;
+
+    const useCategory = category && picked.includes(category.concernId);
 
     if (!readDemoAuth()) {
       setError("Google 또는 카카오 버튼을 눌러 체험 계정으로 로그인해주세요.");
@@ -112,18 +127,22 @@ export default function ReadingPage() {
           ? `demo-${crypto.randomUUID()}`
           : `demo-${Date.now()}`;
 
-      const reading = createDemoReading(readingId, {
-        name: formData.name,
-        gender: formData.gender,
-        birthYear: Number(formData.year),
-        birthMonth: Number(formData.month),
-        birthDay: Number(formData.day),
-        birthHour,
-        birthMinute: 0,
-        isLunar: formData.calendar === "lunar",
-        isLeapMonth: false,
-        concerns: concerns as ConcernType[],
-      });
+      const reading = createDemoReading(
+        readingId,
+        {
+          name: formData.name,
+          gender: formData.gender,
+          birthYear: Number(formData.year),
+          birthMonth: Number(formData.month),
+          birthDay: Number(formData.day),
+          birthHour,
+          birthMinute: 0,
+          isLunar: formData.calendar === "lunar",
+          isLeapMonth: false,
+          concerns: picked as ConcernType[],
+        },
+        useCategory ? (category.id as PaidCategoryId) : undefined,
+      );
 
       saveDemoReading(reading);
 
@@ -173,6 +192,38 @@ export default function ReadingPage() {
 
       {/* 콘텐츠 */}
       <div className="max-w-md mx-auto px-5 py-8">
+        {/* 유료 카테고리 상담 주제 */}
+        {category && step <= 2 && (
+          <div
+            className="mb-4 rounded-2xl border p-4 transition-opacity"
+            style={{
+              borderColor: categoryActive
+                ? `${category.color}40`
+                : "rgba(73,68,84,0.35)",
+              backgroundColor: categoryActive ? `${category.color}0f` : "transparent",
+              opacity: categoryActive ? 1 : 0.6,
+            }}
+          >
+            <p
+              className="text-xs font-semibold"
+              style={{ color: categoryActive ? category.color : "#958ea0" }}
+            >
+              {categoryActive ? "상담 주제" : "상담 주제 해제됨"}
+            </p>
+            <p className="mt-1 text-base font-bold text-[#e4e1e9]">
+              {category.name}
+              <span className="ml-2 text-xs font-medium text-[#958ea0]">
+                {category.subtitle}
+              </span>
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-[#958ea0]">
+              {categoryActive
+                ? category.description
+                : `'${CONCERN_LABELS[category.concernId]}'을(를) 선택하면 ${category.name} 분석을 받을 수 있어요. 지금 고른 고민으로는 일반 사주 분석이 나옵니다.`}
+            </p>
+          </div>
+        )}
+
         {step <= 2 && (
           <div className="mb-6 rounded-2xl border border-[rgba(73,68,84,0.35)] bg-[#1a1a20] p-4">
             {demoAuth ? (
@@ -250,6 +301,8 @@ export default function ReadingPage() {
               <ConcernSelector
                 onSubmit={handleConcernSubmit}
                 onBack={() => setStep(1)}
+                initialSelected={category ? [category.concernId] : undefined}
+                onChange={setConcerns}
               />
             </motion.div>
           )}

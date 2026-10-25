@@ -24,7 +24,8 @@ export interface StarPack {
 export const STAR_PACKS: StarPack[] = [
   { id: 'star_30', stars: 30, priceKrw: 9900, name: '별 30개' },
   { id: 'star_70', stars: 70, priceKrw: 19900, name: '별 70개', badge: '인기' },
-  { id: 'star_premium', stars: 200, priceKrw: 49900, name: '별 200개', badge: '최고 가성비' },
+  // 이용약관·FAQ·구조화데이터에 고지된 금액에 맞춘다 (단가는 기존 200개/49,900원과 동일한 1별 249원).
+  { id: 'star_premium', stars: 120, priceKrw: 29900, name: '별 120개', badge: '최고 가성비' },
 ];
 
 export function getStarPackById(id: string): StarPack | undefined {

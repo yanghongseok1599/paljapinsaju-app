@@ -14,6 +14,7 @@ import OhangChart from './OhangChart';
 import { createReading } from '@/services/saju/actions';
 import { updateReadingMeta } from '@/services/saju/chat-actions';
 import { Link } from '@/i18n/routing';
+import { getPaidCategory, type PaidCategoryId } from '@/lib/saju/categories';
 
 /** 오행 분포 */
 interface FiveElements {
@@ -33,6 +34,8 @@ interface ChatRoomProps {
   previousBirthInfo?: BirthInfoData;
   fiveElements?: FiveElements;
   isAdmin?: boolean;
+  /** 유료 카테고리로 진입한 경우의 상담 주제 */
+  categoryId?: PaidCategoryId;
 }
 
 export default function ChatRoom({
@@ -44,8 +47,10 @@ export default function ChatRoom({
   previousBirthInfo,
   fiveElements,
   isAdmin = false,
+  categoryId,
 }: ChatRoomProps) {
   const character = getCharacter(characterId);
+  const category = categoryId ? getPaidCategory(categoryId) : undefined;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [starBalance, setStarBalance] = useState(initialStarBalance);
   const [readingId] = useState(initialReadingId);
@@ -82,7 +87,7 @@ export default function ChatRoom({
     transport: readingId
       ? new TextStreamChatTransport({
           api: '/api/saju/chat',
-          body: { readingId, characterId },
+          body: { readingId, characterId, category: categoryId },
         })
       : undefined,
     messages: initialMessages,
@@ -173,7 +178,9 @@ export default function ChatRoom({
           <h2 className="text-sm font-semibold text-gray-100 truncate">
             {character.name}
           </h2>
-          <p className="text-xs text-gray-500">{character.title}</p>
+          <p className="text-xs truncate" style={{ color: category ? category.color : '#6b7280' }}>
+            {category ? category.name : character.title}
+          </p>
         </div>
         {/* 오행 그래프 버튼 */}
         {readingId && !showBirthForm && fiveElements && (
@@ -226,7 +233,11 @@ export default function ChatRoom({
                   className="rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed max-w-[80%]"
                   style={{ backgroundColor: '#1f1f25', color: '#e4e1e9' }}
                 >
-                  {characterId === 'charon_m' ? (
+                  {category ? (
+                    <>
+                      <strong>{character.name}</strong>이에요. {category.greeting} 먼저 아래 정보를 알려주세요.
+                    </>
+                  ) : characterId === 'charon_m' ? (
                     <>흠.. 나 <strong>{character.name}</strong>인데. 사주 한번 봐줄까? 아래 정보 좀 알려줘.</>
                   ) : characterId === 'charon_f' ? (
                     <>안녕하세요! <strong>{character.name}</strong>이에요. 두 분의 궁합을 봐드릴게요. 먼저 아래 정보를 알려주세요.</>
@@ -331,7 +342,9 @@ export default function ChatRoom({
                 className="rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed max-w-[80%]"
                 style={{ backgroundColor: '#1f1f25', color: '#e4e1e9' }}
               >
-                {characterId === 'charon_m' ? (
+                {category ? (
+                  <>사주 확인했어요. <strong>{category.name}</strong> 상담으로 진행할게요. 아래 질문을 눌러도 되고, 직접 물어보셔도 돼요.</>
+                ) : characterId === 'charon_m' ? (
                   <>사주 확인했어. 궁금한 거 있으면 물어봐.</>
                 ) : characterId === 'charon_f' ? (
                   <>사주 확인했어요. 궁금한 점 편하게 물어봐 주세요.</>
@@ -350,6 +363,32 @@ export default function ChatRoom({
                 )}
               </div>
             </div>
+          )}
+
+          {/* 카테고리 시작 질문 */}
+          {category && !showBirthForm && !isAnalyzing && messages.length === 0 && readingId && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.15 }}
+              className="ml-2 sm:ml-10 flex flex-col gap-2 max-w-[85%]"
+            >
+              {category.questions.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => handleSubmit(q)}
+                  disabled={isExhausted || isLoading}
+                  className="rounded-2xl px-4 py-3 text-left text-sm text-[#cac4d0] transition-colors hover:text-[#e4e1e9] disabled:opacity-50"
+                  style={{
+                    backgroundColor: '#1f1f25',
+                    border: `1px solid ${category.color}33`,
+                  }}
+                >
+                  {q}
+                </button>
+              ))}
+            </motion.div>
           )}
 
           {/* 채팅 메시지 */}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SajuLayout from "@/components/saju/layout/SajuLayout";
 import SajuFooter from "@/components/saju/landing/SajuFooter";
+import { COMPANY, PAYMENT_PROVIDER } from "@/lib/legal/company";
 
 export const metadata: Metadata = {
   title: "환불 정책",
@@ -18,7 +19,7 @@ export default function RefundPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-gray-100 mb-3">1. 개요</h2>
               <p>
-                본 환불 정책은 Your Company Name(이하 &ldquo;회사&rdquo;)가 운영하는 팔자핀사주(drsaju.com, 이하 &ldquo;서비스&rdquo;)에서
+                본 환불 정책은 {COMPANY.name}(이하 &ldquo;회사&rdquo;)가 운영하는 팔자핀사주(drsaju.com, 이하 &ldquo;서비스&rdquo;)에서
                 제공하는 유료 서비스의 환불 조건 및 절차를 규정합니다.
               </p>
             </section>
@@ -26,10 +27,28 @@ export default function RefundPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-gray-100 mb-3">2. 유료 서비스 내용</h2>
               <ul className="list-disc list-inside space-y-1.5 text-gray-400">
-                <li>별(Star) 충전: AI 사주 상담에 사용되는 디지털 재화</li>
-                <li>종합 사주분석: AI 기반 사주 분석 서비스</li>
-                <li>궁합 분석: AI 기반 궁합 분석 서비스</li>
+                <li>별(Star) 충전: AI 사주 상담에 사용되는 디지털 재화 (30개 9,900원 / 70개 19,900원 / 120개 29,900원)</li>
+                <li>종합 사주분석: AI 기반 사주 분석 서비스 (19,900원)</li>
+                <li>궁합 분석: AI 기반 궁합 분석 서비스 (9,900원)</li>
+                <li>고민별 상담: 주제를 지정한 AI 사주 상담 (9,900원 / 14,900원 / 19,900원)</li>
+                <li>타로 리딩: AI 기반 타로 카드 해석 서비스</li>
+                <li>별자리 운세: AI 기반 서양 점성술 해석 서비스</li>
               </ul>
+
+              <p className="mt-4 text-gray-400">
+                고민별 상담 7종의 금액은 다음과 같습니다. 재회·이별 후, 상대의 마음은 각
+                9,900원, 환승·바람 의심, 이직·합격, 금전·투자는 각 14,900원,
+                궁합·결혼 결정, 신년운세는 각 19,900원입니다. 모든 금액은 부가세
+                포함 금액입니다.
+              </p>
+
+              <h3 className="text-sm font-semibold text-gray-200 mt-5 mb-2">결제 처리 주체</h3>
+              <p className="text-gray-400">
+                유료 서비스의 결제는 {PAYMENT_PROVIDER.name}에서 제공하는 결제 페이지를
+                통해 처리됩니다. 결제 과정에서 이용자는 해당 결제 페이지로 이동하며,
+                결제 완료 후 본 서비스로 복귀합니다. 상품의 판매 주체 및 환불 책임은{" "}
+                {COMPANY.name}에 있습니다.
+              </p>
             </section>
 
             <section>
@@ -64,7 +83,7 @@ export default function RefundPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-gray-100 mb-3">5. 환불 절차</h2>
               <ol className="list-decimal list-inside space-y-1.5 text-gray-400">
-                <li>이메일(<a href="mailto:your-email@example.com" className="text-[#d0bcff] hover:text-[#e4e1e9]">your-email@example.com</a>)로 환불 요청</li>
+                <li>이메일(<a href={`mailto:${COMPANY.email}`} className="text-[#d0bcff] hover:text-[#e4e1e9]">{COMPANY.email}</a>)로 환불 요청</li>
                 <li>요청 시 기재 사항: 결제자 이메일, 결제일시, 결제금액, 환불 사유</li>
                 <li>회사는 요청 접수 후 3영업일 이내에 환불 가능 여부를 안내합니다</li>
                 <li>환불 승인 시, 원래 결제 수단으로 5~10영업일 이내에 환불 처리됩니다</li>
@@ -83,8 +102,8 @@ export default function RefundPolicyPage() {
               <h2 className="text-base font-semibold text-gray-100 mb-3">7. 문의</h2>
               <div className="text-gray-400 space-y-1">
                 <p>환불 관련 문의는 아래로 연락해 주세요.</p>
-                <p>이메일: <a href="mailto:your-email@example.com" className="text-[#d0bcff] hover:text-[#e4e1e9]">your-email@example.com</a></p>
-                <p>상호: Your Company Name | 대표: Your Name</p>
+                <p>이메일: <a href={`mailto:${COMPANY.email}`} className="text-[#d0bcff] hover:text-[#e4e1e9]">{COMPANY.email}</a></p>
+                <p>상호: {COMPANY.name} | 대표: {COMPANY.representative}</p>
               </div>
             </section>
           </div>

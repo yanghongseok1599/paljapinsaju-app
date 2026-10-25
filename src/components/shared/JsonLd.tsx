@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { COMPANY } from "@/lib/legal/company";
 
 interface JsonLdProps {
   type: "WebSite" | "Organization" | "SoftwareApplication" | "Article";
@@ -13,7 +14,7 @@ const defaultOrganization = {
   logo: `${process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com"}/logo.png`,
   contactPoint: {
     "@type": "ContactPoint",
-    email: "your-email@example.com",
+    email: COMPANY.email,
     contactType: "customer service",
   },
 };

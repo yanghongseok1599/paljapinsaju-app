@@ -12,7 +12,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:env": "node scripts/check-env.js"
+    "test:env": "node scripts/check-env.js",
+    "prebuild": "node scripts/check-legal.mjs",
+    "check:legal": "node scripts/check-legal.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",

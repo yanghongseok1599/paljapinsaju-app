@@ -7,6 +7,7 @@ import type {
   YinYang,
   Pillar,
 } from 'manseryeok';
+import type { CategoryReport } from '@/lib/saju/category-analysis';
 
 // manseryeok 타입 재 export
 export type {
@@ -125,6 +126,8 @@ export interface SajuAnalysis {
 
   // ─── 신규 확장 필드 (optional, 기존 DB 레코드 호환) ─────
   overview?: string;          // 총론 / 시작하는 글 (1000자+)
+  /** 유료 카테고리 상담으로 생성된 경우의 주제별 상세 분석 */
+  categoryReport?: CategoryReport;
   dayMasterDeep?: string;     // 일간 심층 해설 (1200자+)
   pillarReadings?: {
     year: string;    // 연주(年柱) 해설 (400자+)

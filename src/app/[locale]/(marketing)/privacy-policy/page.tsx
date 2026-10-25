@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/routing";
+import { COMPANY, PAYMENT_PROVIDER } from "@/lib/legal/company";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침",
@@ -113,8 +114,8 @@ export default function PrivacyPolicyPage() {
                       결제
                     </td>
                     <td className="px-3 py-2">
-                      결제 내역, 거래 ID (카드번호 등 결제 수단 정보는
-                      Paddle이 직접 처리하며, 서비스는 보관하지 않음)
+                      결제 내역, 주문번호 (카드번호 등 결제 수단 정보는
+                      {PAYMENT_PROVIDER.name}이 직접 처리하며, 서비스는 보관하지 않음)
                     </td>
                   </tr>
                   <tr>
@@ -231,7 +232,9 @@ export default function PrivacyPolicyPage() {
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 align-top">Paddle (영국)</td>
+                    <td className="px-3 py-2 align-top">
+                      {PAYMENT_PROVIDER.legalName} ({PAYMENT_PROVIDER.country})
+                    </td>
                     <td className="px-3 py-2 align-top">결제 처리</td>
                     <td className="px-3 py-2">
                       이메일, 결제 관련 정보
@@ -284,8 +287,8 @@ export default function PrivacyPolicyPage() {
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2">Paddle.com Market Limited</td>
-                    <td className="px-3 py-2">결제 처리 및 정산</td>
+                    <td className="px-3 py-2">{PAYMENT_PROVIDER.legalName}</td>
+                    <td className="px-3 py-2">{PAYMENT_PROVIDER.transferPurpose}</td>
                   </tr>
                   <tr>
                     <td className="px-3 py-2">Vercel Inc.</td>
@@ -340,9 +343,11 @@ export default function PrivacyPolicyPage() {
                   </tr>
                   <tr>
                     <td className="px-3 py-2 align-top">
-                      Paddle.com Market Ltd.
+                      {PAYMENT_PROVIDER.legalName}
                     </td>
-                    <td className="px-3 py-2 align-top">영국</td>
+                    <td className="px-3 py-2 align-top">
+                      {PAYMENT_PROVIDER.country}
+                    </td>
                     <td className="px-3 py-2 align-top">
                       이메일, 결제 정보
                     </td>
@@ -384,10 +389,10 @@ export default function PrivacyPolicyPage() {
             <p className="mt-3">
               위 권리 행사는 서비스에 대해 이메일(
               <a
-                href="mailto:your-email@example.com"
+                href={`mailto:${COMPANY.email}`}
                 className="text-blue-400 underline hover:text-blue-300"
               >
-                your-email@example.com
+                {COMPANY.email}
               </a>
               )을 통해 하실 수 있으며, 서비스는 이에 대해 지체 없이 조치하겠습니다.
             </p>
@@ -531,15 +536,15 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-gray-100">개인정보 보호책임자</strong>
               </p>
               <ul className="space-y-1 text-sm">
-                <li>성명: Your Name</li>
+                <li>성명: {COMPANY.representative}</li>
                 <li>직위: 대표</li>
                 <li>
                   이메일:{" "}
                   <a
-                    href="mailto:your-email@example.com"
+                    href={`mailto:${COMPANY.email}`}
                     className="text-blue-400 underline hover:text-blue-300"
                   >
-                    your-email@example.com
+                    {COMPANY.email}
                   </a>
                 </li>
               </ul>
@@ -647,19 +652,19 @@ export default function PrivacyPolicyPage() {
 
           {/* 사업자 정보 */}
           <section className="mt-12 border-t border-gray-800 pt-8 text-sm text-gray-500">
-            <p className="mb-1">상호명: Your Company Name</p>
-            <p className="mb-1">대표자: Your Name</p>
-            <p className="mb-1">사업자등록번호: 000-00-00000</p>
+            <p className="mb-1">상호명: {COMPANY.name}</p>
+            <p className="mb-1">대표자: {COMPANY.representative}</p>
+            <p className="mb-1">사업자등록번호: {COMPANY.businessNumber}</p>
             <p className="mb-1">
-              소재지: Your Address
+              소재지: {COMPANY.address}
             </p>
             <p>
               이메일:{" "}
               <a
-                href="mailto:your-email@example.com"
+                href={`mailto:${COMPANY.email}`}
                 className="text-gray-400 underline hover:text-gray-300"
               >
-                your-email@example.com
+                {COMPANY.email}
               </a>
             </p>
           </section>
