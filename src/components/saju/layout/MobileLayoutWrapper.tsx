@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import SajuNavbar from '@/components/saju/landing/SajuNavbar';
 import LoginSidebar from '@/components/saju/landing/LoginSidebar';
 import type { CharacterType } from '@/lib/saju/characters';
@@ -48,11 +49,28 @@ export default function MobileLayoutWrapper({
   isAdmin = false,
   children,
 }: MobileLayoutWrapperProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const loginRequired = searchParams.get('login') === 'required';
+
+  const [manualOpen, setManualOpen] = useState(false);
+  const [autoDismissed, setAutoDismissed] = useState(false);
+
+  // 로그인이 필요해 튕겨온 경우, 모바일에서는 사이드바가 숨겨져 있어
+  // 안내도 로그인 버튼도 보이지 않는다. 그래서 자동으로 연다.
+  // 단 한 번 닫으면 다시 열지 않는다 (URL의 login=required 는 계속 남아 있으므로).
+  const autoOpen = loginRequired && !isLoggedIn && !autoDismissed;
+  const sidebarOpen = manualOpen || autoOpen;
+
+  const closeSidebar = () => {
+    setManualOpen(false);
+    setAutoDismissed(true);
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#131318' }}>
-      <SajuNavbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} onMenuToggle={() => setSidebarOpen((v) => !v)} />
+      <SajuNavbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} onMenuToggle={() => {
+          if (sidebarOpen) { closeSidebar(); } else { setManualOpen(true); }
+        }} />
 
       <div className="flex items-start pt-16">
         {/* 데스크톱: 기존 사이드바 */}
@@ -67,7 +85,7 @@ export default function MobileLayoutWrapper({
         {sidebarOpen && (
           <div
             className="fixed inset-0 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
+            onClick={closeSidebar}
           >
             <div className="absolute inset-0 bg-[#131318]/60 backdrop-blur-sm" />
             <aside

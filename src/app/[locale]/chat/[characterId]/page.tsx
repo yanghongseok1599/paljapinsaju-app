@@ -42,7 +42,14 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
           : `/${locale}/reading`
       );
     }
-    redirect(`/${locale}?login=required&character=${characterId}`);
+    // 로그인 후 원래 가려던 곳(상담 주제 포함)으로 되돌아오게 한다.
+    // 이게 없으면 고민별 상담에서 들어온 사용자가 주제를 잃고 홈에 남는다.
+    const intended = categoryId
+      ? `/chat/${characterId}?category=${categoryId}`
+      : `/chat/${characterId}`;
+    redirect(
+      `/${locale}?login=required&next=${encodeURIComponent(intended)}`
+    );
   }
 
   const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);

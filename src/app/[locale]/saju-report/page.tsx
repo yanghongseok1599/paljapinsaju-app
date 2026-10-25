@@ -10,7 +10,8 @@ export default async function SajuReportPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/ko?login=required");
+    // 로그인 후 이 페이지로 되돌아오게 한다.
+    redirect("/?login=required&next=/saju-report");
   }
 
   // 관리자 판정 — ADMIN_EMAILS 환경변수와 이메일 일치 시 별 체크 우회

@@ -2,12 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Lock } from "lucide-react";
+import { getPlan, FULL_ANALYSIS_PLAN_ID } from "@/lib/payments/milestone";
 
 interface PaywallOverlayProps {
   onPayClick: () => void;
 }
 
 export default function PaywallOverlay({ onPayClick }: PaywallOverlayProps) {
+  // 가격을 하드코딩하면 카탈로그를 고쳐도 여기만 남는다.
+  const plan = getPlan(FULL_ANALYSIS_PLAN_ID)!;
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -31,7 +34,7 @@ export default function PaywallOverlay({ onPayClick }: PaywallOverlayProps) {
           className="w-full oracle-gradient active:scale-[0.98] font-semibold text-base py-4 rounded-xl transition-opacity hover:opacity-90"
           style={{ color: '#3c0091' }}
         >
-          19,900원에 전체 분석 보기
+          {plan.amount.toLocaleString("ko-KR")}원에 전체 분석 보기
         </button>
         <p className="text-xs mt-3 text-[#958ea0]">
           결제 즉시 전체 분석 PDF를 받아보세요

@@ -625,12 +625,14 @@ export async function getFunnelData(from: string, to: string) {
     .in("user_id", periodUserIds);
   const withReading = new Set((readingUsers || []).map((r) => r.user_id)).size;
 
-  // Step 3: 대화를 한 사용자 (chat_used = true)
+  // Step 3: 대화를 한 사용자
+  // chat_used 는 '사용한 대화 횟수'(정수)다. 예전에는 .eq("chat_used", true)로
+  // 비교해서 이 단계가 항상 0명으로 나왔다.
   const { data: chatUsedReadings } = await supabase
     .from("saju_readings")
     .select("user_id")
     .in("user_id", periodUserIds)
-    .eq("chat_used", true);
+    .gt("chat_used", 0);
   const withChat = new Set((chatUsedReadings || []).map((r) => r.user_id)).size;
 
   // Step 4: 별 구매한 사용자 (결제)

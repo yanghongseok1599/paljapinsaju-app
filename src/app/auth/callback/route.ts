@@ -20,7 +20,8 @@ export async function GET(request: Request) {
   const locale = (localeCookie || routing.defaultLocale) as "en" | "ko";
 
   // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get("next") ?? "/dashboard";
+  // /dashboard 라우트는 존재하지 않는다 (SaaS Kit 잔재). 기본은 홈으로 보낸다.
+  const next = searchParams.get("next") ?? "/";
 
   // Only add locale prefix for non-default locales (en has no prefix)
   const localePrefix = locale === routing.defaultLocale ? "" : `/${locale}`;

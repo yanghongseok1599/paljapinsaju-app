@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   loginWithGoogle,
   loginWithKakao,
@@ -89,6 +90,15 @@ const HOUR_TO_SIJI: Record<number, string> = {
 };
 
 export default function LoginSidebar({ user, chatHistory = [], currentReading, totalCoins, isMobile = false }: LoginSidebarProps) {
+  const searchParams = useSearchParams();
+
+  // 로그인 후 돌아갈 곳. /chat/...?category=... 처럼 원래 가려던 경로가 실려온다.
+  // 외부 도메인으로 튀지 않도록 '/'로 시작하고 '//'가 아닌 값만 받는다.
+  const rawNext = searchParams.get('next');
+  const nextPath =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
+  const loginRequired = searchParams.get('login') === 'required';
+
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
   const [isPendingGoogle, startGoogle] = useTransition();
   const [isPendingKakao, startKakao] = useTransition();
@@ -207,13 +217,30 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
       {!user ? (
         /* ── 비로그인 ── */
         <div className="flex flex-col px-5 pt-10 gap-3">
-          <p className="text-sm font-semibold text-gray-200 text-center">로그인하고</p>
-          <p className="text-xs text-gray-500 text-center -mt-2 mb-2">대화 기록을 저장하세요</p>
+          {loginRequired ? (
+            <div
+              className="rounded-xl px-4 py-3 mb-1"
+              style={{
+                backgroundColor: 'rgba(208,188,255,0.1)',
+                border: '1px solid rgba(208,188,255,0.25)',
+              }}
+            >
+              <p className="text-sm font-semibold text-[#d0bcff]">로그인이 필요해요</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#cac4d0]">
+                로그인하면 보시려던 화면으로 바로 이동합니다.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-gray-200 text-center">로그인하고</p>
+              <p className="text-xs text-gray-500 text-center -mt-2 mb-2">대화 기록을 저장하세요</p>
+            </>
+          )}
 
           <button
             type="button"
             disabled={isPendingGoogle || isPendingKakao || isPendingEmail}
-            onClick={() => startGoogle(async () => { await loginWithGoogle('/'); })}
+            onClick={() => startGoogle(async () => { await loginWithGoogle(nextPath); })}
             className="w-full flex items-center justify-center gap-2 glass-panel rounded-xl py-3 text-sm font-semibold text-[#e4e1e9] transition-colors cursor-pointer hover:border-[rgba(208,188,255,0.2)] disabled:opacity-60"
           >
             {isPendingGoogle ? (
@@ -232,7 +259,7 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
           <button
             type="button"
             disabled={isPendingGoogle || isPendingKakao || isPendingEmail}
-            onClick={() => startKakao(async () => { await loginWithKakao('/'); })}
+            onClick={() => startKakao(async () => { await loginWithKakao(nextPath); })}
             className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-colors cursor-pointer hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: '#FEE500', color: '#191600' }}
           >

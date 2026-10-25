@@ -112,7 +112,7 @@ export default function ReadingPage() {
     const useCategory = category && picked.includes(category.concernId);
 
     if (!readDemoAuth()) {
-      setError("Google 또는 카카오 버튼을 눌러 체험 계정으로 로그인해주세요.");
+      setError("위의 Google 또는 카카오 버튼을 눌러 시작해주세요.");
       return;
     }
 
@@ -245,7 +245,7 @@ export default function ReadingPage() {
                     체험 계정으로 시작하기
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-[#958ea0]">
-                    실제 OAuth 설정 없이 버튼만 누르면 임시 계정으로 결과지를 받을 수 있습니다.
+                    가입 없이 바로 결과지를 받아볼 수 있어요. 기록은 이 브라우저에만 저장됩니다.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

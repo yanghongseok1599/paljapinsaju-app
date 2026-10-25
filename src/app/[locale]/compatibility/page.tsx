@@ -18,7 +18,8 @@ export default async function CompatibilityPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/ko?login=required");
+    // 로그인 후 이 페이지로 되돌아오게 한다.
+    redirect("/?login=required&next=/compatibility");
   }
 
   // 관리자 판정

@@ -23,7 +23,8 @@ export async function sendWelcomeEmail({
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const dashboardUrl = `${baseUrl}/${locale}/dashboard`;
+  // /dashboard 라우트는 존재하지 않는다 (SaaS Kit 잔재) — 홈으로 보낸다.
+  const dashboardUrl = `${baseUrl}/${locale}`;
 
   const subjects = {
     en: "Welcome to Paljapin Saju! 🎉",

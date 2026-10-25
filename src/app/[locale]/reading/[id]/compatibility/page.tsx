@@ -23,7 +23,10 @@ export default async function ReadingCompatibilityPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/ko?login=required");
+    // 로그인 후 이 분석의 궁합 페이지로 되돌아오게 한다.
+    redirect(
+      `/?login=required&next=${encodeURIComponent(`/reading/${id}/compatibility`)}`
+    );
   }
 
   // reading 조회 (소유권 + 존재 여부 확인)

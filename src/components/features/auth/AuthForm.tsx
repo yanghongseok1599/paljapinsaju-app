@@ -51,13 +51,13 @@ export function AuthForm() {
 
   const handleGoogleLogin = () => {
     startGoogle(async () => {
-      await loginWithGoogle();
+      await loginWithGoogle("/");
     });
   };
 
   const handleKakaoLogin = () => {
     startKakao(async () => {
-      await loginWithKakao();
+      await loginWithKakao("/");
     });
   };
 

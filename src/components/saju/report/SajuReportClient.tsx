@@ -208,23 +208,15 @@ export default function SajuReportClient({
       const deductRes = await fetch('/api/saju/deduct-stars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, amount: REPORT_COST, readingId: reading.id }),
+        // 차감량은 서버가 정한다 (클라이언트가 amount를 보내면 조작 가능)
+        body: JSON.stringify({ type: 'report', readingId: reading.id }),
       });
 
       if (!deductRes.ok) {
         throw new Error('별 차감에 실패했습니다.');
       }
 
-      // 3. Status를 paid로 변경
-      const statusRes = await fetch('/api/saju/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ readingId: reading.id, status: 'paid' }),
-      });
-
-      if (!statusRes.ok) {
-        throw new Error('상태 업데이트에 실패했습니다.');
-      }
+      // 3. status는 별 차감 라우트가 서버에서 함께 올린다 (결제와 묶음)
 
       // 4. AI 종합 분석 생성
       jumpTo(25, 'AI 사주 분석 시작...');

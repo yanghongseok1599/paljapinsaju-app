@@ -54,11 +54,11 @@ export async function requireAdmin() {
  * Admin 권한 확인 (리다이렉트 버전)
  * Layout이나 Page에서 Admin이 아니면 리다이렉트할 때 사용
  *
- * @param {string} redirectTo - 권한 없을 시 리다이렉트할 경로 (기본: /dashboard)
+ * @param {string} redirectTo - 권한 없을 시 리다이렉트할 경로 (기본: /)
  * @returns {Promise<{ id: string; email: string }>} Admin 사용자 정보
  */
 export async function requireAdminOrRedirect(
-  redirectTo: string = "/dashboard"
+  redirectTo: string = "/"
 ) {
   if (MOCK_DASHBOARD) return MOCK_ADMIN;
 
