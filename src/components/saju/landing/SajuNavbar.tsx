@@ -33,19 +33,6 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          {onMenuToggle && (
-            <button
-              onClick={onMenuToggle}
-              className="lg:hidden p-1.5 -ml-1 text-[#cbc3d7] hover:text-[#d0bcff] transition-colors"
-              aria-label="사이드바 열기"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
-          )}
           <Link href="/" className="text-2xl font-black tracking-tighter text-[#d0bcff] uppercase font-['Pretendard'] hover:opacity-80 transition-opacity">
             팔자핀사주
           </Link>
@@ -115,7 +102,22 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
               </Link>
             </>
           )}
+
         </div>
+
+        {/* 계정·대화기록 패널 열기 — 화면 크기와 무관하게 오른쪽 상단에 둔다 */}
+        {onMenuToggle && (
+          <button
+            onClick={onMenuToggle}
+            className="p-1.5 text-[#cbc3d7] hover:text-[#d0bcff] transition-colors"
+            aria-label={isLoggedIn ? '내 계정 열기' : '로그인 열기'}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </button>
+        )}
       </nav>
 
       {/* ── Mobile full-screen overlay menu ── */}

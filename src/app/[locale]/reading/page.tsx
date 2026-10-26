@@ -229,7 +229,7 @@ export default function ReadingPage() {
             {demoAuth ? (
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-medium text-[#958ea0]">체험 계정</p>
+                  <p className="text-xs font-medium text-[#958ea0]">게스트</p>
                   <p className="text-sm font-semibold text-[#e4e1e9]">
                     {demoAuth.name}
                   </p>
@@ -242,7 +242,7 @@ export default function ReadingPage() {
               <div className="space-y-3">
                 <div>
                   <p className="text-sm font-semibold text-[#e4e1e9]">
-                    체험 계정으로 시작하기
+                    간편하게 시작하기
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-[#958ea0]">
                     가입 없이 바로 결과지를 받아볼 수 있어요. 기록은 이 브라우저에만 저장됩니다.

@@ -72,37 +72,35 @@ export default function MobileLayoutWrapper({
           if (sidebarOpen) { closeSidebar(); } else { setManualOpen(true); }
         }} />
 
-      <div className="flex items-start pt-16">
-        {/* 데스크톱: 기존 사이드바 */}
-        <LoginSidebar
-          user={sidebarUser}
-          chatHistory={chatHistory}
-          currentReading={currentReading}
-          totalCoins={totalCoins}
-        />
-
-        {/* 모바일: 슬라이드 오버레이 사이드바 */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 lg:hidden"
-            onClick={closeSidebar}
+      {/*
+        로그인/프로필 패널.
+        예전에는 왼쪽에 항상 펼쳐져 있어서 본문이 한쪽으로 밀렸다.
+        이제 화면 크기와 관계없이 오른쪽 상단에서 열리는 패널로 통일한다.
+      */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40" onClick={closeSidebar}>
+          <div className="absolute inset-0 bg-[#131318]/60 backdrop-blur-sm" />
+          <aside
+            className="absolute right-0 top-16 max-h-[calc(100dvh-4.5rem)] w-72 overflow-y-auto flex flex-col rounded-bl-2xl animate-slide-in-right"
+            style={{
+              backgroundColor: '#0e0e13',
+              borderLeft: '1px solid rgba(73,68,84,0.2)',
+              borderBottom: '1px solid rgba(73,68,84,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute inset-0 bg-[#131318]/60 backdrop-blur-sm" />
-            <aside
-              className="absolute left-0 top-0 h-full w-72 overflow-y-auto flex flex-col animate-slide-in-left"
-              style={{ backgroundColor: '#0e0e13', borderRight: '1px solid rgba(73,68,84,0.2)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <LoginSidebar
-                user={sidebarUser}
-                chatHistory={chatHistory}
-                currentReading={currentReading}
-                totalCoins={totalCoins}
-                isMobile
-              />
-            </aside>
-          </div>
-        )}
+            <LoginSidebar
+              user={sidebarUser}
+              chatHistory={chatHistory}
+              currentReading={currentReading}
+              totalCoins={totalCoins}
+              isMobile
+            />
+          </aside>
+        </div>
+      )}
+
+      <div className="flex items-start pt-16">
 
         <div className="flex-1 min-w-0">{children}</div>
       </div>

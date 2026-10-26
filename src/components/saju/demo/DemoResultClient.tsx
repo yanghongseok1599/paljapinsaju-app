@@ -44,7 +44,7 @@ export default function DemoResultClient() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#131318] px-5 text-center">
         <h1 className="reading-heading text-xl font-bold">결과지를 찾을 수 없습니다</h1>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#958ea0]">
-          이 데모 결과지는 현재 브라우저에 저장됩니다. 다시 입력하면 새 결과지를 만들 수 있습니다.
+          결과지는 이 브라우저에 저장됩니다. 사주 정보를 다시 입력하면 새로 받아보실 수 있어요.
         </p>
         <Link
           href="/reading"

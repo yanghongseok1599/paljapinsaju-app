@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
@@ -44,6 +46,12 @@ export function AuthForm() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const searchParams = useSearchParams();
+  // 로그인 후 돌아갈 곳. 외부 도메인으로 튀지 않게 '/'로 시작하는 값만 받는다.
+  const rawNext = searchParams.get("next");
+  const nextPath =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+
   const [isPendingGoogle, startGoogle] = useTransition();
   const [isPendingKakao, startKakao] = useTransition();
   const [isPendingEmail, startEmail] = useTransition();
@@ -51,13 +59,13 @@ export function AuthForm() {
 
   const handleGoogleLogin = () => {
     startGoogle(async () => {
-      await loginWithGoogle("/");
+      await loginWithGoogle(nextPath);
     });
   };
 
   const handleKakaoLogin = () => {
     startKakao(async () => {
-      await loginWithKakao("/");
+      await loginWithKakao(nextPath);
     });
   };
 

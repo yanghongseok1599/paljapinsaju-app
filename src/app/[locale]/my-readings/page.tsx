@@ -15,7 +15,8 @@ export default async function MyPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: "/", locale: "ko" });
+    // 로그인 안내를 띄우고, 로그인 후 이 페이지로 되돌아오게 한다.
+    redirect({ href: "/?login=required&next=/my-readings", locale: "ko" });
     return null;
   }
 

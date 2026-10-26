@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import MobileLayoutWrapper from './MobileLayoutWrapper';
 import { CHARACTERS, type CharacterType } from '@/lib/saju/characters';
 import { cookies } from 'next/headers';
-import { DEMO_AUTH_COOKIE, type DemoAuth } from '@/lib/saju/demo-auth';
+import { DEMO_AUTH_COOKIE, normalizeDemoAuth, type DemoAuth } from '@/lib/saju/demo-auth';
 
 interface SajuLayoutProps {
   children: React.ReactNode;
@@ -32,7 +32,10 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
   const demoAuthCookie = cookieStore.get(DEMO_AUTH_COOKIE)?.value;
   if (!user && demoAuthCookie) {
     try {
-      demoAuth = JSON.parse(decodeURIComponent(demoAuthCookie)) as DemoAuth;
+      // 쿠키에 저장된 표시 이름은 옛 값일 수 있어 현재 기준으로 맞춘다
+      demoAuth = normalizeDemoAuth(
+        JSON.parse(decodeURIComponent(demoAuthCookie)) as DemoAuth
+      );
     } catch {
       demoAuth = null;
     }

@@ -448,6 +448,11 @@
     animation: slideInLeft 0.2s ease-out;
   }
 
+  /* Slide in from right (로그인·프로필 패널) */
+  .animate-slide-in-right {
+    animation: slideInRight 0.2s ease-out;
+  }
+
   /* Terminal cursor blink */
   .terminal-cursor::after {
     content: '|';
@@ -516,6 +521,11 @@
 
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
 

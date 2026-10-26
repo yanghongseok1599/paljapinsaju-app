@@ -47,7 +47,9 @@ export async function middleware(request: NextRequest) {
 
       if (!user) {
         const locale = pathname.split("/")[1] || "ko";
+        // 로그인 후 원래 가려던 주소로 되돌아오게 한다.
         const loginUrl = new URL(`/${locale}/login`, request.url);
+        loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
         return NextResponse.redirect(loginUrl);
       }
     }

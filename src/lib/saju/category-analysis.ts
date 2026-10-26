@@ -15,6 +15,7 @@ import {
 } from "@/lib/saju/saju-engine";
 import { getPaidCategory, type PaidCategoryId } from "@/lib/saju/categories";
 import type { Gender } from "@/types/saju";
+import { josa } from "@/lib/saju/josa";
 
 // ──────────────────────────────────────────────
 // 결과 타입
@@ -82,17 +83,31 @@ const TRIPLE: number[][] = [
   [5, 9, 1], // 巳酉丑 금
 ];
 
+/**
+ * 십신 이름 → 다섯 그룹.
+ *
+ * ⚠️ saju-engine 은 한자로 돌려준다(比肩, 偏印 …).
+ * 한글 키만 두면 하나도 매칭되지 않아 전부 0개로 집계된다. 둘 다 등록한다.
+ * (일간 자신은 '本元'으로 오는데 십신이 아니므로 등록하지 않는다.)
+ */
 const SIPSIN_GROUP: Record<string, SipsinGroup> = {
+  // 한글
   비견: "비겁", 겁재: "비겁",
   식신: "식상", 상관: "식상",
   편재: "재성", 정재: "재성",
   편관: "관성", 정관: "관성",
   편인: "인성", 정인: "인성",
+  // 한자 (saju-engine 실제 출력)
+  比肩: "비겁", 劫財: "비겁",
+  食神: "식상", 傷官: "식상",
+  偏財: "재성", 正財: "재성",
+  偏官: "관성", 正官: "관성",
+  偏印: "인성", 正印: "인성",
 };
 
-type SipsinGroup = "비겁" | "식상" | "재성" | "관성" | "인성";
+export type SipsinGroup = "비겁" | "식상" | "재성" | "관성" | "인성";
 
-const ELEMENT_KO: Record<string, string> = {
+export const ELEMENT_KO: Record<string, string> = {
   wood: "목(木)", fire: "화(火)", earth: "토(土)", metal: "금(金)", water: "수(水)",
 };
 
@@ -100,7 +115,7 @@ const ELEMENT_KO: Record<string, string> = {
 // 사주에서 뽑아내는 사실들
 // ──────────────────────────────────────────────
 
-interface Facts {
+export interface Facts {
   result: SajuResult;
   dayStem: string;
   dayStemKo: string;
@@ -137,7 +152,8 @@ function yearGanziIdx(year: number) {
   return { stem: (year - 4) % 10, branch: (year - 4) % 12 };
 }
 
-function collectFacts(input: CategoryAnalysisInput): Facts {
+/** 사주 원국에서 해석에 필요한 사실들을 뽑아낸다. 결과지 엔진도 이걸 쓴다. */
+export function collectFacts(input: CategoryAnalysisInput): Facts {
   const result = calculateSaju({
     year: input.birthYear,
     month: input.birthMonth,
@@ -362,7 +378,7 @@ const BUILDERS: Record<PaidCategoryId, Builder> = {
       sections: [
         {
           heading: "이별이 일어난 구조",
-          body: `일간 ${f.dayStem}(${f.dayStemKo})을 기준으로 보면 ${input.name}님은 ${f.strongest}의 기운이 가장 강하고 ${f.weakest}이 약합니다. 강한 ${f.strongest}은 관계에서 주도권과 기준으로 나타나는데, 상대 입장에서는 "맞춰주지 않는다"로 읽히기 쉽습니다. 반대로 부족한 ${f.weakest}은 관계를 부드럽게 마감하는 능력이라, 갈등이 생겼을 때 설명 대신 침묵이나 단절로 끝내는 패턴이 나옵니다.\n\n${f.counts.비겁 >= 3 ? `비겁(比劫, 나와 같은 기운)이 ${f.counts.비겁}개로 강합니다. 자기 기준이 뚜렷해 관계에서 양보의 총량이 부족했을 가능성이 큽니다. 이별의 원인을 상대에게서만 찾으면 같은 패턴이 반복됩니다.` : ""}${f.counts.관성 === 0 ? `관성(官星, 규범과 책임의 기운)이 원국에 없습니다. 관계를 '형식'으로 묶는 힘이 약해, 확실한 약속 없이 흐름에 맡기다 어긋난 구조로 봅니다.` : ""}${f.counts.식상 >= 3 ? `식상(食傷, 표현의 기운)이 ${f.counts.식상}개로 많습니다. 하고 싶은 말을 참지 못하는 편이라, 결정적인 순간의 한마디가 관계를 끊었을 수 있습니다.` : ""}`,
+          body: `일간 ${josa(`${f.dayStem}(${f.dayStemKo})`, "을/를")} 기준으로 보면 ${input.name}님은 ${f.strongest}의 기운이 가장 강하고 ${josa(f.weakest, "이/가")} 약합니다. 강한 ${josa(f.strongest, "은/는")} 관계에서 주도권과 기준으로 나타나는데, 상대 입장에서는 "맞춰주지 않는다"로 읽히기 쉽습니다. 반대로 부족한 ${josa(f.weakest, "은/는")} 관계를 부드럽게 마감하는 능력이라, 갈등이 생겼을 때 설명 대신 침묵이나 단절로 끝내는 패턴이 나옵니다.\n\n${f.counts.비겁 >= 3 ? `비겁(比劫, 나와 같은 기운)이 ${f.counts.비겁}개로 강합니다. 자기 기준이 뚜렷해 관계에서 양보의 총량이 부족했을 가능성이 큽니다. 이별의 원인을 상대에게서만 찾으면 같은 패턴이 반복됩니다.` : ""}${f.counts.관성 === 0 ? `관성(官星, 규범과 책임의 기운)이 원국에 없습니다. 관계를 '형식'으로 묶는 힘이 약해, 확실한 약속 없이 흐름에 맡기다 어긋난 구조로 봅니다.` : ""}${f.counts.식상 >= 3 ? `식상(食傷, 표현의 기운)이 ${f.counts.식상}개로 많습니다. 하고 싶은 말을 참지 못하는 편이라, 결정적인 순간의 한마디가 관계를 끊었을 수 있습니다.` : ""}`,
         },
         {
           heading: "지금 연락해도 되는가",
@@ -598,7 +614,7 @@ const BUILDERS: Record<PaidCategoryId, Builder> = {
     const year = new Date().getFullYear();
     return {
       verdictTone: expansion ? "positive" : g === "비겁" ? "caution" : "neutral",
-      verdict: `${year}년 세운은 ${f.yearGanzi}, ${input.name}님의 일간 ${f.dayStem}(${f.dayStemKo})을 기준으로 ${f.yearSipsin}입니다. ${expansion ? `확장기입니다. 벌이고 만들고 알리는 쪽으로 힘이 실리는 해라, 올해 시작한 일이 내년 성과로 이어집니다.` : g === "비겁" ? `경쟁기입니다. 같은 자리를 두고 겨루는 상황이 많아지고 지출 압력도 커집니다. 새로 벌이기보다 지키고 정리하는 해로 잡으세요.` : g === "관성" ? `정리기이자 책임기입니다. 자리와 역할이 무거워지는 해라, 벌이기보다 맡은 것을 완성하는 데 힘을 쓰는 편이 유리합니다.` : `축적기입니다. 배우고 자격을 갖추고 문서를 정리하는 해입니다. 지금 쌓아둔 것이 다음 확장기의 재료가 됩니다.`}`,
+      verdict: `${year}년 세운은 ${f.yearGanzi}, ${input.name}님의 일간 ${josa(`${f.dayStem}(${f.dayStemKo})`, "을/를")} 기준으로 ${f.yearSipsin}입니다. ${expansion ? `확장기입니다. 벌이고 만들고 알리는 쪽으로 힘이 실리는 해라, 올해 시작한 일이 내년 성과로 이어집니다.` : g === "비겁" ? `경쟁기입니다. 같은 자리를 두고 겨루는 상황이 많아지고 지출 압력도 커집니다. 새로 벌이기보다 지키고 정리하는 해로 잡으세요.` : g === "관성" ? `정리기이자 책임기입니다. 자리와 역할이 무거워지는 해라, 벌이기보다 맡은 것을 완성하는 데 힘을 쓰는 편이 유리합니다.` : `축적기입니다. 배우고 자격을 갖추고 문서를 정리하는 해입니다. 지금 쌓아둔 것이 다음 확장기의 재료가 됩니다.`}`,
       evidence: [
         `${year}년 세운 ${f.yearGanzi} — 일간 대비 ${f.yearSipsin}(${g}) 운입니다.`,
         daewoonLine(f),
