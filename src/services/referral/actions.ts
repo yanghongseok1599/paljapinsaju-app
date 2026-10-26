@@ -1,9 +1,8 @@
 "use server";
 
-import { z } from "zod";
 import { randomBytes } from "node:crypto";
+import { REFERRAL_REWARD_STARS } from "@/lib/referral/grant";
 import { createClient } from "@/utils/supabase/server";
-import { createAdminClient } from "@/utils/supabase/admin";
 
 // --- 유틸리티 ---
 
@@ -14,10 +13,6 @@ import { createAdminClient } from "@/utils/supabase/admin";
 function generateReferralCode(): string {
   return randomBytes(6).toString("base64url").slice(0, 8).toUpperCase();
 }
-
-// --- Zod Schemas ---
-
-const referralCodeSchema = z.string().min(6).max(10);
 
 // --- Server Actions ---
 
@@ -75,98 +70,7 @@ export async function getOrCreateReferralCode(): Promise<{
   return { data: null, error: "레퍼럴 코드 생성에 실패했습니다. 다시 시도해주세요." };
 }
 
-/**
- * 레퍼럴 코드로 초대를 처리합니다.
- * 회원가입 완료 후 호출되며, 양쪽(초대한 사람 + 초대받은 사람)에 별 3개씩 지급합니다.
- */
-export async function processReferral(
-  referralCode: string
-): Promise<{ success: boolean; error: string | null }> {
-  const parsed = referralCodeSchema.safeParse(referralCode);
-  if (!parsed.success) {
-    return { success: false, error: "유효하지 않은 레퍼럴 코드입니다." };
-  }
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: "로그인이 필요합니다." };
-  }
-
-  // 레퍼럴 코드 조회
-  const { data: codeData } = await supabase
-    .from("referral_codes")
-    .select("id, user_id, code")
-    .eq("code", parsed.data)
-    .single();
-
-  if (!codeData) {
-    return { success: false, error: "존재하지 않는 레퍼럴 코드입니다." };
-  }
-
-  // 자기 자신을 초대할 수 없음
-  if (codeData.user_id === user.id) {
-    return { success: false, error: "자기 자신을 초대할 수 없습니다." };
-  }
-
-  // 이미 초대받은 적이 있는지 확인
-  const { data: existingReferral } = await supabase
-    .from("referrals")
-    .select("id")
-    .eq("referred_id", user.id)
-    .single();
-
-  if (existingReferral) {
-    // 이미 처리됨 - 에러가 아닌 성공으로 처리 (중복 호출 방지)
-    return { success: true, error: null };
-  }
-
-  // 레퍼럴 레코드 생성
-  const { error: insertError } = await supabase.from("referrals").insert({
-    referrer_id: codeData.user_id,
-    referred_id: user.id,
-    referral_code_id: codeData.id,
-    status: "completed",
-    reward_given: true,
-  });
-
-  if (insertError) {
-    console.error("레퍼럴 생성 실패:", insertError);
-    return { success: false, error: "레퍼럴 처리에 실패했습니다." };
-  }
-
-  // 양쪽에 별 1개씩 지급 (admin client — atomic_grant_stars는 service_role 전용)
-  const REWARD_STARS = 1;
-  const admin = createAdminClient();
-
-  await addStarsToUser(admin, user.id, REWARD_STARS, codeData.id);
-  await addStarsToUser(admin, codeData.user_id, REWARD_STARS, codeData.id);
-
-  return { success: true, error: null };
-}
-
-/**
- * 유저에게 별을 추가하는 내부 함수
- * C4 + hardening: atomic_grant_stars RPC는 service_role만 호출 가능하므로
- * 반드시 createAdminClient()로 만든 supabase를 전달해야 함.
- */
-async function addStarsToUser(
-  supabase: ReturnType<typeof createAdminClient>,
-  userId: string,
-  amount: number,
-  referenceId?: string
-) {
-  await supabase.rpc("atomic_grant_stars", {
-    p_user_id: userId,
-    p_amount: amount,
-    p_source: "referral",
-    p_reference: referenceId ?? "referral",
-  });
-}
+// 초대 보상 지급은 가입 콜백에서 src/lib/referral/grant.ts 가 한다 (서버 액션으로 두지 않는다).
 
 /**
  * 내 초대 현황을 조회합니다.
@@ -202,7 +106,7 @@ export async function getReferralStats(): Promise<{
   const totalInvited = referrals?.length || 0;
   const rewardedCount =
     referrals?.filter((r) => r.reward_given).length || 0;
-  const totalRewardStars = rewardedCount * 1; // 보상받은 건당 1별
+  const totalRewardStars = rewardedCount * REFERRAL_REWARD_STARS;
 
   return {
     data: {

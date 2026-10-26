@@ -59,6 +59,8 @@ function walk(dir, hits) {
 
 const hits = [];
 walk(join(ROOT, "src"), hits);
+// 번역 파일도 모든 방문자에게 전송된다 (템플릿의 자리표시자 사업자 정보가 여기 남아 있었다)
+walk(join(ROOT, "messages"), hits);
 
 if (hits.length > 0) {
   problems.push(`예시 정보가 남아 있는 파일 ${hits.length}곳:\n    ` + hits.join("\n    "));

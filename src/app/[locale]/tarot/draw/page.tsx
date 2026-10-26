@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { isSpreadType, SPREADS, type SpreadType } from "@/lib/tarot/spreads";
 import { redirect } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = {
   title: "타로 카드 뽑기",
@@ -31,11 +32,7 @@ export default async function TarotDrawPage({ params, searchParams }: PageProps)
     data: { user },
   } = await supabase.auth.getUser();
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user?.email);
 
   let starBalance = 0;
   if (user && !isAdmin) {

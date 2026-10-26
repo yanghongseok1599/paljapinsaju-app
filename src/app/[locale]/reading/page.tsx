@@ -3,19 +3,12 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import BirthDateForm, {
   type BirthDateFormData,
 } from "@/components/saju/input/BirthDateForm";
 import ConcernSelector from "@/components/saju/input/ConcernSelector";
 import AnalysisLoading from "@/components/saju/input/AnalysisLoading";
-import {
-  readDemoAuth,
-  saveDemoAuth,
-  type DemoAuth,
-  type DemoAuthProvider,
-} from "@/lib/saju/demo-auth";
 import { createDemoReading, saveDemoReading } from "@/lib/saju/demo-reading";
 import { CONCERN_LABELS, type ConcernType } from "@/types/saju";
 import { getPaidCategory, type PaidCategoryId } from "@/lib/saju/categories";
@@ -46,7 +39,6 @@ export default function ReadingPage() {
   const [formData, setFormData] = useState<BirthDateFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [demoAuth, setDemoAuth] = useState<DemoAuth | null>(null);
 
   // 유료 카테고리에서 넘어온 경우의 상담 주제
   const category = getPaidCategory(searchParams.get("category") ?? "");
@@ -59,14 +51,6 @@ export default function ReadingPage() {
   // 고른 고민이 상담 주제와 어긋나면 주제를 놓아준다.
   // (재회로 들어왔더라도 건강만 고르면 건강 분석이 나와야 한다.)
   const categoryActive = !!category && concerns.includes(category.concernId);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDemoAuth(readDemoAuth());
-    }, 0);
-
-    return () => window.clearTimeout(timer);
-  }, []);
 
   // URL search params에서 히어로 폼 데이터 읽기
   useEffect(() => {
@@ -101,20 +85,10 @@ export default function ReadingPage() {
     setStep(2);
   };
 
-  const handleDemoLogin = (provider: DemoAuthProvider) => {
-    setDemoAuth(saveDemoAuth(provider));
-    setError(null);
-  };
-
   const handleConcernSubmit = async (picked: string[]) => {
     if (!formData || isSubmitting) return;
 
     const useCategory = category && picked.includes(category.concernId);
-
-    if (!readDemoAuth()) {
-      setError("위의 Google 또는 카카오 버튼을 눌러 시작해주세요.");
-      return;
-    }
 
     setIsSubmitting(true);
     setError(null);
@@ -224,50 +198,16 @@ export default function ReadingPage() {
           </div>
         )}
 
+        {/*
+          체험은 로그인 없이 진행된다. 예전엔 Google·카카오 모양 버튼이 있었지만 실제 로그인이 아니라
+          브라우저에 "게스트" 표시만 남겨, 계정이 생긴 것처럼 보였다. 안내만 남긴다.
+        */}
         {step <= 2 && (
           <div className="mb-6 rounded-2xl border border-[rgba(73,68,84,0.35)] bg-[#1a1a20] p-4">
-            {demoAuth ? (
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-[#958ea0]">게스트</p>
-                  <p className="text-sm font-semibold text-[#e4e1e9]">
-                    {demoAuth.name}
-                  </p>
-                </div>
-                <span className="rounded-full bg-[rgba(208,188,255,0.12)] px-3 py-1 text-xs font-semibold text-[#d0bcff]">
-                  로그인됨
-                </span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-semibold text-[#e4e1e9]">
-                    간편하게 시작하기
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed text-[#958ea0]">
-                    가입 없이 바로 결과지를 받아볼 수 있어요. 기록은 이 브라우저에만 저장됩니다.
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDemoLogin("google")}
-                    className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[rgba(73,68,84,0.45)] bg-[#0e0e13] text-sm font-semibold text-[#e4e1e9] transition-colors hover:bg-[#24242b]"
-                  >
-                    <LogIn size={16} />
-                    Google
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDemoLogin("kakao")}
-                    className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-sm font-semibold text-[#191600] transition-opacity hover:opacity-90"
-                  >
-                    <LogIn size={16} />
-                    Kakao
-                  </button>
-                </div>
-              </div>
-            )}
+            <p className="text-sm font-semibold text-[#e4e1e9]">가입 없이 바로 시작</p>
+            <p className="mt-1 text-xs leading-relaxed text-[#958ea0]">
+              결과지는 이 브라우저에만 저장됩니다. 다른 기기에서는 볼 수 없어요.
+            </p>
           </div>
         )}
 

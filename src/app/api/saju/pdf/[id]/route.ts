@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/utils/supabase/server";
 import { SajuPdf } from "@/lib/saju/pdf/saju-template";
 import type { SajuReading } from "@/types/saju";
+import { isAdminEmail } from "@/lib/admin";
 
 export async function GET(
   req: NextRequest,
@@ -14,8 +15,7 @@ export async function GET(
 
   // 현재 유저 확인
   const { data: { user } } = await supabase.auth.getUser();
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
-  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user?.email);
 
   // Non-admin must be authenticated
   if (!isAdmin && !user) {

@@ -3,6 +3,7 @@ import MobileLayoutWrapper from './MobileLayoutWrapper';
 import { CHARACTERS, type CharacterType } from '@/lib/saju/characters';
 import { cookies } from 'next/headers';
 import { DEMO_AUTH_COOKIE, normalizeDemoAuth, type DemoAuth } from '@/lib/saju/demo-auth';
+import { isAdminEmail } from "@/lib/admin";
 
 interface SajuLayoutProps {
   children: React.ReactNode;
@@ -28,9 +29,12 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 데모 쿠키는 누구나 만들 수 있다. Supabase 없이 화면을 보는 로컬 개발에서만 읽는다.
+  // (운영에서 방문자에게 "게스트 로그인됨"·별 99,999·관리자 메뉴가 보이던 문제)
+  const isLocalDev = process.env.NODE_ENV !== 'production';
   let demoAuth: DemoAuth | null = null;
   const demoAuthCookie = cookieStore.get(DEMO_AUTH_COOKIE)?.value;
-  if (!user && demoAuthCookie) {
+  if (isLocalDev && !user && demoAuthCookie) {
     try {
       // 쿠키에 저장된 표시 이름은 옛 값일 수 있어 현재 기준으로 맞춘다
       demoAuth = normalizeDemoAuth(
@@ -77,9 +81,7 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
       });
     }
 
-    // admin 체크
-    const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean);
-    const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+    const isAdmin = isAdminEmail(user.email);
 
     if (isAdmin) {
       totalCoins = 99999;
@@ -96,13 +98,9 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
     }
   }
 
-  const ADMIN_EMAILS_LIST = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean);
-  // 데모 쿠키는 누구나 만들 수 있다. 관리자 표시·무제한 별은 로컬 개발에서만 준다.
-  // (운영에서 /reading 체험을 시작한 방문자에게 별 99,999개가 보이던 문제)
-  const isLocalDev = process.env.NODE_ENV !== 'production';
   const isAdminUser =
-    (isLocalDev && demoAuth?.email === 'admin') ||
-    (user?.email ? ADMIN_EMAILS_LIST.includes(user.email) : false);
+    demoAuth?.email === 'admin' ||
+    isAdminEmail(user?.email);
 
   const sidebarUser = demoAuth
     ? {
@@ -125,7 +123,7 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
       sidebarUser={sidebarUser}
       chatHistory={chatHistory}
       currentReading={currentReading}
-      totalCoins={demoAuth ? (isLocalDev ? 99999 : 0) : totalCoins}
+      totalCoins={demoAuth ? 99999 : totalCoins}
       isAdmin={isAdminUser}
     >
       {children}

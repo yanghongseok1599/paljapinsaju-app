@@ -264,6 +264,7 @@ function OhaengCosmos({
     }[]
   >([]);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 무작위 별은 마운트 후에만 만든다 (SSR 과 어긋나지 않게)
     setStars(
       Array.from({ length: 95 }, () => {
         const tier = Math.random();
@@ -1031,6 +1032,7 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
   const [panelHoveredId, setPanelHoveredId] = useState<ElementId | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 여부 표시 (하이드레이션 후 애니메이션 시작)
     setMounted(true);
   }, []);
 

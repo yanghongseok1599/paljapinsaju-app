@@ -14,6 +14,7 @@ import type {
   ConcernType,
 } from "@/types/saju";
 import { COMPAT_COST } from "@/types/saju";
+import { isAdminEmail } from "@/lib/admin";
 
 // --- Zod Schemas ---
 
@@ -483,12 +484,7 @@ export async function payCompatibilityWithStars(
     return { error: "접근 권한이 없습니다." };
   }
 
-  // 관리자 바이패스
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user.email);
 
   // 별 함수와 결제 상태 칸은 서버(service_role)만 쓸 수 있다. 소유권은 위에서 확인했다.
   // 예전엔 이용자 권한으로 상태를 바꾸다 0행 갱신으로 조용히 실패해, 별만 빠지고 결과가 열리지 않았다.

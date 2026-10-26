@@ -5,6 +5,7 @@ import CompatibilityClient from "@/components/saju/compatibility/CompatibilityCl
 import { getUserReadings } from "@/services/saju/actions";
 import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = {
   title: "궁합 분석",
@@ -22,12 +23,7 @@ export default async function CompatibilityPage() {
     redirect("/?login=required&next=/compatibility");
   }
 
-  // 관리자 판정
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user.email);
 
   // 별 잔액 조회
   const { data: stars } = await supabase

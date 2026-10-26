@@ -40,7 +40,7 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-8 font-['Pretendard'] text-base tracking-tight">
-          <NavLink href="/reading/new">오늘의 운세</NavLink>
+          <NavLink href="/reading">오늘의 운세</NavLink>
           <NavLink href="/categories">고민별 상담</NavLink>
           <NavLink href="/zodiac">별자리</NavLink>
           <NavLink href="/compatibility">궁합</NavLink>
@@ -142,7 +142,7 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
           <nav className="flex flex-col items-center gap-8" aria-label="모바일 네비게이션">
             {[
               { href: "/", label: "홈" },
-              { href: "/reading/new", label: "오늘의 운세" },
+              { href: "/reading", label: "오늘의 운세" },
               { href: "/categories", label: "고민별 상담" },
               { href: "/zodiac", label: "별자리" },
               { href: "/compatibility", label: "궁합" },

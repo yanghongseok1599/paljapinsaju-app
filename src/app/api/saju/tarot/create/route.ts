@@ -9,6 +9,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { SPREADS, isSpreadType } from "@/lib/tarot/spreads";
 import { getCard } from "@/lib/tarot/cards";
+import { isAdminEmail } from "@/lib/admin";
 
 interface DrawnCardInput {
   cardId: string;
@@ -51,10 +52,7 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .filter(Boolean);
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  const isAdmin = isAdminEmail(user.email);
 
   // 3) 레이트 리밋
   if (!isAdmin) {

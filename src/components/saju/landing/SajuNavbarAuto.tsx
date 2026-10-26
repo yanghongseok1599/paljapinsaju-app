@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import SajuNavbar from "./SajuNavbar";
+import { isAdminEmail } from "@/lib/admin";
 
 /**
  * Server-side wrapper that auto-fills SajuNavbar's auth props.
@@ -14,13 +15,9 @@ export default async function SajuNavbarAuto() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
 
   const isLoggedIn = !!user;
-  const isAdmin = !!user?.email && ADMIN_EMAILS.includes(user.email);
+  const isAdmin = !!user?.email && isAdminEmail(user.email);
 
   return <SajuNavbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />;
 }

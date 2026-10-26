@@ -11,6 +11,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import type { CharacterType } from "@/types/saju";
 import type { FourPillarsDetail } from "manseryeok";
 import type { FiveElementDistribution } from "@/types/saju";
+import { isAdminEmail } from "@/lib/admin";
 
 /** 시간(0~23)을 시진명으로 변환 */
 function hourToSiji(hour: number): string {
@@ -83,7 +84,6 @@ ${category.focusPrompt}
 `
     : "";
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
 
   const supabase = await createClient();
 
@@ -93,7 +93,7 @@ ${category.focusPrompt}
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  const isAdmin = isAdminEmail(user.email);
 
   // Rate limit: 10 req/min per user (in-memory; TODO: migrate to Upstash Redis for multi-instance Vercel)
   if (!isAdmin) {

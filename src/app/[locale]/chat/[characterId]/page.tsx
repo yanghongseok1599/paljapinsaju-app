@@ -8,6 +8,7 @@ import SajuLayout from "@/components/saju/layout/SajuLayout";
 import ChatRoom from "@/components/saju/chat/ChatRoom";
 import type { SajuReading } from "@/types/saju";
 import type { UIMessage } from "ai";
+import { isAdminEmail } from "@/lib/admin";
 
 interface ChatPageProps {
   params: Promise<{ characterId: string; locale: string }>;
@@ -52,8 +53,7 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
     );
   }
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
-  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user.email);
 
   // user_stars에서 잔액 조회
   let starBalance = 0;

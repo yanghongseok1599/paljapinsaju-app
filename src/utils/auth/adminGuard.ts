@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { MOCK_DASHBOARD } from "@/utils/supabase/mock-admin";
+import { isAdminEmail } from "@/lib/admin";
 
 // LOCAL-ONLY: 목 모드에서 사용할 가짜 관리자
 const MOCK_ADMIN = { id: "u_0000", email: "admin@example.com" };
@@ -40,10 +41,8 @@ export async function requireAdmin() {
     throw new Error("Unauthorized: Not logged in");
   }
 
-  const adminEmails =
-    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
 
-  if (!adminEmails.includes(user.email)) {
+  if (!isAdminEmail(user.email)) {
     throw new Error("Forbidden: Admin access required");
   }
 
@@ -71,10 +70,8 @@ export async function requireAdminOrRedirect(
     redirect("/login");
   }
 
-  const adminEmails =
-    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
 
-  if (!adminEmails.includes(user.email)) {
+  if (!isAdminEmail(user.email)) {
     redirect(redirectTo);
   }
 
@@ -98,9 +95,7 @@ export async function isAdmin(): Promise<boolean> {
 
     if (!user?.email) return false;
 
-    const adminEmails =
-      process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-    return adminEmails.includes(user.email);
+    return isAdminEmail(user.email);
   } catch {
     return false;
   }

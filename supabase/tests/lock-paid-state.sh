@@ -92,6 +92,23 @@ select pg_temp.denied($$insert into tarot_readings (user_id, character_id, sprea
                         values (auth.uid(), 'luna', 'one', '[]')$$, '타로 무료 생성 차단');
 select pg_temp.denied($$select * from webhook_events$$, '결제 기록 조회 차단');
 
+-- 삭제: 본인 것만 실제로 지워진다 (정책이 없으면 0행 삭제로 조용히 실패한다)
+reset role;
+insert into saju_readings (id, user_id, name, gender, birth_year, birth_month, birth_day)
+values ('bbbbbbbb-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'B', 'female', 1991, 2, 2);
+insert into saju_chat_messages (reading_id, role, content)
+values ('aaaaaaaa-0000-0000-0000-000000000001', 'user', 'hi'),
+       ('bbbbbbbb-0000-0000-0000-000000000002', 'user', 'hi');
+set role authenticated;
+delete from saju_chat_messages where reading_id in ('aaaaaaaa-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000002');
+delete from saju_readings where name = 'x';
+delete from saju_readings where id = 'bbbbbbbb-0000-0000-0000-000000000002';
+reset role;
+select pg_temp.check((select count(*) from saju_readings where name = 'x') = 0, '본인 사주 삭제됨');
+select pg_temp.check((select count(*) from saju_chat_messages where reading_id = 'aaaaaaaa-0000-0000-0000-000000000001') = 0, '본인 대화 삭제됨');
+select pg_temp.check((select count(*) from saju_readings where id = 'bbbbbbbb-0000-0000-0000-000000000002') = 1, '남의 사주는 안 지워짐');
+select pg_temp.check((select count(*) from saju_chat_messages where reading_id = 'bbbbbbbb-0000-0000-0000-000000000002') = 1, '남의 대화는 안 지워짐');
+
 -- ── 서버(service_role) ──
 reset role;
 set role service_role;

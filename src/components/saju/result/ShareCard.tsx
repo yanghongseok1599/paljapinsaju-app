@@ -4,19 +4,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface ShareCardProps {
-  readingId: string;
   name: string;
 }
 
-export default function ShareCard({ readingId, name }: ShareCardProps) {
+export default function ShareCard({ name }: ShareCardProps) {
   const [copied, setCopied] = useState(false);
 
+  // 결과 페이지는 본인만 볼 수 있어(로그인 + 소유자 확인) 받은 사람에게 열리지 않았다.
+  // 결과를 공개 링크로 돌리면 이름·생년월일이 함께 퍼지므로, "나도 받아보기" 링크를 공유한다.
   const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/reading/${readingId}/result`
-      : "";
+    typeof window !== "undefined" ? `${window.location.origin}/reading` : "";
 
-  const shareText = `${name}님의 사주분석 결과를 확인해보세요! - 팔자핀사주`;
+  const shareText = `${name}님이 팔자핀사주에서 사주 분석을 받았어요. 나도 무료로 받아보기 - 팔자핀사주`;
 
   const handleCopyLink = async () => {
     try {
@@ -35,7 +34,7 @@ export default function ShareCard({ readingId, name }: ShareCardProps) {
         content: {
           title: "팔자핀사주 - AI 사주분석",
           description: shareText,
-          imageUrl: `${window.location.origin}/og-image.png`,
+          imageUrl: `${window.location.origin}/opengraph-image`,
           link: {
             mobileWebUrl: shareUrl,
             webUrl: shareUrl,
@@ -43,7 +42,7 @@ export default function ShareCard({ readingId, name }: ShareCardProps) {
         },
         buttons: [
           {
-            title: "결과 보기",
+            title: "나도 사주 보기",
             link: {
               mobileWebUrl: shareUrl,
               webUrl: shareUrl,

@@ -48,11 +48,9 @@ export async function generateMetadata({
       default: "팔자핀사주 - 데이터 기반 AI 사주",
     },
     description:
-      "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
+      "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 가입 없이 무료로 사주 원국을 바로 확인하세요.",
     metadataBase: new URL(baseUrl),
-    alternates: {
-      canonical: baseUrl,
-    },
+    // 모든 페이지의 canonical 을 홈으로 두면 하위 페이지가 검색에 잡히지 않는다. 지정하지 않는다.
     authors: [{ name: "팔자핀사주" }],
     creator: "팔자핀사주",
     publisher: COMPANY.name,
@@ -85,7 +83,7 @@ export async function generateMetadata({
       siteName: "팔자핀사주",
       title: "팔자핀사주 - 데이터 기반 AI 사주",
       description:
-        "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
+        "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 가입 없이 무료로 사주 원국을 바로 확인하세요.",
       url: baseUrl,
       locale: "ko_KR",
       images: [
@@ -101,7 +99,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: "팔자핀사주 - 데이터 기반 AI 사주",
       description:
-        "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
+        "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석. 가입 없이 무료로 사주 원국을 바로 확인하세요.",
       images: [`${baseUrl}/og-image.png`],
     },
     robots: {
@@ -158,7 +156,7 @@ export default async function LocaleLayout({
               name: "팔자핀사주",
               url: "https://drsaju.com",
               description:
-                "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석 서비스. 무료 3회 체험.",
+                "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석 서비스.",
               inLanguage: "ko",
             }),
           }}
@@ -189,7 +187,7 @@ export default async function LocaleLayout({
               "@type": "Product",
               name: "팔자핀사주 별 충전",
               description:
-                "데이터 기반 AI 사주 분석 서비스. 사주팔자 · 자미두수 · 서양점성술 통합 분석. 무료 3회 체험 후 별 충전으로 무제한 대화.",
+                "데이터 기반 AI 사주 분석 서비스. 사주팔자 · 자미두수 · 서양점성술 통합 분석.",
               offers: {
                 "@type": "AggregateOffer",
                 lowPrice: "9900",
@@ -222,7 +220,7 @@ export default async function LocaleLayout({
                   name: "무료로 이용할 수 있나요?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "네, 처음 가입하면 별 3개가 무료로 제공되어 3회 상담을 체험할 수 있습니다. 이후에는 별을 충전하여 계속 상담할 수 있습니다.",
+                    text: "네, 가입 없이 무료로 사주 원국 요약을 받아볼 수 있고, 회원가입하면 AI 상담에 쓸 수 있는 별 3개를 드립니다.",
                   },
                 },
                 {

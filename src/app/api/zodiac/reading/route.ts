@@ -5,6 +5,7 @@ import { getAnalysisModel } from "@/lib/ai/model";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { stripMarkdown } from "@/lib/saju/sanitize";
 import { NextResponse } from "next/server";
+import { isAdminEmail } from "@/lib/admin";
 
 const ZODIAC_COST = 3;
 
@@ -52,11 +53,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user.email);
 
   // 3. Rate limit (admins exempt)
   if (!isAdmin) {

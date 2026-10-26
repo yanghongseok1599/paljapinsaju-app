@@ -44,6 +44,14 @@
 
 > 이게 빠지면 로그인 버튼을 눌러도 되돌아오지 못합니다.
 
+**Authentication → Email Templates** (선택 — 가입 확인 메일을 다른 기기에서 열어도 되게)
+- Confirm signup / Magic Link 의 링크를
+  `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email` 로 바꿉니다.
+- 기본 템플릿은 메일을 연 기기가 가입한 기기와 다르면 "로그인 링크가 만료" 오류가 납니다.
+
+**Authentication → Sign In / Providers → Email**: **Confirm email 을 켜 두세요.**
+관리자는 `ADMIN_EMAILS` 의 이메일로 판정하므로, 확인 없이 가입되면 누군가 그 주소로 가입해 관리자가 될 수 있습니다.
+
 ## 4. 앱에 연결하기
 
 **Project Settings → API** 에서 값 3개를 복사해 배포 환경변수에 넣습니다.

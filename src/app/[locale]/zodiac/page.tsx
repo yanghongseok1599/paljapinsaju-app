@@ -3,6 +3,7 @@ import SajuFooter from "@/components/saju/landing/SajuFooter";
 import SajuLayout from "@/components/saju/layout/SajuLayout";
 import { createClient } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import { isAdminEmail } from "@/lib/admin";
 
 export const metadata: Metadata = {
   title: "별자리 크리스탈",
@@ -15,11 +16,7 @@ export default async function ZodiacPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user?.email);
 
   let starBalance = 0;
   if (user && !isAdmin) {

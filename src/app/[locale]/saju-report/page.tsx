@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import SajuLayout from "@/components/saju/layout/SajuLayout";
 import SajuReportClient from "@/components/saju/report/SajuReportClient";
+import { isAdminEmail } from "@/lib/admin";
 
 export default async function SajuReportPage() {
   const supabase = await createClient();
@@ -14,9 +15,7 @@ export default async function SajuReportPage() {
     redirect("/?login=required&next=/saju-report");
   }
 
-  // 관리자 판정 — ADMIN_EMAILS 환경변수와 이메일 일치 시 별 체크 우회
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map(s => s.trim()).filter(Boolean);
-  const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isAdminEmail(user.email);
 
   // 별 잔액 조회
   const { data: stars } = await supabase

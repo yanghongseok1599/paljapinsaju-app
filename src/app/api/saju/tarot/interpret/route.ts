@@ -13,6 +13,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { getCard, serializeDrawnCards } from "@/lib/tarot/cards";
 import type { SpreadType } from "@/lib/tarot/spreads";
 import type { CharacterType } from "@/types/saju";
+import { isAdminEmail } from "@/lib/admin";
 
 interface DrawnCardRow {
   cardId: string;
@@ -42,10 +43,7 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .filter(Boolean);
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  const isAdmin = isAdminEmail(user.email);
 
   if (!isAdmin) {
     const rl = checkRateLimit(`tarot:interpret:${user.id}`, 10, 60_000);

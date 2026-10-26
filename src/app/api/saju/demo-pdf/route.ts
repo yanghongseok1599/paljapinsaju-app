@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { SajuPdf } from "@/lib/saju/pdf/saju-template";
 import type { SajuAnalysis, SajuReading } from "@/types/saju";
 import { isValidOrderId } from "@/lib/payments/milestone";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 
 /** 무료로 공개하는 항목만 남기고 나머지는 비운다 */
@@ -46,9 +47,22 @@ async function verifyOrder(orderId?: string): Promise<boolean> {
   }
 }
 
+// 로그인 없이 부르는 라우트라 PDF 렌더링(CPU)을 무제한으로 돌리지 못하게 막는다.
+// ponytail: 제한은 인스턴스별 메모리 기준이다. 남용이 보이면 공유 저장소 제한으로 바꾼다.
+const MAX_BODY_CHARS = 1_000_000;
+
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!checkRateLimit(`demo-pdf:${ip}`, 5, 60_000).success) {
+    return NextResponse.json({ error: "잠시 후 다시 시도해주세요." }, { status: 429 });
+  }
+
   try {
-    const body = (await req.json()) as { reading?: SajuReading; orderId?: string };
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_CHARS) {
+      return NextResponse.json({ error: "Request too large" }, { status: 413 });
+    }
+    const body = JSON.parse(raw) as { reading?: SajuReading; orderId?: string };
     const reading = body.reading;
 
     if (!reading?.name || !reading.full_analysis || !reading.five_elements) {

@@ -179,3 +179,21 @@ revoke insert, update on tarot_readings from anon, authenticated;
 revoke insert, update, delete on user_stars        from anon, authenticated;
 revoke insert, update, delete on star_transactions from anon, authenticated;
 revoke all                    on webhook_events    from anon, authenticated;
+
+-- ─────────────────────────────────────────────
+-- 4. 삭제 — 이용자가 자기 분석과 대화를 지울 수 있게
+--    DELETE 정책이 없어 사이드바의 "기록 삭제"와 사주 정보 수정 시 "이전 대화 지우기"가
+--    0행 삭제로 조용히 실패했다 (화면엔 지워진 것처럼 보이고 새로고침하면 돌아왔다).
+--    별 사용 내역은 reading_id 가 null 로 바뀌어 남는다 (on delete set null).
+-- ─────────────────────────────────────────────
+drop policy if exists saju_readings_delete_own on saju_readings;
+create policy saju_readings_delete_own on saju_readings
+  for delete using (auth.uid() = user_id);
+
+drop policy if exists "users delete own chat messages" on saju_chat_messages;
+create policy "users delete own chat messages" on saju_chat_messages
+  for delete using (
+    auth.uid() = (
+      select user_id from saju_readings where id = saju_chat_messages.reading_id
+    )
+  );

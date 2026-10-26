@@ -67,7 +67,7 @@ export default async function ResultPage({
         <CompatibilityUpsell readingId={reading.id} name={reading.name} />
 
         {/* 공유 카드 */}
-        <ShareCard readingId={reading.id} name={reading.name} />
+        <ShareCard name={reading.name} />
       </main>
     </div>
   );

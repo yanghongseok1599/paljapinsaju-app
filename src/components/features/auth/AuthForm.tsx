@@ -35,6 +35,7 @@ function validatePassword(password: string): string | null {
 }
 
 const URL_ERRORS: Record<string, string> = {
+  "auth-code-error": "로그인 링크가 만료되었거나 올바르지 않습니다. 다시 시도해주세요.",
   "reset-link-expired": "재설정 링크가 만료되었거나 이미 사용되었습니다. 다시 요청해주세요.",
   "reset-unavailable": "지금은 비밀번호를 재설정할 수 없습니다. 고객센터로 문의해주세요.",
   session_expired: "로그인이 만료되어 결제를 진행하지 않았습니다. 다시 로그인한 뒤 충전해주세요.",
