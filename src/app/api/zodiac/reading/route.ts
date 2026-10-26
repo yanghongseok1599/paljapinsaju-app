@@ -1,5 +1,6 @@
 import { generateText } from "ai";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { getAnalysisModel } from "@/lib/ai/model";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { stripMarkdown } from "@/lib/saju/sanitize";
@@ -66,23 +67,17 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
 
   // 4. Star gating
+  // 별 함수는 서버(service_role)만 실행할 수 있다. 차감과 사용 내역 기록이 한 번에 일어난다.
+  const admin = createAdminClient();
   if (!isAdmin) {
-    const { data: newBalance, error: deductError } = await supabase.rpc(
+    const { data: newBalance, error: deductError } = await admin.rpc(
       "atomic_deduct_stars",
-      { p_user_id: user.id, p_amount: ZODIAC_COST }
+      { p_user_id: user.id, p_amount: ZODIAC_COST, p_type: "zodiac_reading" }
     );
 
     if (deductError || newBalance === null || newBalance === undefined) {
       return NextResponse.json({ error: "insufficient_stars" }, { status: 402 });
     }
-
-    // Record transaction
-    await supabase.from("star_transactions").insert({
-      user_id: user.id,
-      amount: -ZODIAC_COST,
-      balance_after: newBalance,
-      type: "zodiac_reading",
-    });
   }
 
   // 5. Generate AI reading
@@ -117,6 +112,15 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
     reading = stripMarkdown(result.text.trim());
   } catch {
+    // 생성에 실패하면 차감한 별을 돌려준다
+    if (!isAdmin) {
+      await admin.rpc("atomic_grant_stars", {
+        p_user_id: user.id,
+        p_amount: ZODIAC_COST,
+        p_source: "refund",
+        p_reference: "zodiac_reading_failed",
+      });
+    }
     return NextResponse.json({ error: "generation_failed" }, { status: 500 });
   }
 

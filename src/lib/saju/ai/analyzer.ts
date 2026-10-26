@@ -123,35 +123,20 @@ export async function generateFullAnalysis(params: {
     advancedContext: params.advancedContext,
   };
 
-  // 챕터 1: 총론 + 일간 심층 + 기둥 해설 + 성격 (각 섹션 1800~2600자 → ~14000 tokens)
-  const ch1 = buildChapter1Prompt(chapterParams);
-  const chapter1 = await generateChapter<SajuAnalysis>(
-    ch1.system, ch1.user, 16000, 'Chapter1(overview+personality)',
-  );
-
-  // 챕터 2: 오행 심층 + 십신 (각 섹션 1800~2400자 + 십신 10개 × 350자 → ~14000 tokens)
-  const ch2 = buildChapter2Prompt(chapterParams);
-  const chapter2 = await generateChapter<SajuAnalysis>(
-    ch2.system, ch2.user, 16000, 'Chapter2(elements+tenGods)',
-  );
-
-  // 챕터 3: 연애·직업·재물·건강·대인관계·학업·자기관리·사회생활 (~14000 tokens)
-  const ch3 = buildChapter3Prompt(chapterParams);
-  const chapter3 = await generateChapter<SajuAnalysis>(
-    ch3.system, ch3.user, 16000, 'Chapter3(life-areas)',
-  );
-
-  // 챕터 4: 대운 + 월별 운세 (대운 8개 × 400자 + 월별 12개 × 250자 → ~14000 tokens)
-  const ch4 = buildChapter4Prompt(chapterParams);
-  const chapter4 = await generateChapter<SajuAnalysis>(
-    ch4.system, ch4.user, 16000, 'Chapter4(cycles+monthly)',
-  );
-
-  // 챕터 5: 자미두수 + 점성술 + 행운요소 + 조언 + 용어 + 요약 + 맺음말 (~12000 tokens)
-  const ch5 = buildChapter5Prompt(chapterParams);
-  const chapter5 = await generateChapter<SajuAnalysis>(
-    ch5.system, ch5.user, 14000, 'Chapter5(ziwei+summary)',
-  );
+  // 다섯 챕터는 서로 의존하지 않는다. 순서대로 부르면 Vercel 함수 시간 제한(300초)을
+  // 넘겨 결제한 리포트가 끝나지 않았다. 동시에 만들어 가장 긴 챕터 하나만큼만 걸리게 한다.
+  const ch1 = buildChapter1Prompt(chapterParams); // 총론 + 일간 심층 + 기둥 해설 + 성격
+  const ch2 = buildChapter2Prompt(chapterParams); // 오행 심층 + 십신
+  const ch3 = buildChapter3Prompt(chapterParams); // 연애·직업·재물·건강·대인관계·학업·자기관리·사회생활
+  const ch4 = buildChapter4Prompt(chapterParams); // 대운 + 월별 운세
+  const ch5 = buildChapter5Prompt(chapterParams); // 자미두수 + 점성술 + 행운요소 + 조언 + 용어 + 요약 + 맺음말
+  const [chapter1, chapter2, chapter3, chapter4, chapter5] = await Promise.all([
+    generateChapter<SajuAnalysis>(ch1.system, ch1.user, 16000, 'Chapter1(overview+personality)'),
+    generateChapter<SajuAnalysis>(ch2.system, ch2.user, 16000, 'Chapter2(elements+tenGods)'),
+    generateChapter<SajuAnalysis>(ch3.system, ch3.user, 16000, 'Chapter3(life-areas)'),
+    generateChapter<SajuAnalysis>(ch4.system, ch4.user, 16000, 'Chapter4(cycles+monthly)'),
+    generateChapter<SajuAnalysis>(ch5.system, ch5.user, 14000, 'Chapter5(ziwei+summary)'),
+  ]);
 
   // 폴백: 기존 단일 호출 방식 (챕터가 모두 실패했을 때)
   const hasEssential =

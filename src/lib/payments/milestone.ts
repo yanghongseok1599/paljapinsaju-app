@@ -64,6 +64,9 @@ export function buildCheckoutUrl({
  * 운영에서는 이 변수를 빼면 정가로 돌아간다.
  */
 export const TEST_AMOUNT: number | null = (() => {
+  // 운영 배포에서는 무시한다. 남겨두면 모든 상품이 테스트 금액에 팔리고 서버도 그 금액을 정상으로 인정한다.
+  // (NEXT_PUBLIC_VERCEL_ENV 는 Vercel 이 빌드 때 넣어 주는 값이라 브라우저와 서버가 같은 값을 본다)
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") return null;
   const raw = process.env.NEXT_PUBLIC_PAYMENT_TEST_AMOUNT;
   if (!raw) return null;
   const parsed = Number.parseInt(raw, 10);

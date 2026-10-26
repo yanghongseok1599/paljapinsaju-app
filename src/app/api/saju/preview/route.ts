@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { analyzeSaju } from '@/lib/saju/calculator';
 import { generatePreview } from '@/lib/saju/ai/analyzer';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -68,14 +69,16 @@ export async function POST(req: NextRequest) {
       gender: reading.gender as Gender,
     });
 
-    // DB 업데이트
-    const { error: updateError } = await supabase
+    // DB 업데이트 — preview_summary·status 칸은 서버(service_role)만 쓸 수 있다. 소유권은 위에서 확인했다.
+    // 이미 결제·완료된 분석을 'preview' 로 되돌리면 산 결과가 잠기므로, 결제 전 상태일 때만 바꾼다.
+    const isUnpaid = reading.status === 'pending' || reading.status === 'preview';
+    const { error: updateError } = await createAdminClient()
       .from('saju_readings')
       .update({
         four_pillars: pillars.toObject(),
         five_elements: elements,
         preview_summary: previewText,
-        status: 'preview',
+        ...(isUnpaid ? { status: 'preview' } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq('id', readingId);

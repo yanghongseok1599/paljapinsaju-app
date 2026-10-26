@@ -14,24 +14,18 @@ export default async function CoinShopPage() {
     redirect("/?login=required&next=/coin-shop");
   }
 
-  // user_stars에서 잔액 조회 (없으면 신규 유저 → 3개 보너스로 생성)
-  let { data: stars } = await supabase
+  // user_stars에서 잔액 조회 (가입 보너스는 DB 트리거가 지급한다. 행이 없으면 0개)
+  const { data: stars } = await supabase
     .from("user_stars")
     .select("balance")
     .eq("user_id", user.id)
     .single();
 
-  if (!stars) {
-    await supabase
-      .from("user_stars")
-      .insert({ user_id: user.id, balance: 3 });
-    stars = { balance: 3 };
-  }
 
   return (
     <SajuLayout>
       <CoinShopClient
-        totalCoins={stars.balance}
+        totalCoins={stars?.balance ?? 0}
         userId={user.id}
         userEmail={user.email}
       />

@@ -34,6 +34,12 @@ function validatePassword(password: string): string | null {
   return null;
 }
 
+const URL_ERRORS: Record<string, string> = {
+  "reset-link-expired": "재설정 링크가 만료되었거나 이미 사용되었습니다. 다시 요청해주세요.",
+  "reset-unavailable": "지금은 비밀번호를 재설정할 수 없습니다. 고객센터로 문의해주세요.",
+  session_expired: "로그인이 만료되어 결제를 진행하지 않았습니다. 다시 로그인한 뒤 충전해주세요.",
+};
+
 export function AuthForm() {
   const router = useRouter();
   const [tab, setTab] = useState<AuthTab>("signin");
@@ -51,6 +57,8 @@ export function AuthForm() {
   const rawNext = searchParams.get("next");
   const nextPath =
     rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  // 서버가 로그인 화면으로 돌려보낼 때 붙이는 사유
+  const urlError = URL_ERRORS[searchParams.get("error") ?? ""];
 
   const [isPendingGoogle, startGoogle] = useTransition();
   const [isPendingKakao, startKakao] = useTransition();
@@ -156,6 +164,9 @@ export function AuthForm() {
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3">
+        {urlError && (
+          <p role="alert" className="text-xs text-red-400 bg-red-500/10 rounded-lg px-2 py-1.5">{urlError}</p>
+        )}
         {/* Google */}
         <Button
           variant="outline"
@@ -235,11 +246,6 @@ export function AuthForm() {
         {/* Email form */}
         {showEmailForm && (
           <div className="space-y-3">
-            {tab === "signin" && !showForgotPassword && (
-              <div className="rounded-lg border border-[rgba(208,188,255,0.2)] bg-[rgba(208,188,255,0.08)] px-3 py-2 text-xs leading-relaxed text-[#d0bcff]">
-                관리자 계정: admin@saju.local / admin1234
-              </div>
-            )}
             {/* Tabs */}
             {!showForgotPassword && (
               <div className="flex rounded-lg overflow-hidden border border-[rgba(73,68,84,0.3)]">

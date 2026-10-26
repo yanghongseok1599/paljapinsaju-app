@@ -5,6 +5,7 @@
  * 해석 스트리밍은 별도 엔드포인트(/interpret)에서 처리.
  */
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { SPREADS, isSpreadType } from "@/lib/tarot/spreads";
 import { getCard } from "@/lib/tarot/cards";
@@ -64,10 +65,15 @@ export async function POST(req: Request) {
   }
 
   // 4) 별 차감 (어드민은 무료)
+  // 별 차감과 리딩 생성은 서버(service_role)만 할 수 있다 (20261026000000_lock_paid_state.sql).
+  // 예전엔 p_user_id 없이 불러 모든 일반 사용자가 500 을 받았다.
+  const admin = createAdminClient();
   const cost = spreadDef.cost;
   if (!isAdmin) {
-    const { data: newBalance, error } = await supabase.rpc("atomic_deduct_stars", {
+    const { data: newBalance, error } = await admin.rpc("atomic_deduct_stars", {
+      p_user_id: user.id,
       p_amount: cost,
+      p_type: "tarot",
     });
     if (error) {
       return new Response("Star deduction failed", { status: 500 });
@@ -81,14 +87,14 @@ export async function POST(req: Request) {
   }
 
   // 5) 리딩 row 생성
-  const { data: reading, error: insertErr } = await supabase
+  const { data: reading, error: insertErr } = await admin
     .from("tarot_readings")
     .insert({
       user_id: user.id,
       character_id: characterId,
       spread_type: spread,
       drawn_cards: cards,
-      question: question ?? null,
+      question: typeof question === "string" ? question.slice(0, 300) : null,
       star_cost: isAdmin ? 0 : cost,
     })
     .select("id")
@@ -97,9 +103,11 @@ export async function POST(req: Request) {
   if (insertErr || !reading) {
     // 차감 환불
     if (!isAdmin) {
-      await supabase.rpc("atomic_grant_stars", {
+      await admin.rpc("atomic_grant_stars", {
+        p_user_id: user.id,
         p_amount: cost,
-        p_reason: "tarot_create_failed",
+        p_source: "refund",
+        p_reference: "tarot_create_failed",
       });
     }
     return new Response("Failed to create reading", { status: 500 });

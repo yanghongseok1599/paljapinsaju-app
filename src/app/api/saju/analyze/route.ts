@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { generateFullAnalysis } from '@/lib/saju/ai/analyzer';
 import { generateAdvancedSajuContext } from '@/lib/saju/advanced-analysis';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -10,7 +11,13 @@ import type {
   ConcernType,
 } from '@/types/saju';
 
+// 챕터 5개를 동시에 만들어도 수 분이 걸린다. Vercel 기본값(300초)을 명시해 둔다.
+// ponytail: 300초를 넘기면 Pro 요금제에서 800까지 올리거나 백그라운드 작업으로 옮긴다.
+export const maxDuration = 300;
+
 export async function POST(req: NextRequest) {
+  // 생성 중 실패하면 결제 상태로 되돌려 다시 시도할 수 있게 한다 (별은 이미 냈다)
+  let generatingId: string | null = null;
   try {
     const body = await req.json();
     const { readingId } = body;
@@ -56,23 +63,11 @@ export async function POST(req: NextRequest) {
     }
 
     // 결제 확인 — status + ownership (never trust status alone)
-    if (reading.status !== 'paid') {
+    // 'failed' 는 예전 버전에서 생성에 실패한 결제 건 — 다시 시도를 허용한다
+    if (reading.status !== 'paid' && reading.status !== 'failed') {
       return NextResponse.json(
         { error: 'Payment required. Current status: ' + reading.status },
         { status: 403 },
-      );
-    }
-
-    // status를 generating으로 변경
-    const { error: statusError } = await supabase
-      .from('saju_readings')
-      .update({ status: 'generating', updated_at: new Date().toISOString() })
-      .eq('id', readingId);
-
-    if (statusError) {
-      return NextResponse.json(
-        { error: 'Failed to update status' },
-        { status: 500 },
       );
     }
 
@@ -81,6 +76,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Saju data not found. Run preview first.' },
         { status: 400 },
+      );
+    }
+
+    // 상태·분석 결과 칸은 서버(service_role)만 쓸 수 있다. 소유권과 결제는 위에서 확인했다.
+    const admin = createAdminClient();
+    const { error: statusError } = await admin
+      .from('saju_readings')
+      .update({ status: 'generating', updated_at: new Date().toISOString() })
+      .eq('id', readingId);
+    generatingId = readingId;
+
+    if (statusError) {
+      return NextResponse.json(
+        { error: 'Failed to update status' },
+        { status: 500 },
       );
     }
 
@@ -116,7 +126,7 @@ export async function POST(req: NextRequest) {
     });
 
     // DB 업데이트: 분석 결과 저장
-    const { error: updateError } = await supabase
+    const { error: updateError } = await admin
       .from('saju_readings')
       .update({
         full_analysis: analysis as unknown as Record<string, unknown>,
@@ -126,10 +136,9 @@ export async function POST(req: NextRequest) {
       .eq('id', readingId);
 
     if (updateError) {
-      // 실패 시 status를 failed로
-      await supabase
+      await admin
         .from('saju_readings')
-        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .update({ status: 'paid', updated_at: new Date().toISOString() })
         .eq('id', readingId);
 
       return NextResponse.json(
@@ -142,15 +151,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[saju/analyze] Error:', error);
 
-    // AI 생성 실패 시 status를 failed로 복구
+    // AI 생성 실패 시 결제 상태로 되돌린다 (본문은 이미 읽었으므로 다시 읽지 않는다)
     try {
-      const body = await req.clone().json();
-      if (body.readingId) {
-        const supabase = await createClient();
-        await supabase
+      if (generatingId) {
+        await createAdminClient()
           .from('saju_readings')
-          .update({ status: 'failed', updated_at: new Date().toISOString() })
-          .eq('id', body.readingId);
+          .update({ status: 'paid', updated_at: new Date().toISOString() })
+          .eq('id', generatingId);
       }
     } catch {
       // ignore cleanup error

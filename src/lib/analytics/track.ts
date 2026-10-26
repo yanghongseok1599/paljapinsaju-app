@@ -1,6 +1,5 @@
 import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
-import crypto from "crypto";
 import type { AnalyticsEventType } from "@/types/analytics";
 
 interface TrackEventParams {
@@ -36,13 +35,8 @@ function extractOS(ua: string): string {
 
 async function extractRequestMeta() {
   const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    h.get("x-real-ip") ||
-    "";
-  const ipHash = ip
-    ? crypto.createHash("sha256").update(ip).digest("hex").slice(0, 16)
-    : null;
+  // IP 는 저장하지 않는다. 솔트 없는 해시는 IPv4 전체를 대입해 되돌릴 수 있고, 쓰는 곳도 없었다.
+  const ipHash = null;
 
   const countryCode = h.get("x-vercel-ip-country") || null;
   const city = h.get("x-vercel-ip-city") || null;

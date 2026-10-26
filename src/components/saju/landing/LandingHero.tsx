@@ -22,6 +22,7 @@ function HeroFrameSequence() {
   const targetFrame = useRef(1);
   const rafId = useRef<number>(0);
   const lastSrc = useRef("");
+  const frameStep = useRef(1);
   // Scrub completes when scrollY reaches 1.8 * innerHeight (within 280vh track)
   const scrollRange = useRef(
     typeof window !== "undefined" ? window.innerHeight * 1.8 : 720
@@ -33,18 +34,28 @@ function HeroFrameSequence() {
     };
     window.addEventListener("resize", onResize, { passive: true });
 
-    // Preload all frames for flicker-free scrubbing
-    for (let i = 1; i <= HERO_FRAME_COUNT; i++) {
-      const im = new window.Image();
-      im.src = heroFrameSrc(i);
-    }
-
     if (prefersReduced) {
       if (imgRef.current) imgRef.current.src = heroFrameSrc(1);
       return () => window.removeEventListener("resize", onResize);
     }
 
+    // 프레임 200장(약 12MB)을 첫 화면에서 전부 받지 않는다.
+    // 첫 스크롤 때 받기 시작하고, 좁은 화면·데이터 절약 모드에선 4장에 1장만 쓴다.
+    // ponytail: 모바일은 50프레임이라 스크럽이 덜 매끄럽다. 부족하면 프레임을 webp 로 바꿔 용량을 줄이고 step 을 낮춘다.
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    frameStep.current = saveData || window.innerWidth < 768 ? 4 : 1;
+    let preloaded = false;
+    const preloadFrames = () => {
+      if (preloaded) return;
+      preloaded = true;
+      for (let i = 1; i <= HERO_FRAME_COUNT; i += frameStep.current) {
+        const im = new window.Image();
+        im.src = heroFrameSrc(i);
+      }
+    };
+
     const onScroll = () => {
+      if (window.scrollY > 0) preloadFrames();
       const progress = Math.min(
         1,
         Math.max(0, window.scrollY / scrollRange.current)
@@ -57,9 +68,10 @@ function HeroFrameSequence() {
     const tick = () => {
       currentFrame.current +=
         (targetFrame.current - currentFrame.current) * 0.1;
+      const step = frameStep.current;
       const idx = Math.min(
         HERO_FRAME_COUNT,
-        Math.max(1, Math.round(currentFrame.current))
+        1 + step * Math.round((Math.max(1, currentFrame.current) - 1) / step)
       );
       const src = heroFrameSrc(idx);
       if (imgRef.current && lastSrc.current !== src) {

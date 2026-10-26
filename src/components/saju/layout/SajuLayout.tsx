@@ -85,22 +85,24 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
       totalCoins = 99999;
     } else {
       // user_stars에서 잔액 조회
-      let { data: stars } = await supabase
+      const { data: stars } = await supabase
         .from('user_stars')
         .select('balance')
         .eq('user_id', user.id)
         .single();
 
-      if (!stars) {
-        await supabase.from('user_stars').insert({ user_id: user.id, balance: 3 });
-        stars = { balance: 3 };
-      }
-      totalCoins = stars.balance;
+      // 가입 보너스는 DB 트리거가 지급한다. 행이 없으면 0개다.
+      totalCoins = stars?.balance ?? 0;
     }
   }
 
   const ADMIN_EMAILS_LIST = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean);
-  const isAdminUser = demoAuth?.email === 'admin' || (user?.email ? ADMIN_EMAILS_LIST.includes(user.email) : false);
+  // 데모 쿠키는 누구나 만들 수 있다. 관리자 표시·무제한 별은 로컬 개발에서만 준다.
+  // (운영에서 /reading 체험을 시작한 방문자에게 별 99,999개가 보이던 문제)
+  const isLocalDev = process.env.NODE_ENV !== 'production';
+  const isAdminUser =
+    (isLocalDev && demoAuth?.email === 'admin') ||
+    (user?.email ? ADMIN_EMAILS_LIST.includes(user.email) : false);
 
   const sidebarUser = demoAuth
     ? {
@@ -123,7 +125,7 @@ export default async function SajuLayout({ children, currentReading }: SajuLayou
       sidebarUser={sidebarUser}
       chatHistory={chatHistory}
       currentReading={currentReading}
-      totalCoins={demoAuth ? 99999 : totalCoins}
+      totalCoins={demoAuth ? (isLocalDev ? 99999 : 0) : totalCoins}
       isAdmin={isAdminUser}
     >
       {children}

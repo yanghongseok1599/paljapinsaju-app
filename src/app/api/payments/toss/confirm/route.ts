@@ -48,6 +48,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(new URL('/ko/coin-shop?error=amount_mismatch', req.url));
   }
 
+  // 승인(실제 출금) 전에 받을 사람과 지급 수단부터 확인한다.
+  // 예전엔 승인을 먼저 해서, 세션이 끊긴 채 돌아온 사용자는 돈만 빠지고 별을 못 받았다.
+  // 승인하지 않은 결제는 토스에서 자동으로 취소된다.
+  const supabaseUser = await createClient();
+  const { data: { user } } = await supabaseUser.auth.getUser();
+  if (!user) {
+    return NextResponse.redirect(new URL('/ko/login?next=/coin-shop&error=session_expired', req.url));
+  }
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error('[Toss Confirm] Supabase 서비스 키 미설정 — 승인하지 않음');
+    return NextResponse.redirect(new URL('/ko/coin-shop?error=server_error', req.url));
+  }
+
   try {
     // 1. Toss API 결제 승인
     const tossPayment = await confirmPayment(paymentKey, orderId, amount);
@@ -56,17 +69,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL('/ko/coin-shop?error=payment_failed', req.url));
     }
 
-    // 2. 로그인 유저 확인
-    const supabaseUser = await createClient();
-    const { data: { user } } = await supabaseUser.auth.getUser();
-    if (!user) {
-      return NextResponse.redirect(new URL('/ko?login=required', req.url));
-    }
-
-    // 3. 서비스 롤로 스타 지급 (RLS 우회)
+    // 2. 서비스 롤로 스타 지급 — 같은 주문번호는 DB 가 한 번만 지급한다
     const supabaseService = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
     );
 
     const { error: rpcError } = await supabaseService.rpc('atomic_grant_stars', {
@@ -84,7 +90,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL('/ko/coin-shop?error=grant_failed', req.url));
     }
 
-    // 4. Telegram 성공 알림
+    // 3. Telegram 성공 알림
     await sendNotification({
       text: paymentSuccessMessage({
         amountKrw: tossPayment.totalAmount,

@@ -21,6 +21,13 @@
 | 3 | `migrations/20260514_rls_missing_tables.sql` | 나머지 표 접근 권한 |
 | 4 | `migrations/20260514_webhook_events.sql` | 결제 중복 방지용 표 |
 | 5 | `migrations/20260524_tarot_readings.sql` | 타로 표 |
+| 6 | `migrations/20261026000000_lock_paid_state.sql` | 별·결제 상태를 서버만 바꾸게 잠금, 가입 시 별 3개 |
+
+> ⚠️ 6번을 빼먹으면 누구나 브라우저에서 자기 별을 무제한으로 만들거나 결제 없이 유료 분석을 열 수 있습니다.
+> 6번은 앱 코드(이 브랜치 이후)와 짝입니다. 6번을 적용한 DB 에 예전 코드를 올리면 별 차감이 실패합니다.
+>
+> 권한이 제대로 막혔는지는 로컬에서 확인할 수 있습니다 (운영 DB 와 무관한 임시 DB 에서 돌아갑니다):
+> `bash supabase/tests/lock-paid-state.sh`
 
 > 순서가 중요합니다. 1번이 표를 만들고, 3번이 그 표의 권한을 고치기 때문입니다.
 > 순서를 바꾸면 "table does not exist" 오류가 납니다.
@@ -33,7 +40,7 @@
 
 **Authentication → URL Configuration**
 - Site URL: 배포 주소 (예: `https://drsaju.com`)
-- Redirect URLs 에 추가: `https://배포주소/auth/callback`
+- Redirect URLs 에 추가: `https://배포주소/auth/callback`, `https://배포주소/auth/reset-password`
 
 > 이게 빠지면 로그인 버튼을 눌러도 되돌아오지 못합니다.
 
@@ -56,6 +63,7 @@ SUPABASE_SERVICE_ROLE_KEY=       # service_role ← 절대 공개 금지
 |---|---|
 | 표가 다 생겼나 | Table Editor 에 표 11개가 보이면 정상 |
 | 로그인되나 | 가입 후 `users` 표에 줄이 생기는지 확인 |
+| 가입 보너스가 들어가나 | 가입 후 `user_stars` 표에 잔액 3인 줄이 생기는지 확인 |
 | 별이 지급되나 | SQL Editor 에서 `select atomic_grant_stars('사용자id', 3, 'bonus', 'test');` |
 
 ---

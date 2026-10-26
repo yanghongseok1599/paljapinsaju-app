@@ -49,17 +49,14 @@ export default async function ReadingCompatibilityPage({
   const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
 
   // 별 잔액 조회
-  let { data: stars } = await supabase
+  const { data: stars } = await supabase
     .from("user_stars")
     .select("balance")
     .eq("user_id", user.id)
     .single();
 
-  if (!stars) {
-    await supabase.from("user_stars").insert({ user_id: user.id, balance: 3 });
-    stars = { balance: 3 };
-  }
-  const starBalance = isAdmin ? 99999 : stars.balance;
+  // 가입 보너스는 DB 트리거가 지급한다. 행이 없으면 0개다.
+  const starBalance = isAdmin ? 99999 : stars?.balance ?? 0;
 
   return (
     <SajuLayout>

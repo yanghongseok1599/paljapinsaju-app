@@ -11,7 +11,10 @@ export default async function Image() {
   const [fontBold, fontRegular, bgBuffer] = await Promise.all([
     readFile(join(process.cwd(), "public", "fonts", "NotoSansKR-Bold.woff")),
     readFile(join(process.cwd(), "public", "fonts", "NotoSansKR-Regular.woff")),
-    readFile(join(process.cwd(), "rescource", "saju", "3명.jpg")),
+    // rescource/ 는 .gitignore 대상이라 배포본에 없다 → 없으면 홈 히어로 첫 프레임을 쓴다 (예전엔 500).
+    readFile(join(process.cwd(), "rescource", "saju", "3명.jpg")).catch(() =>
+      readFile(join(process.cwd(), "public", "hero-frames", "frame-001.jpg")),
+    ),
   ]);
 
   const bgBase64 = `data:image/jpeg;base64,${bgBuffer.toString("base64")}`;

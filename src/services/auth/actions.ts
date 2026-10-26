@@ -1,6 +1,9 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { AUTH_COPY, loginErrorMessage, passwordErrorMessage } from "@/lib/auth-messages";
+import { passwordPolicyError } from "@/lib/password-policy";
+import { RECOVERY_COOKIE, recoveryProofMatches } from "@/lib/recovery-proof";
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import {
@@ -58,7 +61,7 @@ export async function loginWithGoogle(next?: string) {
   if (error) {
     console.error("Google Login Error:", error);
     // In a real app, you might return an error state
-    return { error: error.message };
+    return { error: AUTH_COPY.generic };
   }
 
   if (data.url) {
@@ -90,7 +93,7 @@ export async function loginWithKakao(next?: string) {
 
   if (error) {
     console.error("Kakao Login Error:", error);
-    return { error: error.message };
+    return { error: AUTH_COPY.generic };
   }
 
   if (data.url) {
@@ -115,7 +118,7 @@ export async function loginWithMagicLink(email: string) {
 
   if (error) {
     console.error("Magic Link Error:", error);
-    return { error: error.message };
+    return { error: error.status === 429 ? AUTH_COPY.rateLimited : AUTH_COPY.generic };
   }
 
   return { success: true };
@@ -125,6 +128,10 @@ export async function loginWithMagicLink(email: string) {
  * Signs up a new user with email and password.
  */
 export async function signUpWithEmail(email: string, password: string) {
+  // 화면 검사만으로는 우회할 수 있어 서버에서도 같은 정책을 건다
+  const policyError = passwordPolicyError(password, { email });
+  if (policyError) return { error: policyError };
+
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -138,7 +145,9 @@ export async function signUpWithEmail(email: string, password: string) {
 
   if (error) {
     console.error("Email Sign Up Error:", error);
-    return { error: error.message };
+    // 이미 가입된 이메일이어도 성공과 같은 응답을 준다 (회원 여부가 드러나지 않게)
+    if (error.code === "user_already_exists") return { success: true };
+    return { error: passwordErrorMessage(error) };
   }
 
   return { success: true };
@@ -165,7 +174,7 @@ export async function signInWithEmail(email: string, password: string) {
 
   if (error) {
     console.error("Email Sign In Error:", error);
-    return { error: error.message };
+    return { error: loginErrorMessage(error) };
   }
 
   return { success: true };
@@ -184,7 +193,9 @@ export async function sendPasswordReset(email: string) {
 
   if (error) {
     console.error("Password Reset Error:", error);
-    return { error: error.message };
+    // 가입 여부와 관계없이 같은 응답 (회원 명단 조회 방지). 너무 잦은 요청만 알린다.
+    if (error.status === 429) return { error: AUTH_COPY.rateLimited };
+    return { success: true };
   }
 
   return { success: true };
@@ -204,4 +215,41 @@ export async function logout() {
   await supabase.auth.signOut();
 
   redirect("/");
+}
+
+/**
+ * 재설정 링크로 들어온 사용자의 새 비밀번호를 저장한다.
+ * /auth/reset-password 가 붙인 증명 쿠키가 이 세션과 맞을 때만 허용한다.
+ * (증명이 없으면 로그인된 아무 세션이나 현재 비밀번호 없이 비밀번호를 바꿀 수 있다)
+ */
+export async function updatePasswordWithRecovery(password: string, confirmation: string) {
+  if (password !== confirmation) return { error: "두 비밀번호가 서로 다릅니다." };
+
+  const supabase = await createClient();
+  const cookieStore = await cookies();
+
+  let claims: { sub?: string; session_id?: string; email?: string } | undefined;
+  let proven = false;
+  try {
+    const { data: claimsData } = await supabase.auth.getClaims();
+    claims = claimsData?.claims as typeof claims;
+    proven = !!claims?.sub && recoveryProofMatches(
+      cookieStore.get(RECOVERY_COOKIE)?.value,
+      claims.sub,
+      claims.session_id ?? "",
+    );
+  } catch {
+    proven = false; // AUTH_PROOF_SECRET 미설정, 세션 없음 등
+  }
+  if (!proven) return { error: AUTH_COPY.linkExpired };
+
+  const policyError = passwordPolicyError(password, { email: claims?.email });
+  if (policyError) return { error: policyError };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: passwordErrorMessage(error) };
+
+  cookieStore.delete(RECOVERY_COOKIE);
+  await supabase.auth.signOut({ scope: "others" });
+  return { success: true };
 }

@@ -57,13 +57,14 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
     setError(null);
     try {
       const tossPayments = await loadTossPayments(TOSS_CONFIG.clientKey);
-      const widget = tossPayments.widgets({ customerKey: userId });
+      // 결제창(API 개별 연동 키, ck) 방식. 위젯(widgets) 방식은 결제수단 UI 를 먼저 그려야 해서
+      // setAmount → requestPayment 만 부르면 NotSelectedPaymentMethodError 로 항상 실패했다.
+      const payment = tossPayments.payment({ customerKey: userId });
       const orderId = generateOrderId(selectedPack.id);
 
-      // 위젯 API: setAmount → requestPayment (successUrl은 WithRedirection 오버로드로 전달)
-      await widget.setAmount({ currency: 'KRW', value: selectedPack.priceKrw });
-
-      await widget.requestPayment({
+      await payment.requestPayment({
+        method: 'CARD',
+        amount: { currency: 'KRW', value: selectedPack.priceKrw },
         orderId,
         orderName: selectedPack.name,
         successUrl: `${window.location.origin}/api/payments/toss/confirm`,
@@ -72,8 +73,9 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
         customerName: userEmail?.split('@')[0] ?? '고객',
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '';
-      if (!msg.includes('PAY_PROCESS_CANCELED')) {
+      const code = (err as { code?: string } | null)?.code;
+      if (code !== 'USER_CANCEL') {
+        console.error('[CoinShop] 결제창 오류', err);
         setError('결제 시스템을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
       }
     } finally {

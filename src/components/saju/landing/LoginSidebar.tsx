@@ -300,12 +300,6 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
                 {emailMode === 'forgot' && '비밀번호 재설정'}
               </p>
 
-              {emailMode === 'signin' && (
-                <p className="rounded-lg border border-[rgba(208,188,255,0.2)] bg-[rgba(208,188,255,0.08)] px-2.5 py-2 text-[11px] leading-relaxed text-[#d0bcff]">
-                  관리자 계정: admin@saju.local / admin1234
-                </p>
-              )}
-
               <input
                 type="text"
                 inputMode="text"

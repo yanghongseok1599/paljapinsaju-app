@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 
 /**
  * 별 차감.
@@ -44,18 +45,28 @@ export async function POST(req: NextRequest) {
   if (typeof readingId === 'string' && readingId.length > 0) {
     const { data: owned } = await supabase
       .from('saju_readings')
-      .select('id')
+      .select('id, status')
       .eq('id', readingId)
       .eq('user_id', user.id)
       .single();
     verifiedReadingId = owned ? readingId : null;
+
+    // 이미 결제된 분석이면 두 번 차감하지 않는다
+    if (owned && ['paid', 'generating', 'completed'].includes(owned.status)) {
+      return NextResponse.json({ balance: null, deducted: 0 });
+    }
   }
 
-  // C4: Atomic deduct — single UPDATE with balance >= amount guard.
-  // Returns new balance, or null if balance was insufficient (race-condition-safe).
-  const { data: newBalance, error } = await supabase.rpc('atomic_deduct_stars', {
+  // 별 함수와 결제 상태 칸은 서버(service_role)만 쓸 수 있다 (20261026000000_lock_paid_state.sql).
+  // 위에서 로그인과 소유권을 확인했으므로 여기서부터 관리자 클라이언트를 쓴다.
+  const admin = createAdminClient();
+
+  // 잔액 확인·차감·사용 내역 기록이 한 번에 일어난다. null = 잔액 부족.
+  const { data: newBalance, error } = await admin.rpc('atomic_deduct_stars', {
     p_user_id: user.id,
     p_amount: amount,
+    p_type: type,
+    p_reading_id: verifiedReadingId,
   });
 
   if (error || newBalance === null || newBalance === undefined) {
@@ -65,21 +76,12 @@ export async function POST(req: NextRequest) {
   // 차감이 성공했을 때만 분석을 '결제됨'으로 올린다.
   // 상태 변경을 클라이언트에 맡기면 결제 없이 paid 로 바꿀 수 있다.
   if (verifiedReadingId) {
-    await supabase
+    await admin
       .from('saju_readings')
       .update({ status: 'paid', updated_at: new Date().toISOString() })
       .eq('id', verifiedReadingId)
       .eq('user_id', user.id);
   }
-
-  // 거래 이력 기록
-  await supabase.from('star_transactions').insert({
-    user_id: user.id,
-    amount: -amount,
-    balance_after: newBalance,
-    type,
-    reading_id: verifiedReadingId,
-  });
 
   return NextResponse.json({ balance: newBalance, deducted: amount });
 }

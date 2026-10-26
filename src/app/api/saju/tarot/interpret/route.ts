@@ -6,6 +6,7 @@
  */
 import { streamText } from "ai";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { getChatModel } from "@/lib/ai/model";
 import { getCharacter } from "@/lib/saju/characters";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -65,6 +66,13 @@ export async function POST(req: Request) {
     return new Response("Reading not found", { status: 404 });
   }
 
+  // 이미 해석한 리딩은 저장된 해석을 돌려준다. 같은 리딩으로 AI 를 무제한 다시 부르지 못하게.
+  if (reading.interpretation) {
+    return new Response(reading.interpretation, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+
   // 2) 카드 컨텍스트 구성
   const drawn = (reading.drawn_cards as DrawnCardRow[]).map((d) => ({
     card: getCard(d.cardId)!,
@@ -115,7 +123,8 @@ ${cardsContext}
     ],
     maxOutputTokens: spreadType === "celtic" ? 3000 : spreadType === "three" ? 1500 : 800,
     onFinish: async ({ text }) => {
-      await supabase
+      // interpretation 칸은 서버(service_role)만 쓸 수 있다. 소유권은 위에서 확인했다.
+      await createAdminClient()
         .from("tarot_readings")
         .update({ interpretation: text })
         .eq("id", readingId)

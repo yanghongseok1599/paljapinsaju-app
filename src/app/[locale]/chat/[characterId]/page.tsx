@@ -60,17 +60,14 @@ export default async function ChatPage({ params, searchParams }: ChatPageProps) 
   if (isAdmin) {
     starBalance = 99999;
   } else {
-    let { data: stars } = await supabase
+    const { data: stars } = await supabase
       .from("user_stars")
       .select("balance")
       .eq("user_id", user.id)
       .single();
 
-    if (!stars) {
-      await supabase.from("user_stars").insert({ user_id: user.id, balance: 3 });
-      stars = { balance: 3 };
-    }
-    starBalance = stars.balance;
+    // 가입 보너스는 DB 트리거가 지급한다. 행이 없으면 0개다.
+    starBalance = stars?.balance ?? 0;
   }
 
   // 새 대화 모드면 기존 reading 건너뛰고 바로 입력 폼

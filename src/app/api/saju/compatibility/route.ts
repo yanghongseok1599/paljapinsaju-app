@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { analyzeSaju } from '@/lib/saju/calculator';
 import { generateCompatibility } from '@/lib/saju/ai/analyzer';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -10,6 +11,8 @@ import type {
 } from '@/types/saju';
 
 export async function POST(req: NextRequest) {
+  // 생성 중 실패하면 결제 상태로 되돌려 다시 시도할 수 있게 한다 (결제는 이미 끝났다)
+  let generatingId: string | null = null;
   try {
     const body = await req.json();
     const { compatibilityId } = body;
@@ -49,8 +52,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 결제 확인
-    if (compat.status !== 'paid') {
+    // 결제 확인 ('failed' 는 예전 버전에서 생성에 실패한 결제 건 — 다시 시도를 허용한다)
+    if (compat.status !== 'paid' && compat.status !== 'failed') {
       return NextResponse.json(
         { error: 'Payment required. Current status: ' + compat.status },
         { status: 403 },
@@ -76,11 +79,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // status를 generating으로 변경
-    await supabase
+    // 상태·분석 결과 칸은 서버(service_role)만 쓸 수 있다. 소유권은 위에서 확인했다.
+    const admin = createAdminClient();
+    await admin
       .from('saju_compatibilities')
       .update({ status: 'generating', updated_at: new Date().toISOString() })
       .eq('id', compatibilityId);
+    generatingId = compatibilityId;
 
     // 상대방 사주 계산
     const partnerSaju = analyzeSaju({
@@ -118,7 +123,7 @@ export async function POST(req: NextRequest) {
     });
 
     // DB 업데이트
-    const { error: updateError } = await supabase
+    const { error: updateError } = await admin
       .from('saju_compatibilities')
       .update({
         partner_four_pillars: partnerSaju.pillars.toObject(),
@@ -130,9 +135,9 @@ export async function POST(req: NextRequest) {
       .eq('id', compatibilityId);
 
     if (updateError) {
-      await supabase
+      await admin
         .from('saju_compatibilities')
-        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .update({ status: 'paid', updated_at: new Date().toISOString() })
         .eq('id', compatibilityId);
 
       return NextResponse.json(
@@ -145,15 +150,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[saju/compatibility] Error:', error);
 
-    // 실패 시 status 복구
+    // 실패 시 결제 상태로 되돌린다 (본문은 이미 읽었으므로 다시 읽지 않는다)
     try {
-      const body = await req.clone().json();
-      if (body.compatibilityId) {
-        const supabase = await createClient();
-        await supabase
+      if (generatingId) {
+        await createAdminClient()
           .from('saju_compatibilities')
-          .update({ status: 'failed', updated_at: new Date().toISOString() })
-          .eq('id', body.compatibilityId);
+          .update({ status: 'paid', updated_at: new Date().toISOString() })
+          .eq('id', generatingId);
       }
     } catch {
       // ignore cleanup error

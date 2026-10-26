@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { analyzeSaju } from "@/lib/saju/calculator";
 import type {
   SajuReading,
@@ -106,7 +107,6 @@ export async function createReading(
       concerns: form.concerns,
       four_pillars: pillars,
       five_elements: elements,
-      status: "pending",
     })
     .select("*")
     .single();
@@ -368,7 +368,6 @@ export async function createCompatibility(
       partner_is_leap_month: form.partnerIsLeapMonth,
       partner_four_pillars: pillars,
       partner_five_elements: elements,
-      status: "pending",
     })
     .select("*")
     .single();
@@ -491,32 +490,27 @@ export async function payCompatibilityWithStars(
     .filter(Boolean);
   const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
 
+  // 별 함수와 결제 상태 칸은 서버(service_role)만 쓸 수 있다. 소유권은 위에서 확인했다.
+  // 예전엔 이용자 권한으로 상태를 바꾸다 0행 갱신으로 조용히 실패해, 별만 빠지고 결과가 열리지 않았다.
+  const admin = createAdminClient();
   if (!isAdmin) {
-    // 원자적 별 차감
-    const { data: newBalance, error: deductError } = await supabase.rpc(
+    // 잔액 확인·차감·사용 내역 기록이 한 번에 일어난다
+    const { data: newBalance, error: deductError } = await admin.rpc(
       "atomic_deduct_stars",
       {
         p_user_id: user.id,
         p_amount: COMPAT_COST,
+        p_type: "compatibility",
+        p_reading_id: compat.reading_id,
       }
     );
 
     if (deductError || newBalance === null || newBalance === undefined) {
       return { error: `별이 부족합니다. (필요: ${COMPAT_COST}개)` };
     }
-
-    // 거래 이력 기록
-    await supabase.from("star_transactions").insert({
-      user_id: user.id,
-      amount: -COMPAT_COST,
-      balance_after: newBalance,
-      type: "compatibility",
-      reading_id: compat.reading_id,
-    });
   }
 
-  // status를 'paid'로 설정 (서버사이드에서만 — 클라이언트 신뢰 금지)
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from("saju_compatibilities")
     .update({ status: "paid", updated_at: new Date().toISOString() })
     .eq("id", compatibilityId);

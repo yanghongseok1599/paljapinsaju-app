@@ -1,6 +1,7 @@
 import { streamText, generateText } from "ai";
 import type { ModelMessage } from "@ai-sdk/provider-utils";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { getChatModel } from "@/lib/ai/model";
 import { getCharacter } from "@/lib/saju/characters";
 import { getPaidCategory } from "@/lib/saju/categories";
@@ -47,12 +48,18 @@ function extractText(msg: ChatRequestMessage): string {
   return "";
 }
 
+// 대화 이력은 클라이언트가 보낸다. 길이 제한이 없으면 한 번에 수십만 토큰을 보내 비용을 키울 수 있다.
+// ponytail: 이력을 DB(saju_chat_messages)에서 읽으면 이 제한이 필요 없어진다.
+const MAX_HISTORY = 20;
+const MAX_MESSAGE_CHARS = 4000;
+
 function toModelMessages(msgs: ChatRequestMessage[]): ModelMessage[] {
   return msgs
     .filter((m) => m.role === "user" || m.role === "assistant")
+    .slice(-MAX_HISTORY)
     .map((m) => ({
       role: m.role as "user" | "assistant",
-      content: extractText(m),
+      content: extractText(m).slice(0, MAX_MESSAGE_CHARS),
     }));
 }
 
@@ -108,28 +115,32 @@ ${category.focusPrompt}
     return new Response("Reading not found", { status: 404 });
   }
 
-  // 2. user_stars에서 잔액 체크 (어드민은 무제한)
+  // 2. 별 1개를 응답 전에 차감한다 (어드민은 무제한).
+  //    예전엔 응답이 끝난 뒤 차감해서 동시 요청이 별 1개로 여러 번 통과했고,
+  //    별 행이 없으면 3개로 간주해 채팅이 무제한이었다. 가입 보너스는 DB 트리거가 지급한다.
+  const admin = createAdminClient();
   let starBalance = 0;
   if (!isAdmin) {
-    let { data: stars } = await supabase
-      .from("user_stars")
-      .select("balance")
-      .eq("user_id", user.id)
-      .single();
-
-    if (!stars) {
-      // 신규 유저: 3개 보너스 생성
-      await supabase
-        .from("user_stars")
-        .insert({ user_id: user.id, balance: 3 });
-      stars = { balance: 3 };
-    }
-
-    starBalance = stars.balance;
-    if (starBalance <= 0) {
+    const { data: newBalance } = await admin.rpc("atomic_deduct_stars", {
+      p_user_id: user.id,
+      p_amount: 1,
+      p_type: "chat",
+      p_reading_id: readingId,
+    });
+    if (newBalance === null || newBalance === undefined) {
       return new Response("No credits remaining", { status: 402 });
     }
+    starBalance = newBalance + 1; // 차감 전 잔액
   }
+  const refundStar = async () => {
+    if (isAdmin) return;
+    await admin.rpc("atomic_grant_stars", {
+      p_user_id: user.id,
+      p_amount: 1,
+      p_source: "refund",
+      p_reference: "chat_failed",
+    });
+  };
 
   // 3. 캐릭터 + 프롬프트 (어드민은 항상 유료 프롬프트)
   const character = getCharacter(characterId);
@@ -263,6 +274,9 @@ ${compatContext ? `- 이것은 궁합 분석이야. ${firstName} 씨와 상대�
     system: systemPrompt + "\n\n" + sajuContext + categoryContext,
     messages: toModelMessages(rawMessages),
     maxOutputTokens: isFree ? 1500 : 8000,
+    onError: async () => {
+      await refundStar();
+    },
     onFinish: async ({ text }) => {
       // 사용자 마지막 메시지 저장
       const userMessage = rawMessages[rawMessages.length - 1];
@@ -282,11 +296,6 @@ ${compatContext ? `- 이것은 궁합 분석이야. ${firstName} 씨와 상대�
         content: text,
         character_id: characterId,
       });
-
-      // 별 차감 (user_stars)
-      if (!isAdmin && user) {
-        await supabase.rpc("decrement_star", { p_user_id: user.id });
-      }
 
       // 첫 대화일 때 AI로 제목 생성
       if (reading.chat_used === 0 && userMessage) {
