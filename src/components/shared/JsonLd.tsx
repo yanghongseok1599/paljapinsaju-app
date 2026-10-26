@@ -10,8 +10,8 @@ interface JsonLdProps {
 const defaultOrganization = {
   "@type": "Organization",
   name: "Paljapin Saju",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com",
-  logo: `${process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com"}/logo.png`,
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://saju.heavendaily-kor.com",
+  logo: `${process.env.NEXT_PUBLIC_APP_URL || "https://saju.heavendaily-kor.com"}/logo.png`,
   contactPoint: {
     "@type": "ContactPoint",
     email: COMPANY.email,
@@ -23,12 +23,12 @@ const defaultOrganization = {
 const defaultWebSite = {
   "@type": "WebSite",
   name: "Paljapin Saju",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://saju.heavendaily-kor.com",
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com"}/search?q={search_term_string}`,
+      urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL || "https://saju.heavendaily-kor.com"}/search?q={search_term_string}`,
     },
     "query-input": "required name=search_term_string",
   },

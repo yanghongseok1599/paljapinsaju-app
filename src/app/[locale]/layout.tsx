@@ -40,7 +40,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://drsaju.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://saju.heavendaily-kor.com";
 
   return {
     title: {
@@ -154,7 +154,7 @@ export default async function LocaleLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "팔자핀사주",
-              url: "https://drsaju.com",
+              url: "https://saju.heavendaily-kor.com",
               description:
                 "사주팔자 · 자미두수 · 서양점성술 데이터 기반 AI 사주 분석 서비스.",
               inLanguage: "ko",
@@ -169,7 +169,7 @@ export default async function LocaleLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: COMPANY.name,
-              url: "https://drsaju.com",
+              url: "https://saju.heavendaily-kor.com",
               contactPoint: {
                 "@type": "ContactPoint",
                 email: COMPANY.email,

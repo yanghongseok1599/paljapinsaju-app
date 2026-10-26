@@ -52,7 +52,7 @@ export const COMPANY: CompanyInfo = {
   /** 호스팅 서비스 제공자 상호 (전자상거래법 시행령 제11조의4) */
   hostingProvider: "Vercel Inc.",
   /** 서비스 도메인 */
-  serviceDomain: "drsaju.com",
+  serviceDomain: "saju.heavendaily-kor.com",
 };
 
 /**

@@ -145,7 +145,7 @@ export default async function Image() {
             }}
           >
             <span style={{ fontSize: "17px", fontWeight: 700, color: "#a78bfa" }}>
-              drsaju.com
+              saju.heavendaily-kor.com
             </span>
             <span style={{ fontSize: "15px", color: "#52525b" }}>
               사주명리 · 궁합 · 운세
