@@ -11,6 +11,7 @@ import CategoryReportView from "@/components/saju/categories/CategoryReportView"
 import ReadingModeToggle, { useReadingMode } from "@/components/saju/categories/ReadingModeToggle";
 import MilestoneCheckoutButton from "@/components/saju/payment/MilestoneCheckoutButton";
 import { getUnlockRecord, isUnlocked } from "@/lib/payments/entitlement";
+import { FULL_ANALYSIS_PLAN_ID } from "@/lib/payments/milestone";
 import { readDemoReading } from "@/lib/saju/demo-reading";
 import type { SajuReading } from "@/types/saju";
 
@@ -18,15 +19,20 @@ export default function DemoResultClient() {
   const params = useParams<{ id: string }>();
   const [reading, setReading] = useState<SajuReading | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [unlocked, setUnlocked] = useState(false);
-  const [orderId, setOrderId] = useState<string | undefined>(undefined);
+  // 상품별 해제 상태: 주제 리포트(고민 상담)와 종합 분석은 따로 산다
+  const [topicUnlocked, setTopicUnlocked] = useState(false);
+  const [fullUnlocked, setFullUnlocked] = useState(false);
+  const [fullOrderId, setFullOrderId] = useState<string | undefined>(undefined);
   const [readingMode, setReadingMode] = useReadingMode();
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setReading(readDemoReading(params.id));
-      setUnlocked(isUnlocked(params.id));
-      setOrderId(getUnlockRecord(params.id)?.orderId);
+      const loadedReading = readDemoReading(params.id);
+      const topicPlanId = loadedReading?.full_analysis?.categoryReport?.categoryId;
+      setReading(loadedReading);
+      setTopicUnlocked(!!topicPlanId && isUnlocked(params.id, topicPlanId));
+      setFullUnlocked(isUnlocked(params.id, FULL_ANALYSIS_PLAN_ID));
+      setFullOrderId(getUnlockRecord(params.id, FULL_ANALYSIS_PLAN_ID)?.orderId);
       setLoaded(true);
     }, 0);
 
@@ -107,35 +113,42 @@ export default function DemoResultClient() {
           )}
         </section>
 
+        {/* 고민 상담: 결론만 무료, 나머지는 그 주제 상품 결제로 연다 */}
         {reading.full_analysis.categoryReport && (
-          <CategoryReportView report={reading.full_analysis.categoryReport} />
+          <CategoryReportView
+            report={reading.full_analysis.categoryReport}
+            locked={!topicUnlocked}
+            paywall={
+              <MilestoneCheckoutButton
+                planId={reading.full_analysis.categoryReport.categoryId}
+                readingId={reading.id}
+                note="결제하면 이 주제를 사주 데이터로 하나씩 분석해 드려요."
+              />
+            }
+          />
         )}
 
-        {/* 미결제면 앞부분만 열고 잠긴 자리에 결제 버튼을 둔다 */}
+        {/* 종합 분석: 앞부분만 무료, 나머지는 종합 분석(19,900원) 결제로 연다 */}
         <FullAnalysis
           analysis={reading.full_analysis}
           reading={reading}
-          locked={!unlocked}
+          locked={!fullUnlocked}
           paywall={
             <MilestoneCheckoutButton
-              planId={reading.full_analysis.categoryReport?.categoryId ?? "full_analysis"}
+              planId={FULL_ANALYSIS_PLAN_ID}
               readingId={reading.id}
-              note={
-                reading.full_analysis.categoryReport
-                  ? "결제하면 이 주제를 사주 데이터로 하나씩 분석해 드려요."
-                  : "철학관 평균 30,000~50,000원"
-              }
+              note="결제하면 잠긴 항목이 모두 열려요."
             />
           }
         />
 
         {/*
-          PDF에는 유료 항목이 전부 들어간다. 결제 전에는 내려받기 자체를 감춘다.
-          (서버도 주문번호를 확인하지만, 버튼을 보여주면 안 되는 게 먼저다.)
+          PDF 리포트는 종합 분석 템플릿이라 종합 분석을 산 경우에만 내려받게 한다.
+          (서버도 주문번호와 상품을 확인한다.) 고민 상담만 산 경우는 화면 인쇄로 저장한다.
         */}
-        {unlocked && (
+        {(topicUnlocked || fullUnlocked) && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <DemoPdfDownloadButton reading={reading} orderId={orderId} />
+          {fullUnlocked && <DemoPdfDownloadButton reading={reading} orderId={fullOrderId} />}
           <button
             type="button"
             onClick={() => window.print()}

@@ -27,7 +27,7 @@ export default function PaywallOverlay({ onPayClick }: PaywallOverlayProps) {
           전체 분석 결과 보기
         </h3>
         <p className="text-sm mb-5 text-[#958ea0]">
-          철학관 평균 30,000~50,000원
+          결제하면 잠긴 항목이 모두 열려요
         </p>
         <button
           onClick={onPayClick}

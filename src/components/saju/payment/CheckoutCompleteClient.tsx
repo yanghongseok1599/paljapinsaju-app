@@ -51,9 +51,11 @@ export default function CheckoutCompleteClient({ orderId }: { orderId: string | 
         // 확인이 끝난 주문 맥락은 치운다. 보류 상태는 남겨둬야
         // 사용자가 새로고침했을 때 무엇을 샀는지 다시 보여줄 수 있다.
         if (result.status === "paid" || result.status === "already_processed") {
-          // 검증을 통과했으니 이 결과지를 해제 상태로 표시한다.
-          if (context?.readingId) {
-            markUnlocked(context.readingId, result.orderId ?? String(orderId));
+          // 검증을 통과했으니 산 상품만 이 결과지에서 해제한다.
+          // 상품은 결제사가 확인해 준 planId 를 쓴다 (브라우저에 남긴 맥락은 바꿀 수 있다).
+          const paidPlanId = result.planId ?? context?.planId;
+          if (context?.readingId && paidPlanId) {
+            markUnlocked(context.readingId, paidPlanId, result.orderId ?? String(orderId));
           }
           clearPendingOrder();
         }

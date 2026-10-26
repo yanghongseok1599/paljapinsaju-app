@@ -40,6 +40,12 @@ export function buildCheckoutUrl({
 }: CheckoutParams): string {
   const params = new URLSearchParams({
     paymentMode,
+    // 결제 페이지는 화면 표시를 type 으로 정하고, 없으면 "구독 서비스 · 월간 구독 · /월"로 보여준다.
+    // 1회성 상품이 매달 결제되는 것처럼 보이지 않게 함께 넘긴다.
+    type: paymentMode === "onetime" ? "onetime" : "subscription",
+    // 결제 화면이 마일스톤 약관 대신 팔자핀사주 약관·환불정책을 보여주게 한다.
+    // (마일스톤은 returnUrl 이 허용 목록에 있을 때만 이 값을 인정한다)
+    brand: "paljapinsaju",
     planId,
     amount: String(amount),
     orderName,

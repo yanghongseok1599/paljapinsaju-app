@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { SajuPdf } from "@/lib/saju/pdf/saju-template";
 import type { SajuAnalysis, SajuReading } from "@/types/saju";
-import { isValidOrderId } from "@/lib/payments/milestone";
+import { FULL_ANALYSIS_PLAN_ID, isValidOrderId } from "@/lib/payments/milestone";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 
@@ -25,7 +25,8 @@ function freeOnly(a: SajuAnalysis | null): SajuAnalysis | null {
 }
 
 /**
- * 결제사에 주문이 실제로 결제됐는지 물어본다.
+ * 결제사에 종합 분석 주문이 실제로 결제됐는지 물어본다.
+ * PDF 는 종합 분석 템플릿이라 고민 상담 주문으로는 열지 않는다 (상품별 해제).
  * MILESTONE_API_BASE 가 없으면 확인할 방법이 없으므로 false (= 무료 범위만).
  */
 async function verifyOrder(orderId?: string): Promise<boolean> {
@@ -40,8 +41,8 @@ async function verifyOrder(orderId?: string): Promise<boolean> {
       { headers: { Accept: "application/json" }, cache: "no-store" },
     );
     if (!res.ok) return false;
-    const data = (await res.json()) as { valid?: boolean };
-    return data.valid === true;
+    const data = (await res.json()) as { valid?: boolean; planId?: string };
+    return data.valid === true && data.planId === FULL_ANALYSIS_PLAN_ID;
   } catch {
     return false;
   }

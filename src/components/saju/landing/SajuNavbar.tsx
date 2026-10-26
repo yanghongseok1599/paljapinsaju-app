@@ -66,7 +66,6 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
         <div className="hidden md:flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              <button className="text-slate-400 font-['Pretendard'] text-sm uppercase tracking-widest hover:text-[#d0bcff] transition-colors">KR / EN</button>
               <form action={async () => { await loginWithGoogle('/'); }}>
                 <button type="submit" className="px-5 py-2 text-slate-400 font-medium hover:bg-[#d0bcff]/10 rounded-xl transition-all cursor-pointer">
                   로그인

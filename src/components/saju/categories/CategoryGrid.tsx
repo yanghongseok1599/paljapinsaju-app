@@ -127,11 +127,9 @@ function CategoryCard({
               </p>
             </div>
             <div className="text-right">
+              {/* 고민 상담은 마일스톤 현금 결제로만 판다. 별 가격은 살 수 없는 값이라 보여주지 않는다. */}
               <p className="text-lg font-bold text-[#e4e1e9]">
                 {won(category.priceKrw)}
-              </p>
-              <p className="text-[11px] text-[#ffb95f]">
-                &#9733; {category.starCost}개
               </p>
             </div>
           </div>

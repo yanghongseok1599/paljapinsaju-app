@@ -20,7 +20,16 @@ const TIMING_COLOR = {
   neutral: "var(--read-tone-neutral)",
 } as const;
 
-export default function CategoryReportView({ report }: { report: CategoryReport }) {
+export default function CategoryReportView({
+  report,
+  locked = false,
+  paywall,
+}: {
+  report: CategoryReport;
+  /** 결제 전이면 결론만 보여주고 나머지는 목차와 결제 버튼으로 대신한다 */
+  locked?: boolean;
+  paywall?: React.ReactNode;
+}) {
   const tone = TONE_STYLE[report.verdictTone];
 
   // 화면에 나오는 순서대로 문장을 모아, 용어 설명을 첫 등장에만 붙이도록 계획한다.
@@ -102,6 +111,25 @@ export default function CategoryReportView({ report }: { report: CategoryReport 
         </p>
       </div>
 
+      {/*
+        결제 전: 결론만 무료로 보여준다. 예전엔 고민 상담의 본 내용(근거·본문·시기·할 일)이
+        결제 없이 전부 보였다.
+      */}
+      {locked ? (
+        <div className="reading-card rounded-2xl p-6">
+          <h3 className="reading-heading text-base font-bold">결제하면 열리는 내용</h3>
+          <ul className="reading-muted mt-3 flex flex-col gap-1.5 text-sm">
+            <li>· 이 판단의 사주 근거 ({report.evidence.length}가지)</li>
+            {report.sections.map((section) => (
+              <li key={section.heading}>· {section.heading}</li>
+            ))}
+            {report.timing.length > 0 && <li>· 시기 — 월별 판단</li>}
+            <li>· 지금 할 일 ({report.actions.length}가지)</li>
+          </ul>
+          {paywall && <div className="mt-5">{paywall}</div>}
+        </div>
+      ) : (
+      <>
       {/* 근거 */}
       <div className="reading-card rounded-2xl p-6">
         <h3 className="reading-accent text-sm font-bold">이 판단의 사주 근거</h3>
@@ -222,6 +250,8 @@ export default function CategoryReportView({ report }: { report: CategoryReport 
           ))}
         </ol>
       </div>
+      </>
+      )}
     </section>
   );
 }
