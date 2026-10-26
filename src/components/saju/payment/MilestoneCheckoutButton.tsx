@@ -10,6 +10,7 @@ import {
   TEST_AMOUNT,
 } from "@/lib/payments/milestone";
 import { PRICING_PROVISIONAL } from "@/lib/saju/categories";
+import RefundNotice from "./RefundNotice";
 
 interface MilestoneCheckoutButtonProps {
   /** 카테고리 id 또는 "full_analysis" */
@@ -97,6 +98,7 @@ export default function MilestoneCheckoutButton({
         결제는 trainer-milestone.com에서 진행됩니다
         {!isTestAmount && PRICING_PROVISIONAL && " · 가격 미확정(임시)"}
       </p>
+      <RefundNotice kind="report" className="reading-muted mt-2 text-center" />
 
     </div>
   );

@@ -1,4 +1,4 @@
-import { COMPANY } from "@/lib/legal/company";
+import { COMPANY, FTC_BUSINESS_INFO_URL } from "@/lib/legal/company";
 export default function SajuFooter() {
   const currentYear = new Date().getFullYear();
 
@@ -42,6 +42,18 @@ export default function SajuFooter() {
           <BizItem label="소재지" value={COMPANY.address} />
           <BizItem label="고객센터" value={COMPANY.phone} />
           <BizItem label="이메일" value={COMPANY.email} />
+          <BizItem label="개인정보 보호책임자" value={COMPANY.privacyOfficer} />
+          <BizItem label="호스팅 제공자" value={COMPANY.hostingProvider} />
+          <div className="flex gap-1.5">
+            <a
+              href={FTC_BUSINESS_INFO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-300"
+            >
+              사업자정보 확인
+            </a>
+          </div>
         </dl>
 
         <p className="mt-4 text-[0.7rem] leading-relaxed text-slate-600 font-['Pretendard']">

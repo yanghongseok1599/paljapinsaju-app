@@ -92,7 +92,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 7. 메타데이터에서 userId, packId 추출
     const userId = tossPayment.metadata?.userId;
     const packId = tossPayment.metadata?.packId;
-    const userEmail = tossPayment.customerEmail ?? 'unknown';
 
     if (!userId || !packId) {
       console.error('[Toss Webhook] metadata에 userId 또는 packId 없음:', tossPayment.metadata);
@@ -128,7 +127,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 9. Telegram 성공 알림 (fire-and-forget)
     await sendNotification({
       text: paymentSuccessMessage({
-        userEmail,
         amountKrw: tossPayment.totalAmount,
         starPack: pack.name,
         stars: pack.stars,

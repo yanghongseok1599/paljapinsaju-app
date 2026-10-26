@@ -87,7 +87,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // 4. Telegram 성공 알림
     await sendNotification({
       text: paymentSuccessMessage({
-        userEmail: user.email ?? 'unknown',
         amountKrw: tossPayment.totalAmount,
         starPack: pack.name,
         stars: pack.stars,

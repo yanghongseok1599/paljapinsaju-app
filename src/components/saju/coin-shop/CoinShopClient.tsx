@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { TOSS_CONFIG, STAR_PACKS as TOSS_STAR_PACKS, type StarPack } from '@/lib/toss/config';
+import RefundNotice from '@/components/saju/payment/RefundNotice';
 
 interface CoinShopClientProps {
   totalCoins: number;
@@ -163,6 +164,7 @@ export default function CoinShopClient({ totalCoins, userId, userEmail }: CoinSh
         >
           {loading ? '처리 중...' : '충전하기'}
         </button>
+        <RefundNotice kind="stars" className="mt-3 text-center text-gray-500" />
       </div>
     </div>
   );

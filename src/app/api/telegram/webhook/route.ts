@@ -136,12 +136,14 @@ const HELP = [
 ].join("\n");
 
 export async function POST(req: NextRequest) {
-  // 1) 시크릿 토큰 검증
-  if (WEBHOOK_SECRET) {
-    const provided = req.headers.get("x-telegram-bot-api-secret-token");
-    if (provided !== WEBHOOK_SECRET) {
-      return NextResponse.json({ ok: true });
-    }
+  // 1) 시크릿 토큰 검증 — 설정이 없으면 검증할 수 없으므로 전부 무시한다 (fail closed).
+  //    예전엔 미설정 시 검증을 건너뛰어, 아무나 자기 chat_id로 매출 보고를 받아갈 수 있었다.
+  if (!WEBHOOK_SECRET || !ADMIN_CHAT_ID) {
+    return NextResponse.json({ ok: true });
+  }
+  const provided = req.headers.get("x-telegram-bot-api-secret-token");
+  if (provided !== WEBHOOK_SECRET) {
+    return NextResponse.json({ ok: true });
   }
 
   let update: unknown;
@@ -164,7 +166,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 2) 관리자 chat_id 검증 — 그 외엔 조용히 무시
-  if (ADMIN_CHAT_ID && String(chatId) !== String(ADMIN_CHAT_ID)) {
+  if (String(chatId) !== String(ADMIN_CHAT_ID)) {
     return NextResponse.json({ ok: true });
   }
 

@@ -2,8 +2,11 @@
  * Telegram 알림 메시지 템플릿 (HTML 포맷)
  */
 
+/**
+ * 구매자 이메일은 넣지 않는다. 텔레그램은 국외 서비스라 넣으면 개인정보 국외 이전이 된다.
+ * 누가 샀는지는 주문번호로 DB·토스 관리자 화면에서 찾는다.
+ */
 export interface PaymentSuccessOptions {
-  userEmail: string;
   amountKrw: number;
   starPack: string;
   stars: number;
@@ -14,7 +17,6 @@ export function paymentSuccessMessage(opts: PaymentSuccessOptions): string {
   return [
     '💰 <b>결제 성공</b>',
     '',
-    `<b>이메일:</b> ${escapeHtml(opts.userEmail)}`,
     `<b>상품:</b> ${escapeHtml(opts.starPack)} (${opts.stars}개)`,
     `<b>금액:</b> ${opts.amountKrw.toLocaleString('ko-KR')}원`,
     `<b>주문번호:</b> <code>${escapeHtml(opts.orderId)}</code>`,

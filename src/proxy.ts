@@ -17,7 +17,7 @@ const intlMiddleware = createMiddleware(routing);
 const PROTECTED_PATTERN =
   /^\/(ko|en|ja|zh)?\/(my-readings|reading\/[^/]+\/result|coin-shop|saju-report|chat)(\/|$)/;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // 1. Run next-intl middleware to handle locale redirects and get the base response
   const response = intlMiddleware(request);
 

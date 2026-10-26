@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
+import SajuFooter from "@/components/saju/landing/SajuFooter";
 import { COMPANY, PAYMENT_PROVIDER } from "@/lib/legal/company";
 
 export const metadata: Metadata = {
@@ -36,7 +37,7 @@ export default function TermsPage() {
         {/* 제목 */}
         <h1 className="text-3xl font-bold text-white mb-2">이용약관</h1>
         <p className="text-sm text-gray-500 mb-10">
-          작성일: 2026년 3월 10일 | 시행일: 2026년 3월 10일
+          시행일: 2026년 10월 26일 (이전 버전: 2026년 3월 10일 시행)
         </p>
 
         {/* 본문 */}
@@ -48,7 +49,7 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-300">
               이 약관은 {COMPANY.name}(이하 &quot;회사&quot;)가 운영하는
-              &quot;팔자핀사주&quot;(drsaju.com, 이하 &quot;서비스&quot;)의 이용과
+              &quot;팔자핀사주&quot;({COMPANY.serviceDomain}, 이하 &quot;서비스&quot;)의 이용과
               관련하여 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한
               사항을 규정함을 목적으로 합니다.
             </p>
@@ -84,7 +85,8 @@ export default function TermsPage() {
               </li>
               <li>
                 <strong className="text-gray-100">&quot;계정&quot;</strong>이란
-                회원이 서비스에 로그인하기 위해 사용하는 Google 계정을 말합니다.
+                회원이 서비스에 로그인하기 위해 사용하는 Google 계정, 카카오 계정
+                또는 이메일 계정을 말합니다.
               </li>
             </ol>
           </section>
@@ -96,9 +98,10 @@ export default function TermsPage() {
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-gray-300 pl-1">
               <li>
-                이용계약은 회원이 되고자 하는 자가 이 약관에 동의하고, Google
-                OAuth를 통해 로그인을 완료함으로써 성립됩니다.
+                이용계약은 회원이 되고자 하는 자가 이 약관에 동의하고, Google·카카오
+                계정 또는 이메일로 로그인을 완료함으로써 성립됩니다.
               </li>
+              <li>만 14세 미만은 회원으로 가입할 수 없습니다.</li>
               <li>
                 회사는 다음 각 호에 해당하는 경우 이용계약의 승낙을 거부하거나
                 사후에 이용계약을 해지할 수 있습니다.
@@ -126,12 +129,13 @@ export default function TermsPage() {
                 서비스를 제공합니다.
               </li>
               <li>
-                <strong className="text-gray-100">무료 체험:</strong> 신규
-                회원에게 3회의 무료 상담 체험 기회를 제공합니다.
+                <strong className="text-gray-100">무료 이용:</strong> 결제 전에
+                사주 원국 요약과 일부 분석 항목을 무료로 볼 수 있으며, 신규 회원에게
+                별 3개를 무료로 지급합니다.
               </li>
               <li>
-                <strong className="text-gray-100">별 충전:</strong> 무료 체험
-                소진 후 추가 상담을 위해 별을 충전하여 이용할 수 있습니다.
+                <strong className="text-gray-100">별 충전:</strong> 별을 충전하여
+                AI 상담, 타로, 별자리 해석을 이용할 수 있습니다.
               </li>
             </ol>
             <p className="text-gray-400 mt-3 text-sm">
@@ -164,34 +168,24 @@ export default function TermsPage() {
                 </ul>
               </li>
               <li>
-                결제는 {PAYMENT_PROVIDER.name}에서 제공하는 결제 페이지를 통해
-                처리됩니다. 결제 시 이용자는 해당 결제 페이지로 이동하며, 결제 완료 후
-                본 서비스로 복귀합니다. 상품의 판매 주체 및 환불 책임은 {COMPANY.name}에
-                있습니다.
+                별 충전은 서비스 화면에서 {PAYMENT_PROVIDER.pgName} 결제창으로,
+                개별 분석 상품은 회사가 운영하는 결제 페이지({PAYMENT_PROVIDER.domain})로
+                이동하여 결제하며, 결제 완료 후 본 서비스로 돌아옵니다. 상품의 판매
+                주체 및 환불 책임은 {COMPANY.name}에 있습니다.
               </li>
               <li>
-                별의 유효기간은 충전일로부터 1년입니다. 유효기간이 경과한 별은
-                자동 소멸되며, 환불 대상이 아닙니다.
-              </li>
-              <li>
-                <strong className="text-gray-100">환불 규정:</strong>
-                <ul className="list-disc list-inside pl-5 mt-1 space-y-1">
-                  <li>
-                    미사용 별은 결제일로부터 7일 이내에 전액 환불이 가능합니다.
-                  </li>
-                  <li>
-                    사용한 별은 환불이 불가하며, 부분 사용 시 사용한 별을 제외한
-                    나머지 별에 대해서만 결제일로부터 7일 이내에 환불이
-                    가능합니다.
-                  </li>
-                  <li>
-                    환불 요청은 이메일({COMPANY.email})을 통해 접수할 수
-                    있습니다.
-                  </li>
-                  <li>
-                    환불 처리는 영업일 기준 3~5일 이내에 완료됩니다.
-                  </li>
-                </ul>
+                <strong className="text-gray-100">청약철회와 환불:</strong>{" "}
+                결제일부터 7일 이내에 청약을 철회할 수 있습니다. 다만 결과가 열린
+                분석 상품과 사용한 별은 「전자상거래 등에서의 소비자보호에 관한
+                법률」 제17조 제2항 제5호에 따라 철회가 제한되며, 사용하지 않은 별은
+                철회할 수 있습니다. 구체적인 기준과 절차는{" "}
+                <Link
+                  href="/refund-policy"
+                  className="text-[#d0bcff] hover:text-[#e4e1e9] underline underline-offset-2"
+                >
+                  환불정책
+                </Link>
+                을 따릅니다.
               </li>
             </ol>
           </section>
@@ -216,8 +210,8 @@ export default function TermsPage() {
                   법정대리인의 동의 없이 체결된 계약은 미성년자 본인 또는
                   법정대리인이 취소할 수 있습니다.
                 </strong>{" "}
-                취소를 원하는 경우 {COMPANY.email} 로 결제자 이메일, 결제일시,
-                결제금액을 기재하여 요청해 주시기 바랍니다.
+                취소를 원하는 경우 {COMPANY.email} 또는 전화({COMPANY.phone})로
+                결제자 계정, 결제일시, 결제금액을 알려 주시기 바랍니다.
               </li>
               <li>
                 다만 법정대리인이 범위를 정하여 처분을 허락한 재산으로 결제한
@@ -246,8 +240,9 @@ export default function TermsPage() {
                 해당 분야의 전문가와 상담하시기 바랍니다.
               </li>
               <li>
-                AI 상담 결과에 의존하여 발생한 어떠한 손해에 대해서도 회사는
-                책임을 지지 않습니다.
+                회사의 고의 또는 중대한 과실이 없는 한, 회원이 AI 상담 결과에
+                의존하여 내린 결정으로 발생한 손해에 대해 회사는 책임을 지지
+                않습니다.
               </li>
             </ol>
           </section>
@@ -282,6 +277,10 @@ export default function TermsPage() {
                   </li>
                 </ul>
               </li>
+              <li>
+                궁합 분석 등에서 다른 사람의 정보를 입력하는 경우, 회원은 그
+                사람에게 정보 입력 사실을 알리고 동의를 받아야 합니다.
+              </li>
             </ol>
           </section>
 
@@ -308,6 +307,27 @@ export default function TermsPage() {
             </ol>
           </section>
 
+          {/* 제8조의2 */}
+          <section>
+            <h2 className="text-lg font-semibold text-white mb-3">
+              제8조의2 (회원 탈퇴)
+            </h2>
+            <ol className="list-decimal list-inside space-y-2 text-gray-300 pl-1">
+              <li>
+                회원은 언제든지 이메일({COMPANY.email}) 또는 전화({COMPANY.phone})로
+                탈퇴를 요청할 수 있으며, 회사는 지체 없이 처리합니다.
+              </li>
+              <li>
+                탈퇴하면 회원 정보와 분석·상담 기록은 파기됩니다. 다만 관계 법령에
+                따라 보관해야 하는 결제 기록은 개인정보처리방침에 정한 기간 동안
+                분리하여 보관합니다.
+              </li>
+              <li>
+                탈퇴 시 남아 있는 유료 별은 환불정책에 따라 환불받을 수 있습니다.
+              </li>
+            </ol>
+          </section>
+
           {/* 제9조 */}
           <section>
             <h2 className="text-lg font-semibold text-white mb-3">
@@ -329,8 +349,9 @@ export default function TermsPage() {
                 에서 확인하실 수 있습니다.
               </li>
               <li>
-                회사는 서비스 제공을 위해 회원의 Google 계정 정보(이메일, 이름,
-                프로필 이미지)와 입력한 생년월일시 정보를 수집합니다.
+                회사는 서비스 제공을 위해 회원의 로그인 계정 정보(이메일, 이름 또는
+                닉네임, 프로필 사진)와 회원이 입력한 사주 정보(생년월일시 등)를
+                수집하며, 자세한 항목은 개인정보처리방침에 따릅니다.
               </li>
             </ol>
           </section>
@@ -358,6 +379,10 @@ export default function TermsPage() {
                 회사는 회원 간 또는 회원과 제3자 사이에서 발생한 분쟁에 대하여
                 개입할 의무가 없으며, 이로 인한 손해를 배상할 책임이 없습니다.
               </li>
+              <li>
+                제1항부터 제4항까지의 규정에도 불구하고 회사의 고의 또는 중대한
+                과실로 발생한 손해에 대해서는 회사가 책임을 집니다.
+              </li>
             </ol>
           </section>
 
@@ -375,8 +400,8 @@ export default function TermsPage() {
                 쌍방은 원만한 해결을 위해 성실히 협의합니다.
               </li>
               <li>
-                협의로 해결되지 않는 분쟁에 대한 소송의 관할법원은
-                서울중앙지방법원으로 합니다.
+                협의로 해결되지 않는 분쟁에 대한 소송은 「민사소송법」에 따른
+                관할법원에 제기합니다.
               </li>
             </ol>
           </section>
@@ -393,7 +418,8 @@ export default function TermsPage() {
               </li>
               <li>
                 약관이 변경되는 경우 회사는 변경 내용과 시행일을 서비스 내
-                공지사항 또는 이메일을 통해 시행일 7일 전까지 공지합니다.
+                공지사항 또는 이메일을 통해 시행일 7일 전까지 공지합니다. 회원에게
+                불리한 변경은 시행일 30일 전까지 공지합니다.
               </li>
               <li>
                 회원이 변경된 약관에 동의하지 않는 경우 서비스 이용을 중단하고
@@ -439,6 +465,9 @@ export default function TermsPage() {
                   {COMPANY.email}
                 </a>
               </p>
+              <p>
+                <span className="text-gray-500">전화:</span> {COMPANY.phone}
+              </p>
             </div>
           </section>
 
@@ -446,11 +475,12 @@ export default function TermsPage() {
           <section className="border-t border-gray-800 pt-8">
             <h2 className="text-lg font-semibold text-white mb-3">부칙</h2>
             <p className="text-gray-300">
-              이 약관은 2026년 3월 10일부터 시행합니다.
+              이 약관은 2026년 10월 26일부터 시행합니다.
             </p>
           </section>
         </div>
       </div>
+      <SajuFooter />
     </div>
   );
 }
