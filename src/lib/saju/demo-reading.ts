@@ -18,7 +18,7 @@ import { getPaidCategory } from "@/lib/saju/categories";
 import { buildCategoryReport } from "@/lib/saju/category-analysis";
 import { buildMonthlyFortune } from "@/lib/saju/monthly-fortune";
 import { josa } from "@/lib/saju/josa";
-import { buildReportSections } from "@/lib/saju/report-analysis";
+import { buildReportSections, buildTeasers } from "@/lib/saju/report-analysis";
 
 export const DEMO_READING_STORAGE_KEY = "paljapin.demo.readings";
 
@@ -94,7 +94,34 @@ function buildDemoAnalysis(
     ELEMENT_COLORS[weakest],
   );
 
+  const engineInput = {
+    name: input.name,
+    gender: input.gender as Gender,
+    birthYear: input.birthYear,
+    birthMonth: input.birthMonth,
+    birthDay: input.birthDay,
+    birthHour: input.birthHour,
+    isLunar: input.isLunar,
+  };
+
+  // 결제 전 화면용 — 이 사주에서 실제로 나온 특이점 3가지
+  const lockedTeasers = buildTeasers(engineInput);
+
+  // 결제하면 열리는 분량. 무료로 보여주는 총론·성격은 뺀다.
+  const lockedKeys = [
+    "love", "career", "wealth", "health", "yearlyFortune",
+    "tenGods", "majorCycles", "relationship", "actionAdvice",
+    "summary", "closingMessage",
+  ] as const;
+  const lockedChars = engine
+    ? lockedKeys.reduce((sum, k) => sum + (engine[k]?.length ?? 0), 0)
+    : 0;
+
   return {
+    lockedTeasers: lockedTeasers.length > 0 ? lockedTeasers : undefined,
+    lockedVolume: lockedChars
+      ? { chars: lockedChars, sections: lockedKeys.length + 2 }
+      : undefined,
     categoryReport: categoryId
       ? buildCategoryReport(
           {

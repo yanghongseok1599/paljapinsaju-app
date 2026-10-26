@@ -6,10 +6,13 @@ import type { SajuReading } from "@/types/saju";
 
 interface DemoPdfDownloadButtonProps {
   reading: SajuReading;
+  /** 결제 확인에 쓸 주문번호. 없으면 서버가 무료 범위만 담는다. */
+  orderId?: string;
 }
 
 export default function DemoPdfDownloadButton({
   reading,
+  orderId,
 }: DemoPdfDownloadButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +22,7 @@ export default function DemoPdfDownloadButton({
       const res = await fetch("/api/saju/demo-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reading }),
+        body: JSON.stringify({ reading, orderId }),
       });
 
       if (!res.ok) {

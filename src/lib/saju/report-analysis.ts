@@ -500,6 +500,143 @@ function closing(name: string): string {
   );
 }
 
+
+// ──────────────────────────────────────────────
+// 결제 유도용 "이 사주에서 발견된 것"
+// ──────────────────────────────────────────────
+
+export interface Teaser {
+  /** 진단 — 이 사주에서 실제로 나온 사실 */
+  headline: string;
+  /** 뒷말을 끊어 궁금하게 만드는 한 줄 */
+  cutoff: string;
+}
+
+/**
+ * 잠긴 영역을 목차 대신 '진단 + 끊긴 문장'으로 보여주기 위한 재료.
+ *
+ * 항목 이름("연애/결혼운")은 미끼가 되지 못한다. 이미 맞힌 사실을 먼저 보여주고
+ * 그 해석을 끊어야 뒷문장을 보고 싶어진다.
+ * 눈에 띄는 순서대로 담고 앞에서부터 3개만 쓴다.
+ */
+export function buildTeasers(input: CategoryAnalysisInput): Teaser[] {
+  let f: Facts;
+  try {
+    f = collectFacts(input);
+  } catch {
+    return [];
+  }
+
+  const out: Teaser[] = [];
+  const empty = emptyGroups(f.counts);
+  const top = topGroup(f.counts);
+
+  if (f.dayClash) {
+    out.push({
+      headline: "일지(배우자 자리)에 충(沖)이 걸려 있습니다.",
+      cutoff: "관계에 변동이 잦은 구조인데, 그게 어떤 상황에서 터지는지는",
+    });
+  }
+
+  if (empty.includes("관성")) {
+    out.push({
+      headline: "관성(책임과 조직 생활)이 원국에 하나도 없습니다.",
+      cutoff: "조직에서 유독 답답함을 느끼는 이유가 여기 있는데, 그럼 어떤 자리가 맞는지는",
+    });
+  }
+
+  if (empty.includes("재성")) {
+    out.push({
+      headline: "재성(돈과 현실 감각)이 원국에 하나도 없습니다.",
+      cutoff: "돈이 저절로 모이지 않는 구조입니다. 그래서 무엇을 만들어둬야 하는지는",
+    });
+  }
+
+  if (f.goegang) {
+    out.push({
+      headline: "괴강(魁罡)이 있습니다.",
+      cutoff: "평가가 중간에 머물지 않는 기운입니다. 이게 일과 관계에서 어떻게 갈리는지는",
+    });
+  }
+
+  if (f.yangin) {
+    out.push({
+      headline: "양인(羊刃)이 있습니다.",
+      cutoff: "밀어붙이는 힘이 아주 강한 대신 극단으로 흐르기 쉽습니다. 어디에 선을 그어야 하는지는",
+    });
+  }
+
+  if (f.hasDohwa) {
+    out.push({
+      headline: "도화(桃花)가 있습니다.",
+      cutoff: "사람을 끌어당기는 매력이 있다는 뜻인데, 이걸 어떻게 관리해야 하는지는",
+    });
+  }
+
+  if (f.counts[top] >= 4) {
+    out.push({
+      headline: `${top}(${GROUP_MEANING[top]})이 ${f.counts[top]}개로 한쪽에 몰려 있습니다.`,
+      cutoff: "강점이자 같은 실수를 반복하게 만드는 자리입니다. 어느 쪽으로 기우는지는",
+    });
+  }
+
+  if (f.clashCount >= 2) {
+    out.push({
+      headline: `원국에 충(沖)이 ${f.clashCount}곳 있습니다.`,
+      cutoff: "변동이 생기는 해에 먼저 흔들리는 자리입니다. 올해 몇 월이 고비인지는",
+    });
+  }
+
+  if (f.hasYeokma) {
+    out.push({
+      headline: "역마(驛馬)가 있습니다.",
+      cutoff: "한곳에 머물지 않는 기운입니다. 어떤 일이 체질에 맞는지는",
+    });
+  }
+
+  if (f.dayHarmony) {
+    out.push({
+      headline: "일지(배우자 자리)에 합(合)이 들어 있습니다.",
+      cutoff: "한번 맺은 인연이 길게 이어지는 편인데, 대신 조심할 것이 하나 있습니다.",
+    });
+  }
+
+  // 특이점이 적은 사주도 있다. 어떤 사주에나 있는 요소로 3개를 채운다.
+  const fallbacks: Teaser[] = [
+    {
+      headline: `오행이 ${f.strongest} 쪽으로 쏠리고 ${josa(f.weakest, "은/는")} 비어 있습니다.`,
+      cutoff: "이 불균형이 성격, 돈, 건강에서 각각 어떻게 드러나는지는",
+    },
+    {
+      headline: `올해 ${f.yearGanzi}년은 ${input.name}님에게 ${f.yearSipsin}의 해입니다.`,
+      cutoff: "밀어야 할 달과 쉬어야 할 달이 갈리는데, 열두 달 중 어디가 고비인지는",
+    },
+    ...(f.currentDaewoon
+      ? [
+          {
+            headline: `지금 ${f.currentDaewoon.age}세부터 시작된 ${f.currentDaewoon.ganzi} 대운을 지나고 있습니다.`,
+            cutoff: "이 10년이 밀어붙일 국면인지 지킬 국면인지는",
+          },
+        ]
+      : []),
+    {
+      headline: `일간이 ${f.dayStem}(${f.dayStemKo})입니다.`,
+      cutoff: `${DAY_STEM_TRAIT[f.dayStem]?.core ?? "타고난 기질"}에 해당하는데, 이 기질이 관계와 일에서 어떻게 갈리는지는`,
+    },
+    {
+      headline: `${top}(${GROUP_MEANING[top]})이 ${f.counts[top]}개로 가장 두텁습니다.`,
+      cutoff: "선택의 순간마다 먼저 작동하는 기운입니다. 어떻게 써야 손해가 없는지는",
+    },
+  ];
+
+  for (const fb of fallbacks) {
+    if (out.length >= 3) break;
+    if (!out.some((t) => t.headline === fb.headline)) out.push(fb);
+  }
+
+  return out.slice(0, 3);
+}
+
 // ──────────────────────────────────────────────
 // 바깥에서 쓰는 함수
 // ──────────────────────────────────────────────

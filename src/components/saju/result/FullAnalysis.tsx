@@ -89,10 +89,12 @@ export default function FullAnalysis({
       )}
 
       {locked ? (
-        <>
-          <LockedPreview />
-          {paywall}
-        </>
+        /* 자물쇠는 한 번만. 결제 버튼도 이 카드 안에 넣어 힘을 모은다. */
+        <LockedPreview
+          teasers={analysis.lockedTeasers}
+          volume={analysis.lockedVolume}
+          paywall={paywall}
+        />
       ) : (
         <>
           {PAID_SECTIONS.map(({ key, title }) =>
@@ -137,43 +139,94 @@ export default function FullAnalysis({
   );
 }
 
-/** 잠긴 영역 — 무엇이 열리는지 목록으로 보여준다 */
-function LockedPreview() {
-  const items = [
-    "연애/결혼운",
-    "재물/금전운",
-    "직업/사업운",
-    "건강운",
-    "2026년 총운",
-    "월별 운세 12개월",
-    "행운 요소",
-    "십신 분석",
-    "대운 흐름",
-    "대인관계·사회운",
-    "실천 조언",
-  ];
-
+/**
+ * 잠긴 영역.
+ *
+ * 예전에는 "연애/결혼운, 재물운 …" 처럼 항목 이름만 나열했다.
+ * 그건 목차일 뿐이라 궁금증을 만들지 못한다. 이미 맞힌 진단을 먼저 보여주고
+ * 해석을 끊어, 뒷문장을 보고 싶게 만든다.
+ */
+function LockedPreview({
+  teasers,
+  volume,
+  paywall,
+}: {
+  teasers?: { headline: string; cutoff: string }[];
+  volume?: { chars: number; sections: number };
+  paywall?: React.ReactNode;
+}) {
   return (
-    <div className="reading-card relative overflow-hidden rounded-2xl p-6">
-      <div className="mb-4 flex items-center gap-2">
+    <div className="reading-card rounded-2xl p-6">
+      <div className="mb-1 flex items-center gap-2">
         <Lock className="h-4 w-4" style={{ color: "var(--read-accent)" }} />
         <h3 className="reading-heading text-lg font-semibold">
-          결제하면 열리는 항목
+          이 사주에서 발견된 것
         </h3>
       </div>
 
-      <ul className="grid gap-2 sm:grid-cols-2">
-        {items.map((item) => (
-          <li key={item} className="reading-body flex items-center gap-2 !text-sm">
-            <span
-              aria-hidden="true"
-              className="h-1 w-1 flex-shrink-0 rounded-full"
-              style={{ backgroundColor: "var(--read-accent)" }}
-            />
-            {item}
-          </li>
-        ))}
-      </ul>
+      {teasers && teasers.length > 0 ? (
+        <>
+          <p className="reading-muted mb-5">
+            아래는 {volume ? "전체 분석" : "분석"}에서 실제로 잡힌 내용입니다.
+          </p>
+
+          <ul className="flex flex-col gap-4">
+            {teasers.map((t) => (
+              <li
+                key={t.headline}
+                className="rounded-xl p-4"
+                style={{
+                  backgroundColor: "var(--read-accent-soft)",
+                  border: "1px solid color-mix(in srgb, var(--read-accent) 20%, transparent)",
+                }}
+              >
+                <p className="reading-body !text-[15px] font-semibold">{t.headline}</p>
+                {/* 문장을 끊고 흐리게 처리 — 뒷말이 유료 */}
+                <p className="reading-muted mt-1.5">
+                  {t.cutoff}
+                  <span
+                    className="ml-1 align-middle"
+                    style={{
+                      color: "transparent",
+                      textShadow: "0 0 7px var(--read-body)",
+                      userSelect: "none",
+                    }}
+                    aria-hidden="true"
+                  >
+                    결제 후 확인하실 수 있습니다
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p className="reading-muted mb-5">
+          결제하면 아래 항목이 모두 열립니다.
+        </p>
+      )}
+
+      {volume && (
+        <div
+          className="mt-5 flex flex-wrap gap-x-5 gap-y-1 rounded-xl px-4 py-3"
+          style={{ border: "1px solid var(--read-border)" }}
+        >
+          <Stat label="분량" value={`약 ${volume.chars.toLocaleString("ko-KR")}자`} />
+          <Stat label="항목" value={`${volume.sections}개`} />
+          <Stat label="월별 운세" value="12개월" />
+        </div>
+      )}
+
+      {paywall && <div className="mt-5">{paywall}</div>}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <span className="reading-muted !text-xs">{label}</span>
+      <span className="reading-body !text-sm font-semibold">{value}</span>
     </div>
   );
 }

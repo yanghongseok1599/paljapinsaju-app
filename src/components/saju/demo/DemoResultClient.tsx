@@ -10,7 +10,7 @@ import DemoPdfDownloadButton from "@/components/saju/demo/DemoPdfDownloadButton"
 import CategoryReportView from "@/components/saju/categories/CategoryReportView";
 import ReadingModeToggle, { useReadingMode } from "@/components/saju/categories/ReadingModeToggle";
 import MilestoneCheckoutButton from "@/components/saju/payment/MilestoneCheckoutButton";
-import { isUnlocked } from "@/lib/payments/entitlement";
+import { getUnlockRecord, isUnlocked } from "@/lib/payments/entitlement";
 import { readDemoReading } from "@/lib/saju/demo-reading";
 import type { SajuReading } from "@/types/saju";
 
@@ -19,12 +19,14 @@ export default function DemoResultClient() {
   const [reading, setReading] = useState<SajuReading | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const [orderId, setOrderId] = useState<string | undefined>(undefined);
   const [readingMode, setReadingMode] = useReadingMode();
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setReading(readDemoReading(params.id));
       setUnlocked(isUnlocked(params.id));
+      setOrderId(getUnlockRecord(params.id)?.orderId);
       setLoaded(true);
     }, 0);
 
@@ -127,8 +129,13 @@ export default function DemoResultClient() {
           }
         />
 
+        {/*
+          PDF에는 유료 항목이 전부 들어간다. 결제 전에는 내려받기 자체를 감춘다.
+          (서버도 주문번호를 확인하지만, 버튼을 보여주면 안 되는 게 먼저다.)
+        */}
+        {unlocked && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <DemoPdfDownloadButton reading={reading} />
+          <DemoPdfDownloadButton reading={reading} orderId={orderId} />
           <button
             type="button"
             onClick={() => window.print()}
@@ -138,6 +145,7 @@ export default function DemoResultClient() {
             인쇄/PDF 저장
           </button>
         </div>
+        )}
       </main>
     </div>
   );

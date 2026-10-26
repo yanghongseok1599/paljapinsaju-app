@@ -128,6 +128,14 @@ export interface SajuAnalysis {
   overview?: string;          // 총론 / 시작하는 글 (1000자+)
   /** 유료 카테고리 상담으로 생성된 경우의 주제별 상세 분석 */
   categoryReport?: CategoryReport;
+
+  /**
+   * 결제 전 화면에 보여줄 '이 사주에서 발견된 것'.
+   * 항목 이름만 나열하면 미끼가 되지 않아, 실제 진단을 보여주고 해석을 끊는다.
+   */
+  lockedTeasers?: { headline: string; cutoff: string }[];
+  /** 결제 시 열리는 분량 — 받는 게 눈에 보여야 가격과 비교가 된다 */
+  lockedVolume?: { chars: number; sections: number };
   dayMasterDeep?: string;     // 일간 심층 해설 (1200자+)
   pillarReadings?: {
     year: string;    // 연주(年柱) 해설 (400자+)
