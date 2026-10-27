@@ -4,7 +4,7 @@ import { useState } from "react";
 import PreviewCard from "@/components/saju/preview/PreviewCard";
 import PaywallOverlay from "@/components/saju/preview/PaywallOverlay";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
-import { TOSS_CONFIG, STAR_PACKS } from "@/lib/toss/config";
+import { TOSS_CONFIG, STAR_PACKS, STAR_SHOP_OPEN } from "@/lib/toss/config";
 import type { SajuReading } from "@/types/saju";
 
 interface ReadingPreviewProps {
@@ -57,7 +57,7 @@ export default function ReadingPreview({
   return (
     <>
       <PreviewCard reading={reading} />
-      <PaywallOverlay onPayClick={handlePayClick} />
+      {STAR_SHOP_OPEN && <PaywallOverlay onPayClick={handlePayClick} />}
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { Link } from "@/i18n/routing";
 import { loginWithGoogle } from "@/services/auth/actions";
 import ReferralSection from "@/components/saju/referral/ReferralSection";
@@ -90,9 +91,11 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
               >
                 ★ 친구초대
               </button>
-              <Link href="/coin-shop" className="flex items-center gap-1 text-sm text-[#ffb95f] hover:text-[#ffb95f]/80 transition-colors">
-                ★ <span className="font-medium">충전</span>
-              </Link>
+              {STAR_SHOP_OPEN && (
+                <Link href="/coin-shop" className="flex items-center gap-1 text-sm text-[#ffb95f] hover:text-[#ffb95f]/80 transition-colors">
+                  ★ <span className="font-medium">충전</span>
+                </Link>
+              )}
               <Link
                 href="/my-readings"
                 className="text-sm font-medium text-slate-300 hover:text-[#d0bcff] transition-colors px-2.5 py-1.5 rounded-lg"

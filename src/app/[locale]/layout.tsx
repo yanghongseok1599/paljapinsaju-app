@@ -9,6 +9,7 @@ import "../globals.css";
 
 import { ClientWidgets } from "@/components/shared/ClientWidgets";
 import { COMPANY } from "@/lib/legal/company";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 
 // Pretendard loaded via CDN in <head> (no npm package, best quality)
 // Plus Jakarta Sans — display/headline font
@@ -178,27 +179,29 @@ export default async function LocaleLayout({
             }),
           }}
         />
-        {/* JSON-LD: Product */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Product",
-              name: "팔자핀사주 별 충전",
-              description:
-                "데이터 기반 AI 사주 분석 서비스. 사주팔자 · 자미두수 · 서양점성술 통합 분석.",
-              offers: {
-                "@type": "AggregateOffer",
-                lowPrice: "9900",
-                highPrice: "29900",
-                priceCurrency: "KRW",
-                offerCount: 3,
-                availability: "https://schema.org/InStock",
-              },
-            }),
-          }}
-        />
+        {/* JSON-LD: Product — 별 상점이 닫혀 있으면 팔지 않는 상품을 검색엔진에 알리지 않는다 */}
+        {STAR_SHOP_OPEN && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: "팔자핀사주 별 충전",
+                description:
+                  "데이터 기반 AI 사주 분석 서비스. 사주팔자 · 자미두수 · 서양점성술 통합 분석.",
+                offers: {
+                  "@type": "AggregateOffer",
+                  lowPrice: "9900",
+                  highPrice: "29900",
+                  priceCurrency: "KRW",
+                  offerCount: 3,
+                  availability: "https://schema.org/InStock",
+                },
+              }),
+            }}
+          />
+        )}
         {/* JSON-LD: FAQPage */}
         <script
           type="application/ld+json"
@@ -223,14 +226,18 @@ export default async function LocaleLayout({
                     text: "네, 가입 없이 무료로 사주 원국 요약을 받아볼 수 있고, 회원가입하면 AI 상담에 쓸 수 있는 별 3개를 드립니다.",
                   },
                 },
-                {
-                  "@type": "Question",
-                  name: "별 충전 가격은 얼마인가요?",
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: "별 30개 9,900원, 별 70개 19,900원, 별 120개 29,900원 세 가지 패키지가 있습니다. 많이 충전할수록 개당 가격이 저렴합니다.",
-                  },
-                },
+                ...(STAR_SHOP_OPEN
+                  ? [
+                      {
+                        "@type": "Question",
+                        name: "별 충전 가격은 얼마인가요?",
+                        acceptedAnswer: {
+                          "@type": "Answer",
+                          text: "별 30개 9,900원, 별 70개 19,900원, 별 120개 29,900원 세 가지 패키지가 있습니다. 많이 충전할수록 개당 가격이 저렴합니다.",
+                        },
+                      },
+                    ]
+                  : []),
               ],
             }),
           }}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
 const faqs = [
@@ -18,7 +19,7 @@ const faqs = [
   },
   {
     q: "별(★)은 뭔가요?",
-    a: "별은 대화에 사용되는 포인트예요. 별 1개 = 메시지 1회이고, 모든 상담사에서 공통으로 사용됩니다. 로그인하면 총 3개를 무료로 드리고, 더 필요하시면 코인샵에서 충전할 수 있어요.",
+    a: `별은 대화에 사용되는 포인트예요. 별 1개 = 메시지 1회이고, 모든 상담사에서 공통으로 사용됩니다. 로그인하면 총 3개를 무료로 드려요.${STAR_SHOP_OPEN ? " 더 필요하시면 코인샵에서 충전할 수 있어요." : ""}`,
   },
   {
     q: "태어난 시간을 모르면 어떻게 하나요?",

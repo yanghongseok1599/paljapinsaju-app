@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { STAR_SHOP_OPEN } from '@/lib/toss/config';
 import { useSearchParams } from 'next/navigation';
 import {
   loginWithGoogle,
@@ -434,10 +435,10 @@ export default function LoginSidebar({ user, chatHistory = [], currentReading, t
 
           {/* 코인 잔여량 */}
           {user && totalCoins !== undefined && (
-            <Link href="/coin-shop" className="flex items-center gap-2 px-4 py-2 border-b border-[rgba(73,68,84,0.2)] hover:bg-[#1f1f25] transition-colors">
+            <Link href={STAR_SHOP_OPEN ? "/coin-shop" : "/my-readings"} className="flex items-center gap-2 px-4 py-2 border-b border-[rgba(73,68,84,0.2)] hover:bg-[#1f1f25] transition-colors">
               <span className="text-yellow-400">&#9733;</span>
               <span className="text-sm text-gray-300">{totalCoins}개</span>
-              <span className="text-xs text-gray-500 ml-auto">충전</span>
+              {STAR_SHOP_OPEN && <span className="text-xs text-gray-500 ml-auto">충전</span>}
             </Link>
           )}
 

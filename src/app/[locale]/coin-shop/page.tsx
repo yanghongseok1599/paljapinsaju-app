@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { createClient } from "@/utils/supabase/server";
 import SajuLayout from "@/components/saju/layout/SajuLayout";
 import CoinShopClient from "@/components/saju/coin-shop/CoinShopClient";
 
 export default async function CoinShopPage() {
+  if (!STAR_SHOP_OPEN) redirect("/");
+
   const supabase = await createClient();
   const {
     data: { user },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { Link } from "@/i18n/routing";
 import type {
   SajuReading,
@@ -160,12 +161,14 @@ function ProfileCard({ profile }: { profile: ProfileSummary }) {
           <p className="text-xs text-[#ffb95f]/80 mb-0.5">보유 별</p>
           <p className="text-2xl font-black text-[#ffb95f]">★ {profile.starBalance.toLocaleString("ko-KR")}</p>
         </div>
-        <Link
-          href="/coin-shop"
-          className="inline-flex items-center h-10 px-4 rounded-xl bg-[#ffb95f]/15 hover:bg-[#ffb95f]/25 text-[#ffb95f] text-sm font-bold transition-colors"
-        >
-          충전하기
-        </Link>
+        {STAR_SHOP_OPEN && (
+          <Link
+            href="/coin-shop"
+            className="inline-flex items-center h-10 px-4 rounded-xl bg-[#ffb95f]/15 hover:bg-[#ffb95f]/25 text-[#ffb95f] text-sm font-bold transition-colors"
+          >
+            충전하기
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -279,8 +282,8 @@ function TransactionsTab({ transactions }: { transactions: StarTransactionRow[] 
     return (
       <EmptyState
         title="별 거래 내역이 없어요"
-        sub="별을 충전하거나 리포트를 결제하면 이곳에 표시돼요"
-        cta={{ href: "/coin-shop", label: "별 충전하기" }}
+        sub={STAR_SHOP_OPEN ? "별을 충전하거나 리포트를 결제하면 이곳에 표시돼요" : "별을 받거나 쓰면 이곳에 표시돼요"}
+        cta={STAR_SHOP_OPEN ? { href: "/coin-shop", label: "별 충전하기" } : undefined}
       />
     );
   }
@@ -352,7 +355,7 @@ function EmptyState({
 }: {
   title: string;
   sub: string;
-  cta: { href: string; label: string };
+  cta?: { href: string; label: string };
 }) {
   return (
     <div className="text-center py-16">
@@ -367,12 +370,14 @@ function EmptyState({
       </div>
       <p className="font-semibold mb-1 text-[#e4e1e9]">{title}</p>
       <p className="text-sm mb-6 text-[#958ea0]">{sub}</p>
-      <Link
-        href={cta.href}
-        className="inline-flex items-center justify-center h-11 px-7 bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-xl text-sm font-semibold transition-colors"
-      >
-        {cta.label}
-      </Link>
+      {cta && (
+        <Link
+          href={cta.href}
+          className="inline-flex items-center justify-center h-11 px-7 bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-xl text-sm font-semibold transition-colors"
+        >
+          {cta.label}
+        </Link>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@/i18n/routing";
 import { CONSTELLATIONS } from "./constellations";
@@ -755,12 +756,14 @@ export default function ZodiacPageClient({
               ) : !canAfford ? (
                 <div className="space-y-2">
                   <p className="text-xs text-[#958ea0]">별이 부족해요 (필요: ★ 3개)</p>
-                  <Link
-                    href="/coin-shop"
-                    className="inline-block px-5 py-2.5 oracle-gradient font-bold text-sm rounded-xl hover:-translate-y-0.5 transition-transform"
-                  >
-                    별 충전하기
-                  </Link>
+                  {STAR_SHOP_OPEN && (
+                    <Link
+                      href="/coin-shop"
+                      className="inline-block px-5 py-2.5 oracle-gradient font-bold text-sm rounded-xl hover:-translate-y-0.5 transition-transform"
+                    >
+                      별 충전하기
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <button
@@ -822,12 +825,14 @@ export default function ZodiacPageClient({
             {readingError === "insufficient_stars" && (
               <div className="text-center py-4">
                 <p className="text-[#958ea0] text-sm mb-4">별이 부족해서 리딩을 생성할 수 없었어요.</p>
-                <Link
-                  href="/coin-shop"
-                  className="inline-block px-6 py-2.5 oracle-gradient font-bold text-sm rounded-xl hover:scale-105 transition-transform"
-                >
-                  별 충전하러 가기
-                </Link>
+                {STAR_SHOP_OPEN && (
+                  <Link
+                    href="/coin-shop"
+                    className="inline-block px-6 py-2.5 oracle-gradient font-bold text-sm rounded-xl hover:scale-105 transition-transform"
+                  >
+                    별 충전하러 가기
+                  </Link>
+                )}
               </div>
             )}
 
@@ -872,13 +877,15 @@ export default function ZodiacPageClient({
             >
               {isAdmin ? "관리자 무료 · 월간 AI 리딩 받기" : "★ 별 3개 · 월간 AI 리딩 받기"}
             </button>
-          ) : (
+          ) : STAR_SHOP_OPEN ? (
             <Link
               href="/coin-shop"
               className="inline-block px-8 py-3 oracle-gradient font-bold rounded-2xl hover:scale-105 transition-transform text-sm"
             >
               별 충전하기
             </Link>
+          ) : (
+            <p className="text-sm text-[#958ea0]">별이 부족해요 (필요: ★ 3개)</p>
           )}
         </section>
       )}

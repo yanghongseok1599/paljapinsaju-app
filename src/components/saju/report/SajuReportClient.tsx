@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { STAR_SHOP_OPEN } from '@/lib/toss/config';
 import { createReading } from '@/services/saju/actions';
 import { Link } from '@/i18n/routing';
 
@@ -546,7 +547,7 @@ export default function SajuReportClient({
             )}
           </button>
 
-          {!isAdmin && starBalance < REPORT_COST && (
+          {STAR_SHOP_OPEN && !isAdmin && starBalance < REPORT_COST && (
             <Link
               href="/coin-shop"
               className="block text-center text-sm transition-colors mt-2 text-[#d0bcff] hover:text-[#e4e1e9]"

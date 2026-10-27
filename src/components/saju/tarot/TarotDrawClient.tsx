@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { useRouter } from "@/i18n/routing";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,7 +51,7 @@ export default function TarotDrawClient({
       return;
     }
     if (insufficient) {
-      toast.error(`별이 ${cost - starBalance}개 부족해요. 충전이 필요합니다.`);
+      toast.error(`별이 ${cost - starBalance}개 부족해요.${STAR_SHOP_OPEN ? " 충전이 필요합니다." : ""}`);
       return;
     }
     setPhase("shuffling");

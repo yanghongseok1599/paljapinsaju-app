@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useCallback, type KeyboardEvent, type FormEvent } from 'react';
+import { STAR_SHOP_OPEN } from '@/lib/toss/config';
 import { Link } from '@/i18n/routing';
 
 interface ChatInputProps {
@@ -53,7 +54,7 @@ export default function ChatInput({
         <textarea
           ref={textareaRef}
           rows={1}
-          placeholder={disabled ? '별을 충전해주세요' : '메시지를 입력하세요...'}
+          placeholder={disabled ? (STAR_SHOP_OPEN ? '별을 충전해주세요' : '별을 모두 사용했어요') : '메시지를 입력하세요...'}
           disabled={disabled}
           onInput={handleResize}
           onKeyDown={handleKeyDown}
@@ -90,7 +91,7 @@ export default function ChatInput({
           </svg>
         </button>
       </form>
-      {disabled && (
+      {disabled && STAR_SHOP_OPEN && (
         <p className="text-xs text-gray-600 mt-1.5 text-center">
           <Link href="/coin-shop" className="text-purple-400 hover:text-purple-300">
             코인샵에서 별 충전하기 →

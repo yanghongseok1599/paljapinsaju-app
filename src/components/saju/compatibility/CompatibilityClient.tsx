@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { createCompatibility, payCompatibilityWithStars } from "@/services/saju/actions";
 import { Link } from "@/i18n/routing";
 import { COMPAT_COST } from "@/types/saju";
@@ -551,7 +552,7 @@ export default function CompatibilityClient({
             )}
           </button>
 
-          {!isAdmin && starBalance < COMPAT_COST && (
+          {STAR_SHOP_OPEN && !isAdmin && starBalance < COMPAT_COST && (
             <Link
               href="/coin-shop"
               className="block text-center text-sm transition-colors mt-2 text-[#d0bcff] hover:text-[#e4e1e9]"
