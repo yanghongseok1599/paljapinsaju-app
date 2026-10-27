@@ -20,7 +20,6 @@
  *   MILESTONE_API_BASE  예) https://trainer-milestone.com
  */
 import { NextResponse } from "next/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { getPlan, isValidOrderId } from "@/lib/payments/milestone";
 
 /** 결제사 주문조회 응답 */
@@ -37,7 +36,6 @@ interface VerifyResponse {
 
 export type ClaimStatus =
   | "paid" // 검증 완료
-  | "already_processed" // 같은 주문을 이미 처리함
   | "unverified" // 검증 수단이 없거나 조회 실패 — 지급 보류
   | "not_paid" // 결제사가 미결제/없음으로 응답
   | "invalid"; // orderId 형식이 잘못됨
@@ -151,54 +149,17 @@ export async function POST(req: Request): Promise<NextResponse<ClaimResult>> {
     });
   }
 
-  // ── 3. 멱등 처리 ──
-  // 사용자가 완료 페이지를 새로고침해도 두 번 지급되지 않아야 한다.
-  // webhook_events(provider, event_id)에 PK가 걸려 있어 두 번째 삽입은 충돌한다.
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (supabaseUrl && serviceKey) {
-    const supabase = createServiceClient(supabaseUrl, serviceKey);
-    const { error } = await supabase
-      .from("webhook_events")
-      .insert({ provider: "milestone", event_id: orderId });
-
-    if (error) {
-      // 23505 = unique_violation → 이미 처리한 주문
-      if (error.code === "23505") {
-        return NextResponse.json({
-          status: "already_processed",
-          orderId,
-          planId: plan.id,
-          orderName: plan.orderName,
-          resultId: verify.resultId,
-          paidAt: verify.paidAt,
-        });
-      }
-      console.error("[Milestone] 멱등 기록 실패:", error);
-      return NextResponse.json({
-        status: "unverified",
-        orderId,
-        message: "주문 기록에 실패해 지급을 보류했습니다.",
-      });
-    }
-
-    // ── 지급 지점 ──
-    // 여기서 상품을 지급한다. 지급 대상(별 충전 / 카테고리 상담 열기)은
-    // 가격 정책이 확정된 뒤에 연결한다. 지금은 주문만 기록한다.
-  } else if (process.env.NODE_ENV === "production") {
-    // 운영에서 Supabase가 없으면 중복 지급을 막을 방법이 없다.
-    // 결제는 확인됐더라도 지급은 보류한다 (fail closed).
-    console.error("[Milestone] 운영 환경에 Supabase 미설정 — 중복 방지 불가, 지급 보류");
+  // ── 3. 어느 결과지의 결제인지 ──
+  // 결제할 때 결과지 ID 를 resultId 로 넘기고, 결과는 그 결과지에서만 열린다.
+  // 그래서 주문번호를 다른 결과지에 다시 써도 열리지 않고, 주문을 따로 저장하지 않아도 된다.
+  // (같은 주문으로 같은 결과지를 다시 여는 새로고침은 그대로 허용된다)
+  if (!verify.resultId) {
+    console.error(`[Milestone] resultId 없는 주문 orderId=${orderId}`);
     return NextResponse.json({
       status: "unverified",
       orderId,
-      message: "주문 처리 설정이 완료되지 않았습니다. 고객센터로 문의해 주세요.",
+      message: "어느 결과지의 결제인지 확인할 수 없습니다. 고객센터로 문의해 주세요.",
     });
-  } else {
-    // 로컬(목 모드)에는 DB가 없어 중복 방지를 못 한다.
-    // 검증 자체는 정상이므로 개발 중에는 통과시킨다.
-    console.warn("[Milestone] Supabase 미설정 — 중복 방지 기록 없이 진행 (로컬 전용)");
   }
 
   return NextResponse.json({

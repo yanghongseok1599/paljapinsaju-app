@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ACCOUNTS_ENABLED } from '@/lib/accounts';
 import { useSearchParams } from 'next/navigation';
 import SajuNavbar from '@/components/saju/landing/SajuNavbar';
 import LoginSidebar from '@/components/saju/landing/LoginSidebar';
@@ -58,7 +59,7 @@ export default function MobileLayoutWrapper({
   // 로그인이 필요해 튕겨온 경우, 모바일에서는 사이드바가 숨겨져 있어
   // 안내도 로그인 버튼도 보이지 않는다. 그래서 자동으로 연다.
   // 단 한 번 닫으면 다시 열지 않는다 (URL의 login=required 는 계속 남아 있으므로).
-  const autoOpen = loginRequired && !isLoggedIn && !autoDismissed;
+  const autoOpen = ACCOUNTS_ENABLED && loginRequired && !isLoggedIn && !autoDismissed;
   const sidebarOpen = manualOpen || autoOpen;
 
   const closeSidebar = () => {

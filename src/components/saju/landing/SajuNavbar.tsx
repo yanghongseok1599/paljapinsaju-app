@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import { STAR_SHOP_OPEN } from "@/lib/toss/config";
 import { Link } from "@/i18n/routing";
 import { loginWithGoogle } from "@/services/auth/actions";
@@ -43,10 +44,14 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
         <div className="hidden md:flex items-center gap-8 font-['Pretendard'] text-base tracking-tight">
           <NavLink href="/reading">오늘의 운세</NavLink>
           <NavLink href="/categories">고민별 상담</NavLink>
-          <NavLink href="/zodiac">별자리</NavLink>
-          <NavLink href="/compatibility">궁합</NavLink>
-          <NavLink href="/chat/charon_m">오라클</NavLink>
-          <NavLink href="/tarot">타로</NavLink>
+          {ACCOUNTS_ENABLED && (
+            <>
+              <NavLink href="/zodiac">별자리</NavLink>
+              <NavLink href="/compatibility">궁합</NavLink>
+              <NavLink href="/chat/charon_m">오라클</NavLink>
+              <NavLink href="/tarot">타로</NavLink>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger (hidden on md) */}
@@ -63,7 +68,8 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
           </svg>
         </button>
 
-        {/* Desktop right actions */}
+        {/* Desktop right actions — 회원 기능이 꺼져 있으면 로그인·마이페이지를 두지 않는다 */}
+        {ACCOUNTS_ENABLED && (
         <div className="hidden md:flex items-center gap-4">
           {!isLoggedIn ? (
             <>
@@ -106,9 +112,10 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
           )}
 
         </div>
+        )}
 
         {/* 계정·대화기록 패널 열기 — 화면 크기와 무관하게 오른쪽 상단에 둔다 */}
-        {onMenuToggle && (
+        {ACCOUNTS_ENABLED && onMenuToggle && (
           <button
             onClick={onMenuToggle}
             className="p-1.5 text-[#cbc3d7] hover:text-[#d0bcff] transition-colors"
@@ -146,11 +153,11 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
               { href: "/", label: "홈" },
               { href: "/reading", label: "오늘의 운세" },
               { href: "/categories", label: "고민별 상담" },
-              { href: "/zodiac", label: "별자리" },
-              { href: "/compatibility", label: "궁합" },
-              { href: "/chat/charon_m", label: "오라클 채팅" },
-              { href: "/tarot", label: "타로" },
-            ].map((item) => (
+              { href: "/zodiac", label: "별자리", account: true },
+              { href: "/compatibility", label: "궁합", account: true },
+              { href: "/chat/charon_m", label: "오라클 채팅", account: true },
+              { href: "/tarot", label: "타로", account: true },
+            ].filter((item) => ACCOUNTS_ENABLED || !item.account).map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -162,7 +169,7 @@ export default function SajuNavbar({ isLoggedIn = false, isAdmin = false, onMenu
             ))}
           </nav>
 
-          {!isLoggedIn && (
+          {ACCOUNTS_ENABLED && !isLoggedIn && (
             <form action={async () => { await loginWithGoogle('/'); }} className="mt-4">
               <button type="submit" className="px-8 py-3 bg-gradient-to-r from-[#d0bcff] to-[#a078ff] text-[#3c0091] font-bold rounded-2xl text-base cursor-pointer">
                 구글로 시작하기

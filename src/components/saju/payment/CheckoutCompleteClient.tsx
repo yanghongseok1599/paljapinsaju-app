@@ -50,12 +50,10 @@ export default function CheckoutCompleteClient({ orderId }: { orderId: string | 
 
         // 확인이 끝난 주문 맥락은 치운다. 보류 상태는 남겨둬야
         // 사용자가 새로고침했을 때 무엇을 샀는지 다시 보여줄 수 있다.
-        if (result.status === "paid" || result.status === "already_processed") {
-          // 검증을 통과했으니 산 상품만 이 결과지에서 해제한다.
-          // 상품은 결제사가 확인해 준 planId 를 쓴다 (브라우저에 남긴 맥락은 바꿀 수 있다).
-          const paidPlanId = result.planId ?? context?.planId;
-          if (context?.readingId && paidPlanId) {
-            markUnlocked(context.readingId, paidPlanId, result.orderId ?? String(orderId));
+        if (result.status === "paid") {
+          // 결제사가 확인해 준 결과지·상품만 연다 (브라우저에 남긴 맥락은 바꿀 수 있다).
+          if (result.resultId && result.planId) {
+            markUnlocked(result.resultId, result.planId, result.orderId ?? String(orderId));
           }
           clearPendingOrder();
         }
@@ -88,6 +86,7 @@ export default function CheckoutCompleteClient({ orderId }: { orderId: string | 
   const { status, message } = view.result;
   const resolvedOrderId = view.result.orderId ?? orderId;
   const orderName = view.result.orderName ?? pending?.orderName;
+  const readingId = view.result.resultId ?? pending?.readingId;
 
   const presets: Record<
     ClaimStatus,
@@ -97,12 +96,6 @@ export default function CheckoutCompleteClient({ orderId }: { orderId: string | 
       icon: <CheckCircle2 className="h-10 w-10" style={{ color: "var(--read-tone-positive)" }} />,
       title: "결제가 완료됐어요",
       body: "주문이 정상적으로 확인됐습니다.",
-      tone: "var(--read-tone-positive)",
-    },
-    already_processed: {
-      icon: <CheckCircle2 className="h-10 w-10" style={{ color: "var(--read-tone-positive)" }} />,
-      title: "이미 처리된 주문이에요",
-      body: "결제는 정상 완료됐고, 중복으로 처리되지 않았습니다.",
       tone: "var(--read-tone-positive)",
     },
     unverified: {
@@ -151,9 +144,9 @@ export default function CheckoutCompleteClient({ orderId }: { orderId: string | 
       )}
 
       <div className="mt-6 flex w-full flex-col gap-2">
-        {pending?.readingId && (
+        {readingId && (
           <Link
-            href={`/reading/demo/${pending.readingId}`}
+            href={`/reading/demo/${readingId}`}
             className="w-full rounded-xl py-3.5 text-center text-sm font-semibold"
             style={{ backgroundColor: "var(--read-accent)", color: "var(--read-card)" }}
           >

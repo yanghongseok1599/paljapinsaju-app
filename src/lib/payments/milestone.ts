@@ -29,6 +29,8 @@ export interface CheckoutParams {
   returnUrl: string;
   /** 정기결제는 "billing" */
   paymentMode?: PaymentMode;
+  /** 결제한 결과지 ID. 마일스톤이 주문에 저장했다가 주문 조회 때 돌려준다 */
+  resultId?: string;
 }
 
 export function buildCheckoutUrl({
@@ -37,6 +39,7 @@ export function buildCheckoutUrl({
   orderName,
   returnUrl,
   paymentMode = "onetime",
+  resultId,
 }: CheckoutParams): string {
   const params = new URLSearchParams({
     paymentMode,
@@ -50,6 +53,8 @@ export function buildCheckoutUrl({
     amount: String(amount),
     orderName,
   });
+  // 결과는 이 결과지에서만 열린다 (claim 이 주문의 resultId 와 맞춰 본다)
+  if (resultId) params.set("resultId", resultId);
 
   // returnUrl은 맨 뒤에 둔다. 결제 측이 이 값 뒤에 ?orderId= 를 붙이므로
   // 로그에서 눈으로 확인하기 쉬운 위치가 낫다.

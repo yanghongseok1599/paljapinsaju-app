@@ -309,6 +309,14 @@ export const MOCK_DASHBOARD =
  * 서버 컴포넌트용 목 클라이언트.
  * 비로그인 방문자로 동작하며, 테이블 쿼리는 admin 목과 동일한 데이터셋을 본다.
  */
+/**
+ * Supabase 없이 운영할 때(회원 기능 꺼짐) 쓰는 비로그인 클라이언트.
+ * 운영에서도 쓴다 — 목 데이터를 보여주면 안 되므로 모든 조회가 빈 결과다.
+ */
+export function createSignedOutServerClient() {
+  return { ...createMockServerClient(), from: () => new MockQuery([]) };
+}
+
 export function createMockServerClient() {
   const noSession = { data: { user: null, session: null }, error: null };
   return {

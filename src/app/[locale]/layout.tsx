@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import { Noto_Sans_KR, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -215,7 +216,9 @@ export default async function LocaleLayout({
                   name: "팔자핀사주는 어떤 서비스인가요?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "팔자핀사주는 사주팔자 · 자미두수 · 서양점성술을 데이터 기반으로 통합 분석하는 AI 사주 서비스입니다. 생년월일시를 입력하면 AI가 성격, 연애, 재물, 직업, 건강 등을 실시간 채팅으로 분석해줍니다.",
+                    text: ACCOUNTS_ENABLED
+                      ? "팔자핀사주는 사주팔자 · 자미두수 · 서양점성술을 데이터 기반으로 통합 분석하는 AI 사주 서비스입니다. 생년월일시를 입력하면 AI가 성격, 연애, 재물, 직업, 건강 등을 실시간 채팅으로 분석해줍니다."
+                      : "팔자핀사주는 사주팔자 · 자미두수 · 서양점성술을 데이터 기반으로 통합 분석하는 사주 서비스입니다. 생년월일시를 입력하면 성격, 연애, 재물, 직업, 건강 등을 분석한 결과지를 바로 받아볼 수 있습니다.",
                   },
                 },
                 {
@@ -223,7 +226,9 @@ export default async function LocaleLayout({
                   name: "무료로 이용할 수 있나요?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "네, 가입 없이 무료로 사주 원국 요약을 받아볼 수 있고, 회원가입하면 AI 상담에 쓸 수 있는 별 3개를 드립니다.",
+                    text: ACCOUNTS_ENABLED
+                      ? "네, 가입 없이 무료로 사주 원국 요약을 받아볼 수 있고, 회원가입하면 AI 상담에 쓸 수 있는 별 3개를 드립니다."
+                      : "네, 가입 없이 무료로 사주 원국 요약과 일부 분석을 받아볼 수 있고, 전체 분석과 고민별 상담은 한 번 결제하면 열립니다.",
                   },
                 },
                 ...(STAR_SHOP_OPEN

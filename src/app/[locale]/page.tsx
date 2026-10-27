@@ -1,6 +1,6 @@
 import SajuLayout from "@/components/saju/layout/SajuLayout";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import CharacterCards from "@/components/saju/landing/CharacterCards";
-import SajuTestimonials from "@/components/saju/landing/SajuTestimonials";
 import SajuFAQ from "@/components/saju/landing/SajuFAQ";
 import SajuFooter from "@/components/saju/landing/SajuFooter";
 import LandingHero from "@/components/saju/landing/LandingHero";
@@ -46,13 +46,12 @@ export default async function HomePage() {
       {/* Hero — aurora + nebula bg, centered CTA */}
       <LandingHero isLoggedIn={!!user} />
 
-      {/* Character cards grid */}
-      <div style={{ backgroundColor: '#131318' }}>
-        <CharacterCards isLoggedIn={!!user} />
-      </div>
-
-      {/* Testimonials */}
-      <SajuTestimonials />
+      {/* Character cards grid — 상담사 채팅은 회원 기능 */}
+      {ACCOUNTS_ENABLED && (
+        <div style={{ backgroundColor: '#131318' }}>
+          <CharacterCards isLoggedIn={!!user} />
+        </div>
+      )}
 
       {/* FAQ */}
       <SajuFAQ />

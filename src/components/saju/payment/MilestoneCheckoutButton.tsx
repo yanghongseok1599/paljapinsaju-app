@@ -53,6 +53,7 @@ export default function MilestoneCheckoutButton({
         orderName: plan.orderName,
         returnUrl: `${window.location.origin}${RETURN_PATH}`,
         paymentMode: "onetime",
+        resultId: readingId,
       }),
     );
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/routing";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 
@@ -121,7 +122,7 @@ export default function LandingCTA() {
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
         >
           <Link
-            href="/chat/charon_m"
+            href={ACCOUNTS_ENABLED ? "/chat/charon_m" : "/reading"}
             className="group relative inline-flex items-center gap-4 px-14 py-6 font-bold text-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-[1.05]"
             style={{
               background: "linear-gradient(135deg, #d0bcff 0%, #a078ff 50%, #7040cc 100%)",

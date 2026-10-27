@@ -1,8 +1,12 @@
 "use client";
 
 import { Link } from "@/i18n/routing";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState, useCallback } from "react";
+
+// 회원 기능이 꺼져 있으면 상담사 채팅 대신 무료 체험으로 시작한다
+const START_HREF = ACCOUNTS_ENABLED ? "/chat/charon_m" : "/reading";
 
 interface LandingHeroProps {
   isLoggedIn?: boolean;
@@ -1171,7 +1175,7 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
               >
                 {isLoggedIn ? (
                   <Link
-                    href="/chat/charon_m"
+                    href={START_HREF}
                     className="group relative px-10 py-4 font-bold text-base rounded-2xl overflow-hidden flex items-center gap-3 transition-transform duration-200 hover:scale-[1.03]"
                     style={{
                       background:
@@ -1196,7 +1200,7 @@ export default function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                 ) : (
                   <>
                     <Link
-                      href="/chat/charon_m"
+                      href={START_HREF}
                       className="group relative px-10 py-4 font-bold text-base rounded-2xl overflow-hidden flex items-center gap-3 transition-transform duration-200 hover:scale-[1.03]"
                       style={{
                         background:

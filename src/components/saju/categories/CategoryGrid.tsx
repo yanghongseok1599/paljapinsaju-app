@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ACCOUNTS_ENABLED } from "@/lib/accounts";
 import { Link } from "@/i18n/routing";
 import { getCharacter } from "@/lib/saju/characters";
 import {
@@ -67,7 +68,7 @@ function CategoryCard({
       transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.3) }}
     >
       <Link
-        href={`/chat/${category.characterId}?category=${category.id}`}
+        href={ACCOUNTS_ENABLED ? `/chat/${category.characterId}?category=${category.id}` : `/reading?category=${category.id}`}
         className="group flex h-full flex-col rounded-2xl border border-[rgba(73,68,84,0.35)] bg-[#1a1a20] p-6 transition-colors duration-200 hover:border-[rgba(208,188,255,0.35)]"
       >
         {/* 상단: 액센트 바 + 배지 */}
